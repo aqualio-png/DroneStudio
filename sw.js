@@ -1,6 +1,6 @@
 /* DroneStudio : service worker (ouverture hors connexion).
    Change le numéro de version après une modification des icônes ou du manifeste. */
-const CACHE = 'dronestudio-v4';
+const CACHE = 'dronestudio-v5';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.ico'];
 
 self.addEventListener('install', e => {
@@ -23,6 +23,7 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  if (url.searchParams.has('vcheck')) return; /* vérification de version : toujours le réseau */
 
   /* Pages : réseau d'abord (mises à jour immédiates), cache si hors connexion */
   if (req.mode === 'navigate') {
