@@ -7,7 +7,7 @@
 <title>DroneStudio, le réalisateur de tes vols</title>
 <meta name="description" content="Montage automatique de vidéos de drone, calé sur la musique. Gratuit, sans compte, tout reste sur ton appareil.">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2310202E'/%3E%3Cpath d='M5 19.5h22' stroke='%23F2B35B' stroke-width='2.4'/%3E%3Cpath d='M9 19.5a7 7 0 0 1 14 0' fill='none' stroke='%23F2B35B' stroke-width='2.4'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox=%220 0 512 512%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Crect width=%22512%22 height=%22512%22 rx=%22112%22 fill=%22%23142A3B%22/%3E%3Cline x1=%22256%22 y1=%22256%22 x2=%22144%22 y2=%22144%22 stroke=%22%2393A9B6%22 stroke-width=%2220%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22256%22 y1=%22256%22 x2=%22368%22 y2=%22144%22 stroke=%22%2393A9B6%22 stroke-width=%2220%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22256%22 y1=%22256%22 x2=%22144%22 y2=%22368%22 stroke=%22%2393A9B6%22 stroke-width=%2220%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22256%22 y1=%22256%22 x2=%22368%22 y2=%22368%22 stroke=%22%2393A9B6%22 stroke-width=%2220%22 stroke-linecap=%22round%22/%3E%3Ccircle cx=%22144%22 cy=%22144%22 r=%2258%22 fill=%22%23162B3B%22 stroke=%22%23C9D6DD%22 stroke-width=%2213%22/%3E%3Cpath d=%22M111.52 144 A32.48 32.48 0 0 1 144 111.52%22 fill=%22none%22 stroke=%22%2393A9B6%22 stroke-width=%229.75%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M176.48 144 A32.48 32.48 0 0 1 144 176.48%22 fill=%22none%22 stroke=%22%2393A9B6%22 stroke-width=%229.75%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Ccircle cx=%22144%22 cy=%22144%22 r=%228%22 fill=%22%23C9D6DD%22/%3E%3Ccircle cx=%22368%22 cy=%22144%22 r=%2258%22 fill=%22%23162B3B%22 stroke=%22%23C9D6DD%22 stroke-width=%2213%22/%3E%3Cpath d=%22M335.52 144 A32.48 32.48 0 0 1 368 111.52%22 fill=%22none%22 stroke=%22%2393A9B6%22 stroke-width=%229.75%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M400.48 144 A32.48 32.48 0 0 1 368 176.48%22 fill=%22none%22 stroke=%22%2393A9B6%22 stroke-width=%229.75%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Ccircle cx=%22368%22 cy=%22144%22 r=%228%22 fill=%22%23C9D6DD%22/%3E%3Ccircle cx=%22144%22 cy=%22368%22 r=%2258%22 fill=%22%23162B3B%22 stroke=%22%23C9D6DD%22 stroke-width=%2213%22/%3E%3Cpath d=%22M111.52 368 A32.48 32.48 0 0 1 144 335.52%22 fill=%22none%22 stroke=%22%2393A9B6%22 stroke-width=%229.75%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M176.48 368 A32.48 32.48 0 0 1 144 400.48%22 fill=%22none%22 stroke=%22%2393A9B6%22 stroke-width=%229.75%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Ccircle cx=%22144%22 cy=%22368%22 r=%228%22 fill=%22%23C9D6DD%22/%3E%3Ccircle cx=%22368%22 cy=%22368%22 r=%2258%22 fill=%22%23162B3B%22 stroke=%22%23C9D6DD%22 stroke-width=%2213%22/%3E%3Cpath d=%22M335.52 368 A32.48 32.48 0 0 1 368 335.52%22 fill=%22none%22 stroke=%22%2393A9B6%22 stroke-width=%229.75%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M400.48 368 A32.48 32.48 0 0 1 368 400.48%22 fill=%22none%22 stroke=%22%2393A9B6%22 stroke-width=%229.75%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Ccircle cx=%22368%22 cy=%22368%22 r=%228%22 fill=%22%23C9D6DD%22/%3E%3Crect x=%22194%22 y=%22194%22 width=%22124%22 height=%22124%22 rx=%2230%22 fill=%22%23F2B35B%22/%3E%3Cpath d=%22M231.82 223.76 L289.852 256 L231.82 288.24 Z%22 fill=%22%2310202E%22 stroke=%22%2310202E%22 stroke-width=%228%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -176,46 +176,160 @@ body{height:auto;min-height:100dvh;overflow:auto}
 .step{flex:1;justify-content:center;padding:9px 6px}
 .work{grid-template-columns:minmax(0,1fr)}
 .stage{order:-1}
-.screen{height:min(58vh,125vw);padding:12px}
+.screen{height:calc(min(100vw - 24px, (62vh - 24px) * var(--arn,1.7778)) / var(--arn,1.7778) + 24px);padding:12px;transition:height .25s ease}
 .panel{border-right:0;border-top:1px solid var(--ridge);overflow:visible}
 .deck{padding:8px 12px 12px}
 .expbar{left:12px;right:12px;bottom:12px;flex-wrap:wrap}
 }
 @media (max-width:520px){#btnInstall span,.xl{display:none}.top #btnInstall{padding:10px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ===================== Interface v2 ===================== */
+:root{--night:#0B1621;--line:rgba(147,169,182,.17);--glass:rgba(16,32,46,.8)}
+body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,80,0) 62%),var(--strato)}
+.top{background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom-color:var(--line);position:relative;z-index:5;gap:12px}
+.brand{gap:11px}
+.brand svg{width:36px;height:36px;border-radius:10px;box-shadow:0 4px 14px -6px rgba(0,0,0,.7)}
+.steps{gap:2px;padding:5px;background:rgba(22,43,59,.75);border-color:var(--line)}
+.step{padding:7px 15px 7px 7px;gap:9px;transition:background .15s,color .15s}
+.step:hover{color:var(--cloud)}
+.step i{width:26px;height:26px;border:1.5px solid rgba(147,169,182,.6);display:grid;place-items:center;font:700 12.5px/1 var(--f);font-style:normal;background:transparent}
+.step.on i{border-color:var(--gold);color:var(--gold)}
+.step.done i{background:var(--gold);border-color:var(--gold);color:transparent;position:relative}
+.step.done i::after{content:"";position:absolute;width:9px;height:5px;border-left:2.2px solid #1A1206;border-bottom:2.2px solid #1A1206;transform:translateY(-1px) rotate(-45deg)}
+.btn{border-radius:12px;transition:background .15s,border-color .15s,box-shadow .15s,transform .08s}
+.btn svg{flex:none}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.primary{background:linear-gradient(180deg,#F7C77E,#EEA94A);border-color:#EEA94A;box-shadow:0 8px 20px -10px rgba(242,179,91,.65)}
+.btn.primary:hover:not(:disabled){filter:none;box-shadow:0 10px 26px -10px rgba(242,179,91,.85)}
+.btn.primary:disabled{background:var(--alt2);border-color:var(--ridge);box-shadow:none}
+.btn.ghost{border-color:var(--line);background:rgba(147,169,182,.07)}
+.btn.iconly{width:42px;height:42px;padding:0;border-radius:50%;font:700 17px/1 var(--f)}
+.top #btnInstall{padding:11px 14px}
+.panel{background:linear-gradient(180deg,rgba(24,46,63,.95),rgba(18,36,51,.97));border-right-color:var(--line);padding:24px 22px 0}
+.pane{padding-bottom:6px}
+.pane h2{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.pnum{width:30px;height:30px;border-radius:50%;background:var(--gold);color:#1A1206;font:800 14.5px/1 var(--f);font-stretch:100%;display:grid;place-items:center;flex:none}
+.lead{font-size:14.5px}
+.drop{flex-direction:column;align-items:center;gap:6px;padding:22px 18px;border-radius:14px;background:rgba(16,32,46,.45);border-color:rgba(147,169,182,.35);transition:border-color .15s,background .15s}
+.dropico{color:var(--gold);display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:rgba(242,179,91,.1);margin-bottom:2px}
+.clip{border-radius:12px;background:rgba(16,32,46,.7);border-color:var(--line)}
+.ctabar{position:sticky;bottom:0;z-index:4;margin:14px -22px 0;padding:16px 22px 20px;background:linear-gradient(180deg,rgba(18,36,51,0) 0,rgba(18,36,51,.96) 34%)}
+.ctabar .btn{margin:0;padding:15px 16px;font-size:15px}
+.linkbtn{display:block;margin-top:6px}
+.grp{border:1px solid var(--line);border-radius:14px;background:rgba(13,27,39,.5);margin:12px 0;overflow:hidden}
+.grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:11px;padding:14px 16px;font-weight:650;font-size:15px;user-select:none}
+.grp>summary::-webkit-details-marker{display:none}
+.grp>summary>svg{color:var(--gold)}
+.grp>summary::after{content:"";margin-left:auto;width:7px;height:7px;border-right:2px solid var(--mist);border-bottom:2px solid var(--mist);transform:translateY(-2px) rotate(45deg);transition:transform .18s}
+.grp[open]>summary::after{transform:translateY(2px) rotate(-135deg)}
+.grp>summary:hover{background:rgba(147,169,182,.05)}
+.grp>.gb{padding:2px 16px 16px}
+.grp>.gb>.field:first-child{margin-top:0}
+.grp .cnt{color:var(--mist);font-weight:500;margin-left:4px}
+.grp details.box{border-top-color:var(--line)}
+.seg{border-radius:12px;border-color:var(--line);background:rgba(11,22,33,.55)}
+.seg button{border-radius:9px;transition:background .12s,color .12s}
+.seg button:hover:not(.on){color:var(--cloud)}
+.sw{border-bottom-color:var(--line)}
+.look canvas{border-radius:8px}
+.stage{background:radial-gradient(900px 520px at 50% 32%,#14293B 0%,var(--night) 72%)}
+.frame{border-radius:16px;box-shadow:0 34px 90px -36px rgba(0,0,0,.85),0 0 0 1px var(--line);background:#081119}
+.vf{position:absolute;inset:14px;pointer-events:none;z-index:2}
+.vf i{position:absolute;width:24px;height:24px;border:2px solid rgba(234,241,244,.38);transition:border-color .35s}
+.vf i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-top-left-radius:6px}
+.vf i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-top-right-radius:6px}
+.vf i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-bottom-left-radius:6px}
+.vf i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-bottom-right-radius:6px}
+.frame.live .vf i{border-color:rgba(242,179,91,.9)}
+.fmtbadge{position:absolute;right:26px;top:22px;z-index:3;font:650 12px/1 var(--f);color:var(--cloud);background:rgba(8,17,25,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:6px 10px;border-radius:999px;display:none;pointer-events:none}
+.frame.has .fmtbadge{display:block}
+.empty{z-index:3}
+.emptyin{display:flex;flex-direction:column;align-items:center;max-width:460px}
+.emptyin .hero{width:118px;height:118px;filter:drop-shadow(0 18px 26px rgba(0,0,0,.5))}
+.emptyin .et{font-size:24px;margin:16px 0 4px}
+#emptyBtn{margin-top:18px;padding:13px 22px;font-size:15px}
+.howto{list-style:none;counter-reset:h;display:flex;gap:18px;margin:26px 0 0;padding:0;color:var(--mist);font-size:12.5px;text-align:left}
+.howto li{counter-increment:h;position:relative;padding-left:28px;max-width:150px;line-height:1.35}
+.howto li::before{content:counter(h);position:absolute;left:0;top:-1px;width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(242,179,91,.7);color:var(--gold);font:700 11px/17px var(--f);text-align:center}
+.howto b{color:var(--cloud);font-weight:600}
+.empty.ready .howto{display:none}
+.empty{container-type:size}
+@container (max-height:420px){.howto{display:none}}
+@container (max-height:320px){.empty .emptyin .hero{width:52px;height:52px}.empty .emptyin .et{font-size:17px;margin:8px 0 0;line-height:1.25}.empty .emptyin .es{display:none}.empty #emptyBtn{margin-top:10px;padding:10px 18px;font-size:14px}}
+@container (max-height:140px){.empty .emptyin .hero{display:none}}
+.deck{background:rgba(11,22,33,.85);border-top-color:var(--line)}
+.transport{gap:8px}
+.transport .ico:disabled{opacity:.35;cursor:not-allowed}
+.transport #tc{margin-left:8px}
+#btnCut{margin-left:auto}
+.round{width:44px;height:44px;box-shadow:0 8px 20px -10px rgba(242,179,91,.7)}
+.screen:fullscreen{background:#000;padding:0}
+.screen:fullscreen .frame{border-radius:0;box-shadow:none}
+.screen:-webkit-full-screen{background:#000;padding:0}
+#tip{position:fixed;left:0;top:0;z-index:70;max-width:min(290px,calc(100vw - 24px));padding:9px 12px;border-radius:10px;background:#EAF1F4;color:#10202E;font:500 13px/1.42 var(--f);box-shadow:0 14px 34px -12px rgba(0,0,0,.7);pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s;visibility:hidden}
+#tip.on{opacity:1;transform:none;visibility:visible}
+#tip::after{content:"";position:absolute;left:var(--ax,50%);width:10px;height:10px;background:#EAF1F4;transform:translateX(-50%) rotate(45deg)}
+#tip[data-pos=top]::after{bottom:-5px}
+#tip[data-pos=bottom]::after{top:-5px}
+#tip kbd{display:inline-block;margin-left:6px;font:650 11.5px/1 var(--f);padding:3px 6px;border-radius:5px;background:#D3DEE4;color:#10202E}
+#instDlg .keys{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;margin:4px 0 16px;font-size:14px;align-items:center}
+#instDlg .keys kbd{font:650 12px/1 var(--f);padding:5px 8px;border-radius:6px;background:var(--strato);border:1px solid var(--ridge);color:var(--cloud);justify-self:start}
+@media (max-width:900px){
+.ctabar{margin:14px -22px 0}
+.brand svg{width:32px;height:32px}
+.top .btn.iconly{width:38px;height:38px}
+.howto{gap:10px;font-size:12px}
+.emptyin .hero{width:84px;height:84px}
+.emptyin .et{font-size:20px}
+.fmtbadge{right:20px;top:18px}
+}
+@media (max-width:520px){
+.brand span{display:none}
+.steps{justify-content:space-between}
+.step{flex:0 1 auto;min-width:0;padding:5px;gap:7px}
+.step.on{flex:1 1 auto;padding-right:12px}
+.step:not(.on) span{display:none}
+.step span{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.step i{width:24px;height:24px}
+.howto{display:none}
+.transport #tc{margin-left:2px;font-size:14px}
+#shotInfo{display:none}
+}
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="#2D485B" stroke-width="2"/><path d="M4 18.5h24" stroke="#F2B35B" stroke-width="2"/><path d="M9 18.5a7 7 0 0 1 14 0" fill="none" stroke="#F2B35B" stroke-width="2"/></svg>DroneStudio</div>
+  <div class="brand"><svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#142A3B"/><line x1="256" y1="256" x2="144" y2="144" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="368" y2="144" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="144" y2="368" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="368" y2="368" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><circle cx="144" cy="144" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M111.52 144 A32.48 32.48 0 0 1 144 111.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M176.48 144 A32.48 32.48 0 0 1 144 176.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="144" cy="144" r="8" fill="#C9D6DD"/><circle cx="368" cy="144" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M335.52 144 A32.48 32.48 0 0 1 368 111.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M400.48 144 A32.48 32.48 0 0 1 368 176.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="368" cy="144" r="8" fill="#C9D6DD"/><circle cx="144" cy="368" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M111.52 368 A32.48 32.48 0 0 1 144 335.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M176.48 368 A32.48 32.48 0 0 1 144 400.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="144" cy="368" r="8" fill="#C9D6DD"/><circle cx="368" cy="368" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M335.52 368 A32.48 32.48 0 0 1 368 335.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M400.48 368 A32.48 32.48 0 0 1 368 400.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="368" cy="368" r="8" fill="#C9D6DD"/><rect x="194" y="194" width="124" height="124" rx="30" fill="#F2B35B"/><path d="M231.82 223.76 L289.852 256 L231.82 288.24 Z" fill="#10202E" stroke="#10202E" stroke-width="8" stroke-linejoin="round"/></svg><span>DroneStudio</span></div>
   <nav class="steps" role="tablist" aria-label="Étapes">
-    <button class="step on" data-tab="rushes" role="tab" aria-selected="true"><i></i>Rushes</button>
-    <button class="step" data-tab="analyse" role="tab" aria-selected="false"><i></i>Analyse</button>
-    <button class="step" data-tab="music" role="tab" aria-selected="false"><i></i>Musique</button>
-    <button class="step" data-tab="film" role="tab" aria-selected="false"><i></i>Film</button>
+    <button class="step on" data-tab="rushes" role="tab" aria-selected="true"><i>1</i><span>Rushes</span></button>
+    <button class="step" data-tab="analyse" role="tab" aria-selected="false"><i>2</i><span>Analyse</span></button>
+    <button class="step" data-tab="music" role="tab" aria-selected="false"><i>3</i><span>Musique</span></button>
+    <button class="step" data-tab="film" role="tab" aria-selected="false"><i>4</i><span>Film</span></button>
   </nav>
-  <button id="btnInstall" class="btn" type="button" aria-label="Installer l'app" hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Installer</span></button>
-  <button id="btnExport" class="btn primary" disabled>Exporter<span class="xl"> le film</span></button>
+  <button id="btnHelp" class="btn ghost iconly" type="button" aria-label="Aide">?</button>
+  <button id="btnInstall" class="btn" type="button" aria-label="Installer l'app" hidden></button>
+  <button id="btnExport" class="btn primary" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Exporter<span class="xl"> le film</span></button>
 </header>
 <main class="work">
   <aside class="panel">
     <section class="pane on" id="pane-rushes">
-      <h2>Tes rushes</h2>
+      <h2><span class="pnum">1</span>Tes rushes</h2>
       <p class="lead">Dépose les vidéos de ton vol. Tout est traité sur ton appareil : rien n'est envoyé en ligne.</p>
-      <label class="drop" id="drop"><input type="file" id="fileIn" accept="video/*,audio/*,.mov,.mp4,.m4v,.mp3,.wav,.m4a" multiple hidden><strong>Ajouter des rushes</strong><span>MP4 ou MOV, jusqu'à 4K 100 i/s. Tu peux aussi déposer ta musique ici.</span></label>
+      <label class="drop" id="drop"><input type="file" id="fileIn" accept="video/*,audio/*,.mov,.mp4,.m4v,.mp3,.wav,.m4a" multiple hidden><span class="dropico"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 16V5m0 0L7.5 9.5M12 5l4.5 4.5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>Ajouter des rushes</strong><span>MP4 ou MOV, jusqu'à 4K 100 i/s. Tu peux aussi déposer ta musique ici.</span></label>
       <ul id="clipList" class="cliplist"></ul>
-      <button id="btnAuto" class="btn primary wide" disabled>Monter mon film</button>
-      <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
+      <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
+      <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
-      <h2>Ce que l'analyse a vu</h2>
+      <h2><span class="pnum">2</span>Ce que l'analyse a vu</h2>
       <div id="anaOut"><p class="lead">Ajoute des rushes puis lance l'analyse depuis l'onglet Rushes.</p></div>
-      <button id="btnToMusic" class="btn primary wide" disabled>Choisir la musique</button>
+      <div class="ctabar"><button id="btnToMusic" class="btn primary wide" disabled>Choisir la musique</button></div>
     </section>
     <section class="pane" id="pane-music">
-      <h2>Bande-son</h2>
+      <h2><span class="pnum">3</span>Bande-son</h2>
       <p class="lead">Le montage se cale sur le rythme de la musique : chaque coupe tombe sur un temps, le plan le plus fort arrive sur le drop.</p>
       <div id="musicInfo" class="musicinfo" hidden></div>
       <div class="opt">
@@ -235,34 +349,40 @@ body{height:auto;min-height:100dvh;overflow:auto}
         <label class="btn wide"><input type="file" id="musicIn" accept="audio/*,.mp3,.wav,.m4a" hidden>Importer un morceau</label>
         <p class="fine">Compte gratuit Suno : 7 téléchargements au total et usage personnel uniquement. La bande-son composée ici n'a aucune limite.</p>
       </div>
-      <button id="btnEdit" class="btn primary wide" disabled>Monter le film</button>
+      <div class="ctabar"><button id="btnEdit" class="btn primary wide" disabled>Monter le film</button></div>
     </section>
     <section class="pane" id="pane-film">
-      <h2>Réalisation</h2>
+      <h2><span class="pnum">4</span>Ton film</h2>
+      <p class="lead">Chaque réglage s'applique tout de suite à l'aperçu. Exporte quand le film te plaît.</p>
+      <details class="grp" open><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Cadrage et rythme</span></summary><div class="gb">
       <div class="field"><span class="lbl">Format</span><div class="seg" id="segFormat"><button data-v="16:9">16:9</button><button data-v="9:16">9:16</button><button data-v="1:1">1:1</button><button data-v="4:5">4:5</button></div></div>
       <div class="field"><span class="lbl">Durée</span><div class="seg" id="segDur"><button data-v="15">15 s</button><button data-v="30">30 s</button><button data-v="60">60 s</button><button data-v="90">90 s</button><button data-v="full">Morceau</button></div></div>
       <div class="field"><span class="lbl">Rythme du montage</span><div class="seg" id="segRhythm"><button data-v="0">Posé</button><button data-v="1">Équilibré</button><button data-v="2">Nerveux</button></div></div>
-      <button id="btnTake" class="btn wide" disabled>Nouvelle prise</button>
-      <details class="box" id="shotsBox" open><summary>Plans du film <span id="shotsN"></span></summary>
+      <button id="btnTake" class="btn wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 5h14v14H5zM9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Nouvelle prise</button>
+      </div></details>
+      <details class="grp" id="shotsBox" open><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 9l1.2-4.4 15 2-1 2.4M8.5 5.2L10 9M13.5 5.9L15 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plans du film <span id="shotsN" class="cnt"></span></span></summary><div class="gb">
         <p class="fine">Retire un plan qui ne te plaît pas : un autre passage de tes rushes prend sa place, toujours calé sur la musique.</p>
         <ul id="shotList" class="shotlist"></ul>
         <button id="btnRestore" class="btn wide" type="button" hidden>Remettre les passages retirés</button>
-      </details>
-      <h3>Look</h3>
+      </div></details>
+      <details class="grp"><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 0 0 17zM12 3.5a8.5 8.5 0 0 1 0 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Look</span></summary><div class="gb">
       <div id="looks" class="looks"></div>
       <div class="field"><span class="lbl">Intensité du look</span><input type="range" id="lookAmt" min="0" max="100" value="85"></div>
-      <h3>Effets</h3>
+      </div></details>
+      <details class="grp"><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Effets</span></summary><div class="gb">
       <label class="sw">Bandes cinéma 2,39:1<input type="checkbox" id="optBars" checked></label>
       <label class="sw">Grain argentique<input type="checkbox" id="optGrain" checked></label>
       <label class="sw">Halo lumineux<input type="checkbox" id="optHal" checked></label>
       <label class="sw">Ralentis et accélérés<input type="checkbox" id="optRamps" checked></label>
       <label class="sw">Recadrage intelligent<input type="checkbox" id="optReframe" checked></label>
       <label class="sw">Pulsation sur le beat<input type="checkbox" id="optPulse" checked></label>
-      <h3>Titres</h3>
+      </div></details>
+      <details class="grp"><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 6V4.5h14V6M12 4.5v15M9 19.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Titres</span></summary><div class="gb">
       <input type="text" id="tTitle" placeholder="Titre du film" maxlength="40">
       <input type="text" id="tSub" placeholder="Lieu et date" maxlength="60">
       <input type="text" id="tCredit" placeholder="Crédit musique (générique de fin)" maxlength="80">
-      <h3>Export</h3>
+      </div></details>
+      <details class="grp" open><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Export</span></summary><div class="gb">
       <div class="field"><span class="lbl">Destination</span><div class="seg wrap" id="segDest"><button data-v="social">TikTok, Reels, Shorts</button><button data-v="insta">Publication Instagram</button><button data-v="yt">YouTube 4K</button><button data-v="tv">TV et archive</button></div></div>
       <p class="fine" id="destInfo"></p>
       <label class="sw">Netteté optimisée pour les réseaux<input type="checkbox" id="optSharp" checked></label>
@@ -272,6 +392,8 @@ body{height:auto;min-height:100dvh;overflow:auto}
       </details>
       <button id="btnCover" class="btn wide" type="button" disabled>Exporter l'image de couverture</button>
       <p class="fine">L'export se fait en temps réel : un film de 30 s prend 30 s. Garde la fenêtre au premier plan.</p>
+      </div></details>
+      <div class="ctabar"><button id="btnExport2" class="btn primary wide" type="button" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Exporter le film</button></div>
     </section>
   </aside>
   <section class="stage">
@@ -279,10 +401,14 @@ body{height:auto;min-height:100dvh;overflow:auto}
       <div class="frame" id="frame">
         <canvas id="gl"></canvas>
         <canvas id="scan"></canvas>
-        <div class="empty" id="empty"><div>
-          <svg viewBox="0 0 120 60" width="120" height="60" aria-hidden="true"><path d="M6 50H114" stroke="#2D485B" stroke-width="2"/><path d="M28 50a32 32 0 0 1 64 0" fill="none" stroke="#F2B35B" stroke-width="2"/><path d="M60 10v-7M36 19l-5-6M84 19l5-6" stroke="#F2B35B" stroke-width="2" stroke-linecap="round"/></svg>
+        <div class="vf" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <span class="fmtbadge" id="fmtBadge">16:9</span>
+        <div class="empty" id="empty"><div class="emptyin">
+          <svg class="hero" viewBox="40 40 432 432" aria-hidden="true"><line x1="256" y1="256" x2="144" y2="144" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="368" y2="144" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="144" y2="368" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="368" y2="368" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><circle cx="144" cy="144" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M111.52 144 A32.48 32.48 0 0 1 144 111.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M176.48 144 A32.48 32.48 0 0 1 144 176.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="144" cy="144" r="8" fill="#C9D6DD"/><circle cx="368" cy="144" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M335.52 144 A32.48 32.48 0 0 1 368 111.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M400.48 144 A32.48 32.48 0 0 1 368 176.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="368" cy="144" r="8" fill="#C9D6DD"/><circle cx="144" cy="368" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M111.52 368 A32.48 32.48 0 0 1 144 335.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M176.48 368 A32.48 32.48 0 0 1 144 400.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="144" cy="368" r="8" fill="#C9D6DD"/><circle cx="368" cy="368" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M335.52 368 A32.48 32.48 0 0 1 368 335.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M400.48 368 A32.48 32.48 0 0 1 368 400.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="368" cy="368" r="8" fill="#C9D6DD"/><rect x="194" y="194" width="124" height="124" rx="30" fill="#F2B35B"/><path d="M231.82 223.76 L289.852 256 L231.82 288.24 Z" fill="#10202E" stroke="#10202E" stroke-width="8" stroke-linejoin="round"/></svg>
           <p class="et" id="emptyT">Dépose les vidéos de ton vol</p>
           <p class="es" id="emptyS">ou clique ici pour les choisir</p>
+          <button id="emptyBtn" class="btn primary" type="button">Choisir mes vidéos</button>
+          <ol class="howto"><li><b>Dépose</b> tes rushes</li><li><b>L'app analyse</b>, compose et monte</li><li><b>Exporte</b> pour les réseaux ou la TV</li></ol>
         </div></div>
       </div>
       <div class="busy" id="busy" hidden><span id="busyT"></span><div class="bar"><i id="busyBar"></i></div></div>
@@ -294,7 +420,7 @@ body{height:auto;min-height:100dvh;overflow:auto}
       </div>
     </div>
     <div class="deck">
-      <div class="transport"><button id="btnPlay" class="round" disabled aria-label="Lecture"></button><span id="tc">0:00 / 0:00</span><span id="shotInfo"></span><button id="btnCut" class="ico" type="button" disabled aria-label="Retirer ce plan du film" title="Retirer ce plan du film"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10.5 10.5v5.5M13.5 10.5v5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="transport"><button id="btnPrev" class="ico" type="button" disabled aria-label="Plan précédent"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M18 6l-8 6 8 6zM6 6v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button id="btnPlay" class="round" disabled aria-label="Lecture"></button><button id="btnNext" class="ico" type="button" disabled aria-label="Plan suivant"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l8 6-8 6zM18 6v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span id="tc">0:00 / 0:00</span><span id="shotInfo"></span><button id="btnCut" class="ico" type="button" disabled aria-label="Retirer ce plan du film" title="Retirer ce plan du film"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10.5 10.5v5.5M13.5 10.5v5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button id="btnFull" class="ico" type="button" aria-label="Plein écran"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
       <canvas id="prof"></canvas>
     </div>
   </section>
@@ -304,6 +430,7 @@ body{height:auto;min-height:100dvh;overflow:auto}
   <div id="instBody"></div>
   <button id="instClose" class="btn primary wide" type="button">J'ai compris</button>
 </div></dialog>
+<div id="tip" role="tooltip"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
 (function(){
@@ -902,7 +1029,7 @@ function renderStyleChips(){
   const box=$('#styleChips');if(!box)return;box.innerHTML='';const autoK=resolveStyle('auto');
   STYLE_ORDER.forEach(k=>{
     const b=document.createElement('button');b.type='button';const on=S.st.style===k;
-    b.textContent=k==='auto'?'Auto ('+STYLES[autoK].name.toLowerCase()+')':STYLES[k].name;b.className=on?'on':'';b.setAttribute('aria-pressed',on?'true':'false');
+    b.textContent=k==='auto'?'Auto ('+STYLES[autoK].name.toLowerCase()+')':STYLES[k].name;b.className=on?'on':'';b.setAttribute('aria-pressed',on?'true':'false');b.dataset.tip=STYLE_TIP[k]||'';
     b.onclick=async()=>{if(composeBusy())return;S.st.style=k;renderStyleChips();renderSuno();
       if(S.music&&S.music.kind==='composed'&&S.music.key!==durKey()){await composeMusic();if(S.analyzed)makeEdit();}};
     box.appendChild(b);
@@ -1161,7 +1288,7 @@ const ov=document.createElement('canvas'),ovx=ov.getContext('2d');
 function outAspect(){const f=S.st.format;return f==='16:9'?16/9:(f==='9:16'?9/16:(f==='1:1'?1:0.8));}
 function setOutSize(w,h){glc.width=w;glc.height=h;ov.width=w;ov.height=h;if(gl)gl.viewport(0,0,w,h);P.dirty=true;}
 function previewSize(){const a=outAspect(),L=1280;return a>=1?[L,Math.round(L/a)]:[Math.round(L*a),L];}
-function applyFormat(){const fr=$('#frame');fr.style.setProperty('--ar',S.st.format.replace(':',' / '));fr.style.setProperty('--arn',String(outAspect()));if(!P.exporting){const s=previewSize();setOutSize(s[0],s[1]);}P.dirty=true;}
+function applyFormat(){const fb=$('#fmtBadge');if(fb)fb.textContent=S.st.format;const fr=$('#frame');fr.style.setProperty('--ar',S.st.format.replace(':',' / '));fr.style.setProperty('--arn',String(outAspect()));const sc=$('.screen');if(sc)sc.style.setProperty('--arn',String(outAspect()));if(!P.exporting){const s=previewSize();setOutSize(s[0],s[1]);}P.dirty=true;}
 function lookParams(){
   const st=S.st,L=LOOKS.find(l=>l.id===st.look)||LOOKS[0],a=st.amt;
   return{expo:L.expo*a,contr:L.contr*a,sat:lerp(1,L.sat,a),temp:L.temp*a,split:L.split*a,lift:L.lift*a,hal:st.hal?L.hal*a:0,grain:st.grain?Math.max(0.012,L.grain)*Math.max(0.5,a):0,vig:L.vig*a,logfix:(S.mood&&S.mood.flat)?1:0};
@@ -1267,7 +1394,7 @@ function paintLook(cv,L,src){
 function renderLooks(){
   const box=$('#looks');box.innerHTML='';const src=bestThumb();
   LOOKS.forEach(L=>{
-    const b=document.createElement('button');b.type='button';b.className='look'+(S.st.look===L.id?' on':'');
+    const b=document.createElement('button');b.type='button';b.className='look'+(S.st.look===L.id?' on':'');b.dataset.tip=LOOK_TIP[L.id]||'';
     const cv=document.createElement('canvas');cv.width=96;cv.height=54;const sp=document.createElement('span');sp.textContent=L.name;
     if(S.mood&&S.mood.look===L.id){const em=document.createElement('em');em.textContent='suggéré';sp.appendChild(em);}
     b.append(cv,sp);b.onclick=()=>{S.st.look=L.id;S.st.lookUser=true;$$('.look',box).forEach(z=>z.classList.toggle('on',z===b));P.dirty=true;};
@@ -1328,7 +1455,7 @@ function togglePlay(){if(!S.edit||P.exporting)return;if(P.playing)pause();else p
 function seek(t){const E=S.edit;if(!E)return;t=clamp(t,0,E.T-0.01);if(P.playing)play(t);else{P.t=t;P.dirty=true;}}
 const IPLAY='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 5.5v13l11-6.5z"/></svg>';
 const IPAUSE='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
-function updPlayBtn(){const b=$('#btnPlay');b.innerHTML=P.playing?IPAUSE:IPLAY;b.setAttribute('aria-label',P.playing?'Pause':'Lecture');}
+function updPlayBtn(){$('#frame').classList.toggle('live',P.playing);const b=$('#btnPlay');b.innerHTML=P.playing?IPAUSE:IPLAY;b.setAttribute('aria-label',P.playing?'Pause':'Lecture');}
 function shotText(k){
   const E=S.edit,sh=E&&E.shots[k];if(!sh)return'';
   const r0=sh.rates[0].r;let r='';
@@ -1444,7 +1571,8 @@ function setTab(name){
 function refreshEmpty(){
   const scanning=$('#frame').classList.contains('scanning');$('#empty').hidden=!!S.edit||scanning;glc.style.visibility=S.edit?'visible':'hidden';
   $('#emptyT').textContent=S.clips.length?'Prêt à décoller':'Dépose les vidéos de ton vol';
-  $('#emptyS').textContent=S.clips.length?"Clique sur Monter mon film : analyse, musique et montage s'enchaînent.":'ou clique ici pour les choisir';
+  $('#emptyS').textContent=S.clips.length?"Analyse, musique et montage s'enchaînent tout seuls. Clique ailleurs pour ajouter d'autres rushes.":'ou clique ici pour les choisir';
+  $('#empty').classList.toggle('ready',S.clips.length>0);$('#frame').classList.toggle('has',!!S.edit);$('#emptyBtn').textContent=S.clips.length?'Monter mon film':'Choisir mes vidéos';
 }
 function updateButtons(){
   const has=S.clips.length>0,rush=S.clips.some(c=>!c.insert);
@@ -1456,6 +1584,7 @@ function updateButtons(){
   $$('.step').forEach(b=>b.classList.toggle('done',!!done[b.dataset.tab]));
 }
 function invalidateEdit(){pause();S.edit=null;resetDecks();P.t=0;refreshEmpty();drawProfileStatic();updateButtons();$('#tc').textContent='0:00 / 0:00';$('#shotInfo').textContent='';renderShotList();}
+function showStage(){try{if(window.matchMedia('(max-width:900px)').matches){const r=$('.stage').getBoundingClientRect();if(r.top<0||r.top>window.innerHeight*0.3)window.scrollTo({top:Math.max(0,window.scrollY+r.top-8),behavior:'smooth'});}}catch(e){}}
 function makeEdit(){
   pause();resetDecks();S.edit=buildEdit();
   if(!S.edit){toast('Impossible de monter le film avec ces rushes.',6000);refreshEmpty();updateButtons();return false;}
@@ -1471,7 +1600,7 @@ async function autoFilm(){
   if(!S.analyzed){const ok=await analyseAll();if(!ok)return;}
   if(!S.music||(S.music.kind==='composed'&&S.music.key!==durKey()))await composeMusic();
   if(!S.music)return;
-  if(makeEdit()){setTab('film');play(0);}
+  if(makeEdit()){setTab('film');showStage();play(0);}
 }
 function syncControls(){
   [['#segFormat','format'],['#segDur','dur'],['#segRhythm','rhythm'],['#segRes','res'],['#segFps','fps'],['#segDest','dest']].forEach(p=>{$$('button',$(p[0])).forEach(b=>b.classList.toggle('on',b.dataset.v===String(S.st[p[1]])));});
@@ -1631,7 +1760,7 @@ $('#btnAnalyse').addEventListener('click',()=>{analyseAll();});
 $('#btnToMusic').addEventListener('click',()=>setTab('music'));
 $('#btnCompose').addEventListener('click',async()=>{audio();await composeMusic();});
 $('#btnCopySuno').addEventListener('click',copySuno);
-$('#btnEdit').addEventListener('click',async()=>{audio();if(!S.music||(S.music.kind==='composed'&&S.music.key!==durKey()))await composeMusic();if(S.music&&makeEdit()){setTab('film');play(0);}});
+$('#btnEdit').addEventListener('click',async()=>{audio();if(!S.music||(S.music.kind==='composed'&&S.music.key!==durKey()))await composeMusic();if(S.music&&makeEdit()){setTab('film');showStage();play(0);}});
 $('#btnTake').addEventListener('click',()=>{S.st.seed++;const w=P.playing;if(makeEdit()&&w)play(0);toast('Prise '+S.st.seed+' : nouveau choix de plans et de transitions.');});
 $('#btnPlay').addEventListener('click',togglePlay);
 $('#btnExport').addEventListener('click',exportFilm);
@@ -1671,7 +1800,7 @@ const IS_WIN=/Windows/.test(UA);
 const ISHARE='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3v12M12 3L8 7M12 3l4 4M7 11H5.5v9.5h13V11H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ILINK='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L19 5M10 5h9v9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const IHOME='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8.5v6M9 11.5h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
-const ISUN='<svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#10202E"/><path d="M5 19.5h22" stroke="#F2B35B" stroke-width="2.4"/><path d="M9 19.5a7 7 0 0 1 14 0" fill="none" stroke="#F2B35B" stroke-width="2.4"/></svg>';
+const ISUN='<svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#142A3B"/><path d="M9 9l14 14M23 9L9 23" stroke="#93A9B6" stroke-width="2.2"/><g fill="#142A3B" stroke="#C8D6DE" stroke-width="2.2"><circle cx="9" cy="9" r="4.6"/><circle cx="23" cy="9" r="4.6"/><circle cx="9" cy="23" r="4.6"/><circle cx="23" cy="23" r="4.6"/></g><rect x="11.5" y="11.5" width="9" height="9" rx="2.2" fill="#F2B35B"/><path d="M14.6 13.6v4.8l3.9-2.4z" fill="#10202E"/></svg>';
 function onlineHere(){return /^https?:$/.test(location.protocol);}
 function appUrl(){return onlineHere()?new URL('./',location.href).href:APP_URL;}
 function isStandalone(){try{return window.matchMedia('(display-mode: standalone)').matches||window.matchMedia('(display-mode: window-controls-overlay)').matches||navigator.standalone===true;}catch(e){return navigator.standalone===true;}}
@@ -1749,10 +1878,152 @@ if('launchQueue' in window&&window.launchQueue&&typeof window.launchQueue.setCon
   window.launchQueue.setConsumer(async lp=>{if(!lp||!lp.files||!lp.files.length)return;const fs=[];for(const h of lp.files){try{fs.push(await h.getFile());}catch(e){}}if(fs.length){setTab('rushes');handleFiles(fs);}});
 }
 
+/* ========== Interface v2 : infobulles, aide, lecteur ========== */
+const LOOK_TIP={natural:"Couleurs fidèles, avec juste un peu plus de contraste.",golden:"Tons chauds et doux, comme au coucher du soleil.",teal:"Ombres bleutées et lumières dorées : le look des films d'action.",medi:"Bleus profonds et couleurs franches, idéal pour la mer et le ciel.",nordic:"Couleurs froides et adoucies : montagne, brume, hiver.",film:"Contraste et grain de pellicule argentique.",night:"Contrastes forts et halos lumineux pour les vols de nuit.",mono:"Noir et blanc contrasté, avec du grain."};
+const STYLE_TIP={auto:"L'app choisit le style d'après l'ambiance de tes images.",epic:"Orchestre et grosses percussions, pour les grands paysages.",ambient:"Nappes planantes et douces, pour un vol contemplatif.",chill:"Électro posée et lumineuse, idéale pour les réseaux.",house:"Rythme dansant, pour des coupes énergiques.",synth:"Synthés rétro des années 80, parfait de nuit ou en ville.",lofi:"Beat feutré et détendu.",piano:"Piano et cordes, pour l'émotion et la lumière dorée."};
+const TIPS=[
+ ['#pane-film details.grp:nth-of-type(1)>summary',"Format de l'image, durée du film et vitesse des coupes"],
+ ['#shotsBox>summary',"La liste des plans dans l'ordre du film. Clique un plan pour y aller"],
+ ['#pane-film details.grp:nth-of-type(3)>summary',"L'étalonnage : couleurs et ambiance de l'image"],
+ ['#pane-film details.grp:nth-of-type(4)>summary',"Bandes cinéma, grain, halo, ralentis, recadrage"],
+ ['#pane-film details.grp:nth-of-type(5)>summary',"Titre d'ouverture, lieu et date, générique de fin"],
+ ['#pane-film details.grp:nth-of-type(6)>summary',"Destination, qualité et image de couverture"],
+ ['#pane-film details.box>summary',"Définition et images par seconde, pour les experts"],
+ ['.step[data-tab=rushes]',"Étape 1 : ajoute les vidéos de ton vol."],
+ ['.step[data-tab=analyse]',"Étape 2 : ambiance, manœuvres et meilleurs moments repérés dans tes images."],
+ ['.step[data-tab=music]',"Étape 3 : compose une bande-son ou importe un morceau."],
+ ['.step[data-tab=film]',"Étape 4 : format, look, titres, puis export du film."],
+ ['#btnHelp',"Comment ça marche et raccourcis clavier|?"],
+ ['#btnExport',"Enregistrer le film en vidéo, prêt à partager"],
+ ['#btnExport2',"Enregistrer le film en vidéo, prêt à partager"],
+ ['#drop',"Glisse tes vidéos ici ou clique pour les choisir. Elles restent sur ton appareil."],
+ ['#btnAuto',"Analyse, musique et montage en un seul clic"],
+ ['#btnAnalyse',"Analyser les rushes sans lancer le montage"],
+ ['#btnPrivacy',"Effacer les traces de l'app et la retirer de l'appareil"],
+ ['#btnToMusic',"Passer au choix de la bande-son"],
+ ['#btnCompose',"Composer une musique originale, calée sur ton film"],
+ ['#btnPropose',"Composer 3 musiques de styles différents, à écouter avant de choisir"],
+ ['#sunoPrompt',"Prompt écrit d'après l'ambiance de tes images, à coller dans le champ Style de Suno"],
+ ['#btnCopySuno',"Copier le prompt dans le presse-papiers"],
+ ['a[href="https://suno.com/create"]',"Ouvre Suno dans un nouvel onglet"],
+ ['label:has(#musicIn)',"Importer un MP3 ou un WAV : l'app choisit seule le meilleur passage"],
+ ['#btnEdit',"Monter le film sur la musique choisie"],
+ ['#segFormat [data-v="16:9"]',"Paysage : YouTube, télévision"],
+ ['#segFormat [data-v="9:16"]',"Vertical : TikTok, Reels, Shorts"],
+ ['#segFormat [data-v="1:1"]',"Carré : publication Instagram ou Facebook"],
+ ['#segFormat [data-v="4:5"]',"Portrait : prend le plus de place dans le fil Instagram"],
+ ['#segDur [data-v="15"]',"Teaser très court"],
+ ['#segDur [data-v="30"]',"Le format idéal pour Reels et TikTok"],
+ ['#segDur [data-v="60"]',"Court-métrage d'une minute"],
+ ['#segDur [data-v="90"]',"Film plus long, pour YouTube ou la télé"],
+ ['#segDur [data-v="full"]',"Toute la durée du morceau importé"],
+ ['#segRhythm [data-v="0"]',"Plans longs et fondus doux"],
+ ['#segRhythm [data-v="1"]',"Alternance de plans longs et courts"],
+ ['#segRhythm [data-v="2"]',"Coupes rapides sur le beat, idéal pour les réseaux"],
+ ['#btnTake',"Un autre montage avec la même musique : autres plans, autres transitions"],
+ ['#lookAmt',"Dosage du look, de discret à prononcé"],
+ ['label.sw:has(#optBars)',"Bandes noires en haut et en bas pour un cadre cinéma (format paysage)"],
+ ['label.sw:has(#optGrain)',"Léger grain de pellicule pour un rendu film"],
+ ['label.sw:has(#optHal)',"Diffuse les hautes lumières comme un objectif de cinéma"],
+ ['label.sw:has(#optRamps)',"Ralentis sur les plans forts et accélération avant le drop, selon la cadence de tes rushes"],
+ ['label.sw:has(#optReframe)',"En vertical ou en carré, le cadre suit le sujet principal"],
+ ['label.sw:has(#optPulse)',"Léger zoom sur chaque temps fort, pendant le sommet du film"],
+ ['label.sw:has(#optSharp)',"Renforce les détails pour compenser la compression des réseaux"],
+ ['#tTitle',"Affiché au début du film"],
+ ['#tSub',"Affiché sous le titre"],
+ ['#tCredit',"Affiché dans le générique de fin"],
+ ['#segDest [data-v="social"]',"Vertical 1080 × 1920, 30 i/s"],
+ ['#segDest [data-v="insta"]',"Portrait 1080 × 1350"],
+ ['#segDest [data-v="yt"]',"4K paysage : YouTube conserve une meilleure qualité"],
+ ['#segDest [data-v="tv"]',"1080p à 60 i/s, mouvements très fluides"],
+ ['#segRes [data-v="hd"]',"1920 × 1080 : export rapide et léger"],
+ ['#segRes [data-v="4k"]',"3840 × 2160 : plus net, demande un ordinateur récent"],
+ ['#segFps [data-v="30"]',"Standard des réseaux sociaux"],
+ ['#segFps [data-v="60"]',"Plus fluide, fichier plus lourd"],
+ ['#btnCover',"Image du plan héros, à utiliser comme miniature"],
+ ['#btnRestore',"Remettre dans le film tous les passages retirés"],
+ ['#btnPrev',"Plan précédent|←"],
+ ['#btnPlay',"Lecture ou pause|Espace"],
+ ['#btnNext',"Plan suivant|→"],
+ ['#btnFull',"Plein écran|F"],
+ ['#btnCut',"Retirer ce plan : un autre passage prend sa place"],
+ ['#prof',"Profil de vol : sections du film, énergie de la musique et plans. Clique ou glisse pour te déplacer."],
+ ['#emptyBtn',"Choisir les vidéos de ton vol"]
+];
+function applyTips(){TIPS.forEach(t=>{let els=[];try{els=$$(t[0]);}catch(e){}els.forEach(el=>{el.removeAttribute('title');el.dataset.tip=t[1];});});}
+const tipEl=$('#tip');let tipT=0,lpT=0,tipFor=null,tipWarm=0,tipLong=null;
+function tipText(el){if(el.hasAttribute('title')){const t=el.getAttribute('title');el.removeAttribute('title');if(t&&!el.dataset.tip)el.dataset.tip=t;}return el.dataset.tip||'';}
+function showTip(el){
+  const txt=tipText(el);if(!txt||!el.isConnected)return;
+  const parts=txt.split('|');tipEl.textContent=parts[0];
+  if(parts[1]&&!IS_MOBILE){const k=document.createElement('kbd');k.textContent=parts[1];tipEl.appendChild(k);}
+  tipEl.style.left='0px';tipEl.style.top='0px';tipEl.classList.add('on');
+  const r=el.getBoundingClientRect(),w=tipEl.offsetWidth,h=tipEl.offsetHeight,vw=window.innerWidth,vh=window.innerHeight;
+  let pos='top',y=r.top-h-10;if(y<8){pos='bottom';y=r.bottom+10;}if(y+h>vh-8)y=Math.max(8,vh-h-8);
+  const x=clamp(r.left+r.width/2-w/2,8,Math.max(8,vw-w-8));
+  tipEl.style.left=Math.round(x)+'px';tipEl.style.top=Math.round(y)+'px';tipEl.dataset.pos=pos;
+  tipEl.style.setProperty('--ax',clamp(r.left+r.width/2-x,12,Math.max(12,w-12))+'px');tipFor=el;
+}
+function hideTip(){clearTimeout(tipT);clearTimeout(lpT);if(tipFor)tipWarm=performance.now();tipEl.classList.remove('on');tipFor=null;}
+const tipTarget=el=>(el&&el.closest)?el.closest('[data-tip],[title]'):null;
+document.addEventListener('pointerover',e=>{
+  if(e.pointerType==='touch')return;const el=tipTarget(e.target);if(!el||el===tipFor||el.closest('dialog'))return;
+  tipText(el);clearTimeout(tipT);tipT=setTimeout(()=>showTip(el),performance.now()-tipWarm<500?40:420);
+});
+document.addEventListener('pointerout',e=>{const el=tipTarget(e.target);if(!el)return;if(e.relatedTarget&&el.contains(e.relatedTarget))return;clearTimeout(tipT);if(tipFor===el)hideTip();});
+document.addEventListener('focusin',e=>{const el=tipTarget(e.target);if(!el||el.closest('dialog'))return;let fv=false;try{fv=el.matches(':focus-visible');}catch(err){}if(fv)showTip(el);});
+document.addEventListener('focusout',hideTip);
+document.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')hideTip();});
+document.addEventListener('touchstart',e=>{
+  const el=tipTarget(e.target);if(!el||el.closest('dialog'))return;tipText(el);clearTimeout(lpT);
+  lpT=setTimeout(()=>{showTip(el);tipLong=el;clearTimeout(tipT);tipT=setTimeout(hideTip,2800);setTimeout(()=>{if(tipLong===el)tipLong=null;},1500);},480);
+},{passive:true});
+document.addEventListener('touchmove',()=>clearTimeout(lpT),{passive:true});
+document.addEventListener('touchend',()=>clearTimeout(lpT),{passive:true});
+document.addEventListener('click',e=>{if(tipLong&&tipLong.contains(e.target)){e.preventDefault();e.stopPropagation();tipLong=null;}},true);
+document.addEventListener('contextmenu',e=>{if(tipFor&&tipFor.contains(e.target))e.preventDefault();});
+window.addEventListener('scroll',hideTip,true);window.addEventListener('resize',hideTip);
+function helpDialog(){
+  hideTip();const k=dlgKit('Comment ça marche');
+  k.steps(["<b>Dépose tes rushes</b> : glisse les vidéos du vol dans la page, ou utilise Ajouter des rushes.","<b>Monter mon film</b> : l'app repère les plus beaux passages, compose une musique et monte le film sur le rythme.","<b>Ajuste</b> dans l'onglet Film : format, durée, look, titres. <b>Nouvelle prise</b> propose un autre montage, la corbeille retire un plan.","<b>Exporte</b> : choisis une destination (TikTok, Instagram, YouTube, TV), puis Exporter le film."]);
+  k.para(IS_MOBILE?"Appui long sur un bouton pour afficher son explication.":"Survole un bouton pour afficher son explication.");
+  if(!IS_MOBILE){const h=document.createElement('h3');h.textContent='Raccourcis clavier';k.box.appendChild(h);const d=document.createElement('div');d.className='keys';d.innerHTML='<kbd>Espace</kbd><span>Lecture ou pause</span><kbd>← →</kbd><span>Plan précédent ou suivant</span><kbd>F</kbd><span>Plein écran</span><kbd>?</kbd><span>Cette aide</span>';k.box.appendChild(d);}
+  openDlg();
+}
+function gotoShot(d){
+  const E=S.edit;if(!E||P.exporting)return;const t=P.playing?clock():P.t;let k=shotAt(t);
+  if(!(d<0&&t-E.shots[k].start>0.6))k=clamp(k+d,0,E.shots.length-1);
+  seek(E.shots[k].start+0.01);updTC(P.t);
+}
+function toggleFull(){
+  const sc=$('.screen'),fe=document.fullscreenElement||document.webkitFullscreenElement;
+  if(fe){const ex=document.exitFullscreen||document.webkitExitFullscreen;if(ex)ex.call(document);return;}
+  const rq=sc.requestFullscreen||sc.webkitRequestFullscreen;
+  if(!rq){toast("Le plein écran n'est pas disponible sur cet appareil.");return;}
+  try{const p=rq.call(sc);if(p&&p.catch)p.catch(()=>toast("Le plein écran n'est pas disponible ici."));}catch(e){toast("Le plein écran n'est pas disponible ici.");}
+}
+function mirrorDisabled(src,dsts){const s0=$(src);const f=()=>dsts.forEach(d=>{const el=$(d);if(el)el.disabled=s0.disabled;});new MutationObserver(f).observe(s0,{attributes:true,attributeFilter:['disabled']});f();}
+mirrorDisabled('#btnPlay',['#btnPrev','#btnNext']);mirrorDisabled('#btnExport',['#btnExport2']);
+$('#btnExport2').addEventListener('click',()=>$('#btnExport').click());
+$('#btnPrev').addEventListener('click',()=>gotoShot(-1));
+$('#btnNext').addEventListener('click',()=>gotoShot(1));
+$('#btnFull').addEventListener('click',toggleFull);
+if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled))$('#btnFull').hidden=true;
+$('#btnHelp').addEventListener('click',helpDialog);
+$('#emptyBtn').addEventListener('click',e=>{if(S.clips.length){e.stopPropagation();autoFilm();}});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){hideTip();return;}
+  const tg=(e.target&&e.target.tagName)||'';if(['INPUT','TEXTAREA','SELECT'].indexOf(tg)>=0||e.ctrlKey||e.metaKey||e.altKey)return;if($('#instDlg').open)return;
+  if(e.key==='ArrowLeft'&&S.edit){e.preventDefault();gotoShot(-1);}
+  else if(e.key==='ArrowRight'&&S.edit){e.preventDefault();gotoShot(1);}
+  else if((e.key==='f'||e.key==='F')&&S.edit){e.preventDefault();toggleFull();}
+  else if(e.key==='?'){e.preventDefault();helpDialog();}
+});
+
 /* ========== Démarrage ========== */
 try{glInit();}catch(e){R.ok=false;toast('Erreur graphique : '+e.message,9000);}
 if(document.fonts&&document.fonts.load){Promise.all([document.fonts.load('700 40px Archivo'),document.fonts.load('400 20px Archivo')]).then(()=>{P.dirty=true;drawProfileStatic();}).catch(()=>{});}
-applyFormat();renderLooks();renderSuno();syncControls();updateButtons();updPlayBtn();refreshEmpty();drawProfileStatic();setupInstallBtn();updInstallBtn();
+applyFormat();renderLooks();renderSuno();syncControls();updateButtons();updPlayBtn();refreshEmpty();drawProfileStatic();setupInstallBtn();updInstallBtn();applyTips();
 requestAnimationFrame(loop);
 })();
 
