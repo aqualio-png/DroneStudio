@@ -8,6 +8,7 @@
 <meta name="description" content="Montage automatique de vidéos de drone, calé sur la musique. Gratuit, sans compte, tout reste sur ton appareil.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2310202E'/%3E%3Cpath d='M5 19.5h22' stroke='%23F2B35B' stroke-width='2.4'/%3E%3Cpath d='M9 19.5a7 7 0 0 1 14 0' fill='none' stroke='%23F2B35B' stroke-width='2.4'/%3E%3C/svg%3E">
+<link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -162,6 +163,8 @@ details.box[open] summary::after{content:"\2212"}
 #instDlg li{margin:9px 0;padding-left:2px}
 #instDlg li svg{vertical-align:-4px;color:var(--gold)}
 #instDlg b{font-weight:650;color:var(--cloud)}
+#instDlg .dragurl{display:inline-flex;align-items:center;gap:9px;padding:8px 14px 8px 9px;margin:0 0 14px;border:1.5px dashed var(--gold);border-radius:999px;color:var(--cloud);text-decoration:none;font-weight:650;font-size:14px;cursor:grab;background:var(--strato)}
+#instDlg .dragurl:active{cursor:grabbing}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--cloud);color:var(--strato);padding:11px 16px;border-radius:10px;font-weight:550;font-size:14px;opacity:0;pointer-events:none;transition:.25s;max-width:min(560px,90vw);z-index:50}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 @media (max-width:900px){
@@ -1603,9 +1606,9 @@ function privacyDialog(){
   box.appendChild(b);
   head("2. Retirer l'app de l'appareil");
   if(IS_IOS)steps(["Appui long sur l'icône DroneStudio de l'écran d'accueil.","Choisis l'option de suppression (<b>Supprimer l'app</b> ou <b>Supprimer le signet</b> selon la version d'iOS), puis confirme."]);
-  else if(IS_MAC_SAFARI)steps(["Favori : clic droit sur le favori DroneStudio, puis <b>Supprimer</b>.","Si tu l'as ajoutée au Dock : retire-la du Dock.","Dans le Finder : menu <b>Aller</b>, <b>Départ</b>, dossier <b>Applications</b>. Mets DroneStudio à la corbeille."]);
+  else if(IS_MAC_SAFARI)steps(["Raccourci : mets le fichier DroneStudio du bureau ou du Dock à la corbeille. Favori : clic droit, <b>Supprimer</b>.","Si tu l'as ajoutée au Dock : retire-la du Dock.","Dans le Finder : menu <b>Aller</b>, <b>Départ</b>, dossier <b>Applications</b>. Mets DroneStudio à la corbeille."]);
   else if(/Android/.test(UA))steps(["Appui long sur l'icône DroneStudio.","Choisis <b>Désinstaller</b> (ou fais-la glisser vers Désinstaller)."]);
-  else steps(["Favori : clic droit sur le favori DroneStudio, puis <b>Supprimer</b>.","Si tu l'as installée comme une application : dans sa fenêtre, menu (les trois points), <b>Désinstaller DroneStudio</b>.","Ou sous Windows : <b>Paramètres</b>, <b>Applications</b>, <b>Applications installées</b>, DroneStudio, <b>Désinstaller</b>."]);
+  else steps(["Raccourci : mets le fichier DroneStudio du bureau à la corbeille. Favori : clic droit, <b>Supprimer</b>.","Si tu l'as installée comme une application : dans sa fenêtre, menu (les trois points), <b>Désinstaller DroneStudio</b>.","Ou sous Windows : <b>Paramètres</b>, <b>Applications</b>, <b>Applications installées</b>, DroneStudio, <b>Désinstaller</b>."]);
   para("Attention : si la fenêtre de désinstallation propose aussi d'effacer les données du site, ne coche pas cette case. Elle vise toute l'adresse "+(location.host||'du site')+", donc aussi tes autres outils hébergés au même endroit. Le bouton de l'étape 1 suffit pour DroneStudio.");
   head('3. Facultatif');
   para("Supprime de ton dossier Téléchargements les films, couvertures et bandes-son WAV dont tu n'as plus besoin. Dans l'historique du navigateur, cherche dronestudio et supprime les entrées. Tes rushes d'origine ne sont jamais modifiés.");
@@ -1654,7 +1657,8 @@ $('#tCredit').addEventListener('input',e=>{S.st.credit=e.target.value;S.st.credi
 document.addEventListener('keydown',e=>{const tg=(e.target&&e.target.tagName)||'';if(e.code==='Space'&&['INPUT','TEXTAREA','BUTTON','SELECT'].indexOf(tg)<0&&S.edit){e.preventDefault();togglePlay();}});
 let rsT=0;window.addEventListener('resize',()=>{clearTimeout(rsT);rsT=setTimeout(()=>{drawProfileStatic();if($('#frame').classList.contains('scanning'))fitCanvas(scanCv);},120);});
 
-/* ========== Raccourci : icône sur le téléphone, favori sur PC ========== */
+/* ========== Raccourci vers le lien GitHub, avec icône ========== */
+const APP_URL='https://aqualio-png.github.io/dronestudio/';
 let deferredInstall=null;
 const UA=navigator.userAgent||'';
 const IS_IOS=/iPad|iPhone|iPod/.test(UA)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -1663,14 +1667,18 @@ const IS_CHROMIUM=!IS_IOS&&/Chrome|Chromium|Edg\//.test(UA);
 const IS_ANDROID=/Android/.test(UA);
 const IS_MOBILE=IS_IOS||IS_ANDROID||/Mobile/.test(UA);
 const IS_MAC=!IS_IOS&&/Macintosh/.test(UA);
+const IS_WIN=/Windows/.test(UA);
 const ISHARE='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3v12M12 3L8 7M12 3l4 4M7 11H5.5v9.5h13V11H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const ISTAR='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3.8l2.5 5.1 5.6.8-4.05 3.95.96 5.6L12 16.6l-5.01 2.65.96-5.6L3.9 9.7l5.6-.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+const ILINK='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L19 5M10 5h9v9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const IHOME='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8.5v6M9 11.5h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const ISUN='<svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#10202E"/><path d="M5 19.5h22" stroke="#F2B35B" stroke-width="2.4"/><path d="M9 19.5a7 7 0 0 1 14 0" fill="none" stroke="#F2B35B" stroke-width="2.4"/></svg>';
+function onlineHere(){return /^https?:$/.test(location.protocol);}
+function appUrl(){return onlineHere()?new URL('./',location.href).href:APP_URL;}
 function isStandalone(){try{return window.matchMedia('(display-mode: standalone)').matches||window.matchMedia('(display-mode: window-controls-overlay)').matches||navigator.standalone===true;}catch(e){return navigator.standalone===true;}}
 function setupInstallBtn(){
   const b=$('#btnInstall');
-  if(IS_MOBILE){b.innerHTML=IHOME+'<span>Icône</span>';b.setAttribute('aria-label',"Ajouter l'icône sur l'écran d'accueil");b.title="Ajouter l'icône sur l'écran d'accueil";}
-  else{b.innerHTML=ISTAR+'<span>Favori</span>';b.setAttribute('aria-label','Ajouter aux favoris');b.title='Ajouter aux favoris';}
+  if(IS_MOBILE){b.innerHTML=IHOME+'<span>Icône</span>';b.setAttribute('aria-label',"Créer l'icône DroneStudio sur l'écran d'accueil");b.title="Créer l'icône DroneStudio sur l'écran d'accueil";}
+  else{b.innerHTML=ILINK+'<span>Raccourci</span>';b.setAttribute('aria-label','Créer un raccourci DroneStudio');b.title='Créer un raccourci DroneStudio vers '+appUrl();}
 }
 function updInstallBtn(){$('#btnInstall').hidden=isStandalone();}
 function dlgKit(title){
@@ -1680,26 +1688,43 @@ function dlgKit(title){
     para:t=>{const e=document.createElement('p');e.textContent=t;box.appendChild(e);return e;},
     steps:items=>{const o=document.createElement('ol');items.forEach(h=>{const li=document.createElement('li');li.innerHTML=h;o.appendChild(li);});box.appendChild(o);}};
 }
-function favDialog(){
-  const k=dlgKit('Ajouter DroneStudio aux favoris'),mod=IS_MAC?'⌘':'Ctrl';
-  k.para("Aucun navigateur ne laisse un site créer un favori tout seul, mais un raccourci clavier suffit.");
-  k.steps(["Appuie sur <b>"+mod+" + D</b>, même avec cette fenêtre ouverte.","Choisis le dossier <b>Barre de favoris</b>, puis <b>Terminé</b>.","Pas de barre de favoris visible ? <b>"+mod+" + Maj + B</b> l'affiche."]);
-  if(location.protocol==='file:')k.para("Tu as ouvert le fichier depuis ton ordinateur : le favori pointera vers ce fichier. Pour un favori valable sur tous tes appareils, ouvre d'abord l'adresse en ligne de DroneStudio.");
+function shortcutFile(){
+  const u=appUrl();
+  if(IS_MAC)return{name:'DroneStudio.webloc',type:'application/x-apple-plist',data:'<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>URL</key><string>'+u+'</string></dict></plist>\n'};
+  return{name:'DroneStudio.url',type:'application/internet-shortcut',data:'[InternetShortcut]\r\nURL='+u+'\r\nIconIndex=0\r\nIconFile='+u+'favicon.ico\r\n'};
+}
+function desktopShortcut(){
+  const f=shortcutFile(),u=appUrl();
+  download(new Blob([f.data],{type:f.type}),f.name);
+  const k=dlgKit('Raccourci DroneStudio créé');
+  k.para("Le raccourci "+f.name+" vient d'être téléchargé. Il ouvre "+u);
+  if(IS_MAC)k.steps(["Ouvre ton dossier <b>Téléchargements</b>.","Fais glisser <b>DroneStudio</b> sur ton bureau, ou dans le Dock à droite du séparateur.","Double-clic : DroneStudio s'ouvre dans ton navigateur."]);
+  else k.steps(["Si le navigateur demande de confirmer le téléchargement, choisis <b>Conserver</b>.","Ouvre ton dossier <b>Téléchargements</b> et fais glisser <b>DroneStudio</b> sur ton bureau.","Double-clic : DroneStudio s'ouvre dans ton navigateur, avec son icône."]);
+  const p=k.para('Encore plus simple : fais glisser cette pastille directement sur ton bureau.');
+  const d=document.createElement('a');d.className='dragurl';d.href=u;d.draggable=true;d.innerHTML=ISUN+'<span>DroneStudio</span>';d.title='Fais-moi glisser sur ton bureau';
+  d.addEventListener('click',e=>{e.preventDefault();toast('Fais glisser la pastille sur ton bureau, ne clique pas dessus.');});
+  p.after(d);
+  if(IS_WIN)k.para("Si Windows affiche une icône générique, elle apparaît dès que le raccourci a pu charger l'icône en ligne. Sinon : clic droit sur le raccourci, Propriétés, Changer d'icône.");
+  k.para('Tu préfères un favori ? Appuie sur '+(IS_MAC?'⌘':'Ctrl')+' + D.');
   if(deferredInstall){const b=document.createElement('button');b.type='button';b.className='btn wide';b.textContent="Plutôt l'installer comme une application";b.onclick=()=>{closeDlg();nativeInstall();};k.box.appendChild(b);}
+  openDlg();
 }
 function iconDialog(){
-  const k=dlgKit("Ajouter l'icône sur l'écran d'accueil");
-  if(location.protocol==='file:'){k.para("Ouverte depuis un fichier, la page ne peut pas poser d'icône. Ouvre l'adresse en ligne de DroneStudio, puis touche de nouveau ce bouton.");return;}
+  const k=dlgKit("Créer l'icône DroneStudio");
   if(IS_IOS){
-    k.para("Apple ne laisse aucun site poser une icône tout seul : trois gestes suffisent.");
+    k.para("Apple ne laisse aucun bouton créer l'icône à ta place : trois gestes dans Safari suffisent.");
     k.steps(["Touche le bouton Partager "+ISHARE+" (en bas dans Safari, en haut sur iPad).","Choisis <b>Sur l'écran d'accueil</b>. Fais défiler la liste si tu ne le vois pas.","Touche <b>Ajouter</b>. L'icône DroneStudio apparaît sur ton écran d'accueil."]);
   }else{
-    k.para("Ton navigateur ne propose pas l'ajout direct ici. Passe par son menu :");
-    k.steps(["Ouvre le menu du navigateur (les trois points).","Choisis <b>Ajouter à l'écran d'accueil</b> (ou <b>Installer l'application</b>).","Confirme avec <b>Ajouter</b>. L'icône DroneStudio apparaît sur ton écran d'accueil."]);
+    const b=document.createElement('button');b.type='button';b.className='btn primary wide';b.textContent="Poser l'icône sur l'écran d'accueil";
+    b.onclick=async()=>{if(deferredInstall){closeDlg();if(await nativeInstall())return;openDlg();}b.hidden=true;toast("Ton navigateur demande de passer par son menu, voir ci-dessous.");};
+    k.box.appendChild(b);
+    k.para("Si rien ne s'ouvre, passe par le menu du navigateur :");
+    k.steps(["Ouvre le menu (les trois points).","Choisis <b>Ajouter à l'écran d'accueil</b> (ou <b>Installer l'application</b>).","Confirme avec <b>Ajouter</b>."]);
   }
-  k.para("Tes vidéos restent toujours sur ton téléphone.");
+  k.para("L'icône ouvre "+appUrl());
+  openDlg();
 }
-function openDlg(){const d=$('#instDlg');if(typeof d.showModal==='function'){try{d.showModal();return;}catch(e){}}d.setAttribute('open','');}
+function openDlg(){const d=$('#instDlg');if(d.open)return;if(typeof d.showModal==='function'){try{d.showModal();return;}catch(e){}}d.setAttribute('open','');}
 function closeDlg(){const d=$('#instDlg');if(typeof d.close==='function')d.close();else d.removeAttribute('open');}
 async function nativeInstall(){
   const ev=deferredInstall;deferredInstall=null;if(!ev)return false;
@@ -1707,13 +1732,16 @@ async function nativeInstall(){
   catch(e){return false;}
 }
 async function installApp(){
-  if(IS_MOBILE){if(deferredInstall&&await nativeInstall())return;iconDialog();openDlg();return;}
-  favDialog();openDlg();
+  if(!IS_MOBILE){desktopShortcut();return;}
+  if(!onlineHere()){location.href=APP_URL+'#icone';return;}
+  if(IS_ANDROID&&deferredInstall&&await nativeInstall())return;
+  iconDialog();
 }
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;updInstallBtn();});
 window.addEventListener('appinstalled',()=>{deferredInstall=null;toast(IS_MOBILE?"L'icône DroneStudio est sur ton écran d'accueil.":'DroneStudio est installée.');updInstallBtn();});
 try{window.matchMedia('(display-mode: standalone)').addEventListener('change',updInstallBtn);}catch(e){}
 $('#btnInstall').addEventListener('click',installApp);
+if(location.hash==='#icone'){try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}if(IS_MOBILE&&!isStandalone())setTimeout(iconDialog,700);}
 $('#instClose').addEventListener('click',closeDlg);
 $('#instDlg').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDlg();});
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
