@@ -313,6 +313,33 @@ body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,8
 .frame,.screen .busy,.screen .expbar{--strato:#10202E;--alt:#162B3B;--alt2:#1E384B;--ridge:#2D485B;--mist:#93A9B6;--cloud:#EAF1F4;--gold-ink:#F2B35B;--line:rgba(147,169,182,.17)}
 .frame,.screen .busy,.screen .expbar{color:var(--cloud)}
 
+/* ---------- Système de design : noms fonctionnels (à utiliser pour tout nouveau style) ---------- */
+:root{--bg:var(--strato);--surface:var(--alt);--surface-2:var(--alt2);--border:var(--line);--border-strong:#6A8698;--text:var(--cloud);--text-2:var(--mist);--accent:var(--gold);--accent-ink:var(--gold-ink);--danger:var(--beacon);--success:var(--ok);
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-pill:999px;--fs-xs:12px;--fs-sm:13.5px;--fs-md:15px;--fs-lg:18px;--fs-xl:25px;--tap:44px}
+:root[data-theme=light]{--border-strong:#728797}
+:root[data-theme=light] .sw input:checked{background:var(--accent-ink)}
+:root[data-theme=light] .sw input:checked::after{background:#FFFFFF}
+:root[data-theme=light] input[type=range]{accent-color:var(--accent-ink)}
+:root[data-theme=sun]{--border-strong:#000000}
+/* Contours des commandes : contraste d'au moins 3:1 (WCAG 1.4.11) */
+textarea,input[type=text]{border-color:var(--border-strong)}
+.seg{border-color:var(--border-strong)}
+.seg button.on{box-shadow:inset 0 0 0 1.5px var(--accent-ink)}
+.sw input:not(:checked){background:var(--border-strong)}
+label.lbl{cursor:pointer}
+/* Zones tactiles d'au moins 44 px sur téléphone et tablette */
+@media (max-width:900px){
+.btn,.top .btn{min-height:var(--tap)}
+.btn.iconly,.transport .ico,.clip .ico{width:var(--tap);height:var(--tap)}
+.seg button,.chips button,.step{min-height:var(--tap)}
+.themesw button{width:var(--tap);height:var(--tap)}
+.top .btn.iconly{width:var(--tap);height:var(--tap)}
+.step{min-width:var(--tap)}
+.linkbtn{min-height:var(--tap);display:inline-flex;align-items:center}
+input[type=range]{height:var(--tap)}
+.sw,details>summary,input[type=text]{min-height:var(--tap)}
+details>summary{display:flex;align-items:center}
+}
 /* ---------- Clair ---------- */
 :root[data-theme=light]{color-scheme:light;--strato:#E9EEF2;--alt:#FFFFFF;--alt2:#E2EAF0;--ridge:#B9C8D3;--mist:#4C6272;--cloud:#10202E;--deep:#F4F7F9;--night:#D9E2E9;--line:rgba(16,32,46,.14);--glass:rgba(255,255,255,.86);--gold-ink:#8F5200;
   --pf-bg:#EEF3F6;--pf-fill:rgba(16,32,46,.12);--pf-line:#4C6272;--pf-tick:rgba(16,32,46,.35);--pf-empty:#D5DFE6;--wave:#9DB0BE;--ok:#2E6B30;--danger-ink:#A4231D}
@@ -421,7 +448,7 @@ body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,8
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>DroneStudio <span id="appVer">2.0</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button></p>
+      <p class="ver"><span>DroneStudio <span id="appVer">2.1</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -436,21 +463,21 @@ body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,8
       <div class="opt">
         <h3>Composer sur mesure</h3>
         <p>Une musique originale écrite pour ton film. Choisis un style ou laisse l'app suivre l'ambiance de tes images. Gratuit, illimité, hors ligne.</p>
-        <div class="chips" id="styleChips" role="group" aria-label="Style de la bande-son"></div>
-        <button id="btnCompose" class="btn primary wide">Composer la bande-son</button>
+        <div class="chips" id="styleChips" role="group" aria-label="Style de la musique"></div>
+        <button id="btnCompose" class="btn primary wide">Composer la musique</button>
         <button id="btnPropose" class="btn wide">Proposer 3 musiques</button>
         <div id="props" class="props"></div>
       </div>
       <div class="opt">
         <h3>Avec Suno</h3>
         <p>Copie ce prompt dans Suno (mode personnalisé, champ Style, instrumental), télécharge le morceau puis importe-le ici. L'app choisit seule le meilleur passage.</p>
-        <textarea id="sunoPrompt" rows="4" readonly></textarea>
+        <textarea id="sunoPrompt" rows="4" readonly aria-label="Prompt Suno à copier"></textarea>
         <p class="fine" id="sunoTitle"></p>
         <div class="row"><button id="btnCopySuno" class="btn" type="button">Copier le prompt</button><a class="btn" href="https://suno.com/create" target="_blank" rel="noopener">Ouvrir Suno</a></div>
         <label class="btn wide"><input type="file" id="musicIn" accept="audio/*,.mp3,.wav,.m4a" hidden>Importer un morceau</label>
-        <p class="fine">Compte gratuit Suno : 7 téléchargements au total et usage personnel uniquement. La bande-son composée ici n'a aucune limite.</p>
+        <p class="fine">Compte gratuit Suno : 7 téléchargements au total et usage personnel uniquement. La musique composée ici n'a aucune limite.</p>
       </div>
-      <div class="ctabar"><button id="btnEdit" class="btn primary wide" disabled>Monter le film</button></div>
+      <div class="ctabar"><button id="btnEdit" class="btn primary wide" disabled>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-film">
       <h2><span class="pnum">4</span>Ton film</h2>
@@ -468,7 +495,7 @@ body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,8
       </div></details>
       <details class="grp"><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 0 0 17zM12 3.5a8.5 8.5 0 0 1 0 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Look</span></summary><div class="gb">
       <div id="looks" class="looks"></div>
-      <div class="field"><span class="lbl">Intensité du look</span><input type="range" id="lookAmt" min="0" max="100" value="85"></div>
+      <div class="field"><label class="lbl" for="lookAmt">Intensité du look</label><input type="range" id="lookAmt" min="0" max="100" value="85"></div>
       </div></details>
       <details class="grp"><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Effets</span></summary><div class="gb">
       <label class="sw">Bandes cinéma 2,39:1<input type="checkbox" id="optBars" checked></label>
@@ -479,9 +506,9 @@ body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,8
       <label class="sw">Pulsation sur le beat<input type="checkbox" id="optPulse" checked></label>
       </div></details>
       <details class="grp"><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 6V4.5h14V6M12 4.5v15M9 19.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Titres</span></summary><div class="gb">
-      <input type="text" id="tTitle" placeholder="Titre du film" maxlength="40">
-      <input type="text" id="tSub" placeholder="Lieu et date" maxlength="60">
-      <input type="text" id="tCredit" placeholder="Crédit musique (générique de fin)" maxlength="80">
+      <label class="lbl" for="tTitle">Titre du film</label><input type="text" id="tTitle" placeholder="Titre du film" maxlength="40">
+      <label class="lbl" for="tSub">Sous-titre</label><input type="text" id="tSub" placeholder="Lieu et date" maxlength="60">
+      <label class="lbl" for="tCredit">Générique de fin</label><input type="text" id="tCredit" placeholder="Crédit musique" maxlength="80">
       </div></details>
       <details class="grp" open><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Export</span></summary><div class="gb">
       <div class="field"><span class="lbl">Destination</span><div class="seg wrap" id="segDest"><button data-v="social">TikTok, Reels, Shorts</button><button data-v="insta">Publication Instagram</button><button data-v="yt">YouTube 4K</button><button data-v="tv">TV et archive</button></div></div>
@@ -500,7 +527,7 @@ body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,8
   <section class="stage">
     <div class="screen">
       <div class="frame" id="frame">
-        <canvas id="gl"></canvas>
+        <canvas id="gl" role="img" aria-label="Aperçu du film"></canvas>
         <canvas id="scan"></canvas>
         <div class="vf" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         <span class="fmtbadge" id="fmtBadge">16:9</span>
@@ -522,7 +549,7 @@ body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,8
     </div>
     <div class="deck">
       <div class="transport"><button id="btnPrev" class="ico" type="button" disabled aria-label="Plan précédent"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M18 6l-8 6 8 6zM6 6v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button id="btnPlay" class="round" disabled aria-label="Lecture"></button><button id="btnNext" class="ico" type="button" disabled aria-label="Plan suivant"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l8 6-8 6zM18 6v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span id="tc">0:00 / 0:00</span><span id="shotInfo"></span><button id="btnCut" class="ico" type="button" disabled aria-label="Retirer ce plan du film" title="Retirer ce plan du film"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10.5 10.5v5.5M13.5 10.5v5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button id="btnFull" class="ico" type="button" aria-label="Plein écran"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-      <canvas id="prof"></canvas>
+      <canvas id="prof" role="img" aria-label="Profil de vol : sections du film, énergie de la musique et plans. Clique ou fais glisser pour te déplacer."></canvas>
     </div>
   </section>
 </main>
@@ -752,7 +779,7 @@ async function analyseAll(){
     }
     renderAnalysis();renderSuno();renderLooks();syncControls();
     return S.analyzed;
-  }catch(e){toast("L'analyse a échoué : "+(e&&e.message?e.message:e),7000);renderAnalysis();return false;}
+  }catch(e){toast("L'analyse s'est arrêtée sur un rush illisible. Retire-le ou réexporte-le en H.264, puis relance."+" (détail : "+(e&&e.message?e.message:e)+")",9000);renderAnalysis();return false;}
   finally{S.busy=false;scanStop();busyHide();renderClipList();updateButtons();}
 }
 async function analyseClip(c,tick){
@@ -901,14 +928,14 @@ async function importMusic(f){
   busyShow('Analyse du rythme de '+f.name,null);
   try{
     const buf=await decodeAudio(await f.arrayBuffer());
-    if(buf.duration<6){toast('Ce morceau est trop court (moins de 6 s).');return;}
+    if(buf.duration<6){toast('Ce morceau dure moins de 6 secondes : choisis un morceau plus long.');return;}
     await nextFrame();
     const an=analyseBeats(buf);
     S.music=Object.assign({kind:'import',name:f.name.replace(/\.[^.]+$/,''),buffer:buf,duration:buf.duration},an);
     if(!S.st.creditUser)S.st.credit='Musique : '+S.music.name;
     syncControls();invalidateEdit();renderMusicInfo();setTab('music');
     toast('Morceau importé : '+Math.round(an.bpm)+' BPM détectés.');
-  }catch(e){toast("Ce fichier audio n'a pas pu être lu.",6000);}
+  }catch(e){toast("Ce fichier audio n'a pas pu être lu : format non reconnu par ce navigateur. Essaie un MP3 ou un WAV.",7000);}
   finally{busyHide();updateButtons();}
 }
 function meanR(a,i,j){i=Math.max(0,i);j=Math.min(a.length,j);if(j<=i)return 0;let s=0;for(let k=i;k<j;k++)s+=a[k];return s/(j-i);}
@@ -1072,7 +1099,7 @@ async function compose(T,styleKey,rhythm,seed){
   const buf=await renderOffline(ctx);
   const beats=[],downbeats=[];for(let i=0;i<bars*4;i++){beats.push(i*beat);if(i%4===0)downbeats.push(i*beat);}
   const en=energyCurve(buf);
-  return{kind:'composed',style:styleKey,seed,name:'Bande-son originale : '+sty.name,buffer:buf,duration:dur+tail,filmDur:dur,bpm,beats,downbeats,dropT,introEnd:intro*bar,outroStart:(bars-outro)*bar,energy:en.energy,efps:en.efps};
+  return{kind:'composed',style:styleKey,seed,name:'Musique originale : '+sty.name,buffer:buf,duration:dur+tail,filmDur:dur,bpm,beats,downbeats,dropT,introEnd:intro*bar,outroStart:(bars-outro)*bar,energy:en.energy,efps:en.efps};
 }
 const durKey=()=>S.st.dur+'|'+S.st.rhythm+'|'+S.st.mseed+'|'+resolveStyle(S.st.style);
 let composing=false;
@@ -1080,9 +1107,9 @@ function composeBusy(){if(!composing)return false;toast('Une composition est dé
 async function composeMusic(){
   if(composeBusy())return;composing=true;updateButtons();
   const T=S.st.dur==='full'?60:S.st.dur;
-  stopPreview();busyShow('Composition de la bande-son',null);await nextFrame();
+  stopPreview();busyShow('Composition de la musique',null);await nextFrame();
   try{const mu=await compose(T,resolveStyle(S.st.style),S.st.rhythm,S.st.mseed);mu.key=durKey();S.music=mu;if(!S.st.creditUser)S.st.credit='';syncControls();}
-  catch(e){toast("La composition a échoué : "+(e&&e.message?e.message:e),7000);}
+  catch(e){toast("La musique n'a pas pu être composée. Recharge la page puis réessaie."+" (détail : "+(e&&e.message?e.message:e)+")",8000);}
   finally{busyHide();composing=false;}
   invalidateEdit();renderMusicInfo();renderProposals();updateButtons();
 }
@@ -1149,7 +1176,7 @@ async function proposeMusic(){
       const mu=await compose(T,keys[i],S.st.rhythm,1+Math.floor(Math.random()*9000));
       mu.gainPrev=loudGain(mu.buffer,Math.max(0,mu.dropT-5),12);S.props.push(mu);renderProposals();
     }
-  }catch(e){toast('La composition a échoué : '+(e&&e.message?e.message:e),6000);}
+  }catch(e){toast("Les propositions n'ont pas pu être composées. Recharge la page puis réessaie."+" (détail : "+(e&&e.message?e.message:e)+")",8000);}
   finally{composing=false;busyHide();updateButtons();}
 }
 function renderProposals(){
@@ -1639,7 +1666,7 @@ async function exportFilm(){
   const stream=new MediaStream(glc.captureStream(S.st.fps).getVideoTracks().concat(dest.stream.getAudioTracks()));
   let rec;
   try{rec=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:dm.br,audioBitsPerSecond:256000}:{videoBitsPerSecond:dm.br});}
-  catch(e){try{rec=new MediaRecorder(stream);}catch(e2){toast("Impossible de démarrer l'enregistrement.",6000);try{limiter.disconnect(dest);}catch(e3){}applyFormat();return;}}
+  catch(e){try{rec=new MediaRecorder(stream);}catch(e2){toast("L'export n'a pas pu démarrer : ce navigateur refuse l'enregistrement vidéo. Utilise Chrome ou Edge.",8000);try{limiter.disconnect(dest);}catch(e3){}applyFormat();return;}}
   P.rec=rec;P.chunks=[];P.dest=dest;P.exporting=true;
   rec.ondataavailable=ev=>{if(ev.data&&ev.data.size)P.chunks.push(ev.data);};
   $('#exp').classList.add('on');$('#expDl').hidden=true;$('#expCancel').textContent='Annuler';$('#expT').textContent='Préparation';$('#expBar').style.width='0%';
@@ -1684,7 +1711,7 @@ function updateButtons(){
   $('#btnAuto').disabled=S.busy||!rush;$('#btnAnalyse').disabled=S.busy||!has||S.clips.every(c=>c.analyzed);
   $('#btnToMusic').disabled=!S.analyzed;$('#btnEdit').disabled=S.busy||!S.analyzed;$('#btnCompose').disabled=S.busy||composing;$('#btnPropose').disabled=S.busy||composing;
   $('#btnPlay').disabled=!S.edit;$('#btnExport').disabled=!S.edit||P.exporting;$('#btnTake').disabled=!S.edit||P.exporting;$('#btnCut').disabled=!S.edit||P.exporting;$('#btnCover').disabled=!S.edit||P.exporting;
-  $('#btnEdit').textContent=S.music?'Monter le film':'Composer et monter le film';
+  $('#btnEdit').textContent='Monter mon film';
   const done={rushes:has,analyse:S.analyzed,music:!!S.music,film:!!S.edit};
   $$('.step').forEach(b=>b.classList.toggle('done',!!done[b.dataset.tab]));
 }
@@ -1692,7 +1719,7 @@ function invalidateEdit(){pause();S.edit=null;resetDecks();P.t=0;refreshEmpty();
 function showStage(){try{if(window.matchMedia('(max-width:900px)').matches){const r=$('.stage').getBoundingClientRect();if(r.top<0||r.top>window.innerHeight*0.3)window.scrollTo({top:Math.max(0,window.scrollY+r.top-8),behavior:'smooth'});}}catch(e){}}
 function makeEdit(){
   pause();resetDecks();S.edit=buildEdit();
-  if(!S.edit){toast('Impossible de monter le film avec ces rushes.',6000);refreshEmpty();updateButtons();return false;}
+  if(!S.edit){toast("Le film n'a pas pu être monté : les rushes sont trop courts ou illisibles. Ajoute une vidéo de plus de 10 secondes.",8000);refreshEmpty();updateButtons();return false;}
   P.t=0;P.dirty=true;applyFormat();refreshEmpty();drawProfileStatic();updateButtons();renderShotList();updTC(0);return true;
 }
 async function rebuild(){
@@ -1807,7 +1834,7 @@ async function exportCover(){
     if(!blob)throw new Error('image vide');
     download(blob,slug(S.st.title||(S.mood?S.mood.title:'film'))+'-couverture-'+(S.st.dest||S.st.format.replace(':','x'))+'.jpg');
     toast('Couverture enregistrée : utilise-la comme miniature sur YouTube, TikTok ou Instagram.');
-  }catch(e){toast("La couverture n'a pas pu être créée : "+(e&&e.message?e.message:e),6000);}
+  }catch(e){toast("La couverture n'a pas pu être créée. Lis le film jusqu'à un plan, puis réessaie."+" (détail : "+(e&&e.message?e.message:e)+")",7000);}
   finally{P.exporting=false;busyHide();applyFormat();updateButtons();}
 }
 
@@ -1937,7 +1964,7 @@ function desktopShortcut(){
   else k.steps(["Si le navigateur demande de confirmer le téléchargement, choisis <b>Conserver</b>.","Ouvre ton dossier <b>Téléchargements</b> et fais glisser <b>DroneStudio</b> sur ton bureau.","Double-clic : DroneStudio s'ouvre dans ton navigateur, avec son icône."]);
   const p=k.para('Encore plus simple : fais glisser cette pastille directement sur ton bureau.');
   const d=document.createElement('a');d.className='dragurl';d.href=u;d.draggable=true;d.innerHTML=ISUN+'<span>DroneStudio</span>';d.title='Fais-moi glisser sur ton bureau';
-  d.addEventListener('click',e=>{e.preventDefault();toast('Fais glisser la pastille sur ton bureau, ne clique pas dessus.');});
+  d.addEventListener('click',e=>{e.preventDefault();toast("Fais glisser la pastille jusqu'à ton bureau pour créer le raccourci.");});
   p.after(d);
   if(IS_WIN)k.para("Si Windows affiche une icône générique, elle apparaît dès que le raccourci a pu charger l'icône en ligne. Sinon : clic droit sur le raccourci, Propriétés, Changer d'icône.");
   k.para('Tu préfères un favori ? Appuie sur '+(IS_MAC?'⌘':'Ctrl')+' + D.');
@@ -1997,7 +2024,7 @@ const TIPS=[
  ['#pane-film details.box>summary',"Définition et images par seconde, pour les experts"],
  ['.step[data-tab=rushes]',"Étape 1 : ajoute les vidéos de ton vol."],
  ['.step[data-tab=analyse]',"Étape 2 : ambiance, manœuvres et meilleurs moments repérés dans tes images."],
- ['.step[data-tab=music]',"Étape 3 : compose une bande-son ou importe un morceau."],
+ ['.step[data-tab=music]',"Étape 3 : compose une musique ou importe un morceau."],
  ['.step[data-tab=film]',"Étape 4 : format, look, titres, puis export du film."],
  ['#btnHelp',"Comment ça marche et raccourcis clavier|?"],
  ['#btnExport',"Enregistrer le film en vidéo, prêt à partager"],
@@ -2006,7 +2033,7 @@ const TIPS=[
  ['#btnAuto',"Analyse, musique et montage en un seul clic"],
  ['#btnAnalyse',"Analyser les rushes sans lancer le montage"],
  ['#btnPrivacy',"Effacer les traces de l'app et la retirer de l'appareil"],
- ['#btnToMusic',"Passer au choix de la bande-son"],
+ ['#btnToMusic',"Passer au choix de la musique"],
  ['#btnCompose',"Composer une musique originale, calée sur ton film"],
  ['#btnPropose',"Composer 3 musiques de styles différents, à écouter avant de choisir"],
  ['#sunoPrompt',"Prompt écrit d'après l'ambiance de tes images, à coller dans le champ Style de Suno"],
@@ -2062,7 +2089,9 @@ const TIPS=[
  ['#updGo',"Recharger l'app avec la nouvelle version"],
  ['#updX',"Masquer ce message"]
 ];
-function applyTips(){TIPS.forEach(t=>{let els=[];try{els=$$(t[0]);}catch(e){}els.forEach(el=>{el.removeAttribute('title');el.dataset.tip=t[1];});});}
+function applyTips(){TIPS.forEach(t=>{let els=[];try{els=$$(t[0]);}catch(e){}els.forEach(el=>{el.removeAttribute('title');el.dataset.tip=t[1];el.setAttribute('aria-description',t[1].split('|')[0]);});});}
+/* Les zones qui ouvrent un sélecteur de fichiers sont utilisables au clavier */
+$$('label').forEach(l=>{const i=l.querySelector('input[type=file]');if(!i)return;l.tabIndex=0;l.setAttribute('role','button');l.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();i.click();}});});
 const tipEl=$('#tip');let tipT=0,lpT=0,tipFor=null,tipWarm=0,tipLong=null;
 function tipText(el){if(el.hasAttribute('title')){const t=el.getAttribute('title');el.removeAttribute('title');if(t&&!el.dataset.tip)el.dataset.tip=t;}return el.dataset.tip||'';}
 function showTip(el){
@@ -2191,7 +2220,7 @@ if(/[?&]maj=/.test(location.search)){try{history.replaceState(null,'',location.p
 setTimeout(()=>checkUpdate(false),4000);
 
 /* ========== Démarrage ========== */
-try{glInit();}catch(e){R.ok=false;toast('Erreur graphique : '+e.message,9000);}
+try{glInit();}catch(e){R.ok=false;toast("L'aperçu ne peut pas s'afficher : la carte graphique a refusé l'initialisation. Mets à jour ton navigateur ou essaie Chrome ou Edge.",10000);}
 if(document.fonts&&document.fonts.load){Promise.all([document.fonts.load('700 40px Archivo'),document.fonts.load('400 20px Archivo')]).then(()=>{P.dirty=true;drawProfileStatic();}).catch(()=>{});}
 applyFormat();renderLooks();renderSuno();syncControls();updateButtons();updPlayBtn();refreshEmpty();drawProfileStatic();setupInstallBtn();updInstallBtn();applyTheme(curTheme(),false);applyTips();
 requestAnimationFrame(loop);
