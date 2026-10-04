@@ -298,6 +298,92 @@ body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,8
 #shotInfo{display:none}
 }
 
+
+/* ===================== Styles du film et transitions (2.3) ===================== */
+.vstyles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.vstyle{appearance:none;display:flex;flex-direction:column;padding:0;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface-2);color:var(--text);text-align:left;cursor:pointer;overflow:hidden;font-family:var(--f);transition:box-shadow .15s,border-color .15s}
+.vstyle canvas{display:block;width:100%;aspect-ratio:16/9;background:#071019}
+.vstyle b{font-size:14px;font-weight:650;padding:8px 10px 0}
+.vstyle span{font-size:12px;line-height:1.35;color:var(--text-2);padding:2px 10px 10px}
+.vstyle:hover{border-color:var(--border-strong)}
+.vstyle.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.vstyle.on b::after{content:"";display:inline-block;width:7px;height:7px;margin-left:8px;border-radius:50%;background:var(--accent);vertical-align:2px}
+.tpacks{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
+.tpacks button{appearance:none;font:600 13px/1 var(--f);padding:9px 12px;min-height:36px;border-radius:var(--r-pill);border:1px solid var(--border-strong);background:transparent;color:var(--text-2);cursor:pointer}
+.tpacks button:hover{color:var(--text)}
+.tpacks button.on{background:var(--surface-2);color:var(--accent-ink);border-color:var(--accent-ink)}
+.tlist{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tcard{appearance:none;border:0;background:none;padding:0;color:var(--text-2);font:500 12px/1.25 var(--f);text-align:left;cursor:pointer}
+.tcard .tpv{display:block;position:relative;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000}
+.tcard .tn{display:block;padding:5px 1px 0}
+.tcard:hover .tn{color:var(--text)}
+.tcard.on .tpv{box-shadow:0 0 0 2px var(--accent)}
+.tcard.on .tn{color:var(--text);font-weight:650}
+.tpv i{position:absolute;inset:0;background-size:cover;background-position:center;will-change:transform,opacity,filter}
+.tpv .tb,.tpv .tc{opacity:0}
+.tcard:is(:hover,:focus-visible,.on) .tpv i{animation-duration:2.4s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+.trsel{display:block;width:100%;margin-top:6px;min-height:34px;padding:6px 8px;border-radius:8px;border:1px solid var(--border-strong);background:var(--deep);color:var(--text);font:500 12.5px var(--f)}
+@media (max-width:900px){.tpacks button,.trsel{min-height:var(--tap)}}
+:root[data-theme=sun] .vstyle{border:2px solid #000;background:#FFF}
+:root[data-theme=sun] .vstyle.on{box-shadow:0 0 0 3px #000;background:#FFE3A8}
+:root[data-theme=sun] .vstyle span{color:#1F2A31}
+:root[data-theme=sun] .tpacks button{border:2px solid #000;color:#000}
+:root[data-theme=sun] .tpacks button.on{background:#000;color:#FFB020}
+:root[data-theme=sun] .tcard .tn{color:#000}
+:root[data-theme=sun] .tcard.on .tpv{box-shadow:0 0 0 3px #000}
+:root[data-theme=sun] .trsel{border:2px solid #000;color:#000}
+
+@keyframes t-dissolve-tb{0%,30%{opacity:0}70%,100%{opacity:1}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=dissolve] .tb{animation-name:t-dissolve-tb}
+@keyframes t-luma-tb{0%,30%{opacity:0;filter:brightness(2.2) contrast(1.6)}70%,100%{opacity:1;filter:none}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=luma] .tb{animation-name:t-luma-tb}
+@keyframes t-whip-ta{0%,30%{transform:none;filter:none}50%{filter:blur(6px)}70%,100%{transform:translateX(-100%);filter:none}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=whip] .ta{animation-name:t-whip-ta}
+@keyframes t-whip-tb{0%,30%{opacity:1;transform:translateX(100%);filter:none}50%{filter:blur(6px)}70%,100%{opacity:1;transform:none;filter:none}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=whip] .tb{animation-name:t-whip-tb}
+@keyframes t-push-ta{0%,30%{transform:none}70%,100%{transform:translateX(-100%)}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=push] .ta{animation-name:t-push-ta}
+@keyframes t-push-tb{0%,30%{opacity:1;transform:translateX(100%)}70%,100%{opacity:1;transform:none}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=push] .tb{animation-name:t-push-tb}
+@keyframes t-zoom-ta{0%,30%{transform:none;filter:none;opacity:1}50%{transform:scale(1.9);filter:blur(4px);opacity:1}51%,100%{opacity:0}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=zoom] .ta{animation-name:t-zoom-ta}
+@keyframes t-zoom-tb{0%,49%{opacity:0}50%{opacity:1;transform:scale(1.5);filter:blur(4px)}70%,100%{opacity:1;transform:none;filter:none}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=zoom] .tb{animation-name:t-zoom-tb}
+@keyframes t-spin-ta{0%,30%{transform:none;filter:none;opacity:1}50%{transform:rotate(80deg) scale(1.5);filter:blur(3px);opacity:1}51%,100%{opacity:0}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=spin] .ta{animation-name:t-spin-ta}
+@keyframes t-spin-tb{0%,49%{opacity:0}50%{opacity:1;transform:rotate(-80deg) scale(1.5);filter:blur(3px)}70%,100%{opacity:1;transform:none;filter:none}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=spin] .tb{animation-name:t-spin-tb}
+.tpv[data-t=glitch] .tc{background:repeating-linear-gradient(0deg,rgba(255,0,90,.45) 0 2px,transparent 2px 6px),repeating-linear-gradient(90deg,rgba(0,220,255,.25) 0 3px,transparent 3px 11px)}
+@keyframes t-glitch-ta{0%,30%{transform:none;filter:none}36%{transform:translateX(7%);filter:hue-rotate(90deg) saturate(2)}42%{transform:translateX(-5%)}48%,100%{transform:none;filter:none}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=glitch] .ta{animation-name:t-glitch-ta}
+@keyframes t-glitch-tb{0%,49%{opacity:0}50%{opacity:1;transform:translateX(-7%);filter:hue-rotate(-90deg) saturate(2)}57%{transform:translateX(4%)}64%,100%{opacity:1;transform:none;filter:none}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=glitch] .tb{animation-name:t-glitch-tb}
+@keyframes t-glitch-tc{0%,32%{opacity:0}36%,60%{opacity:1}64%,100%{opacity:0}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=glitch] .tc{animation-name:t-glitch-tc}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=glitch] .tc{animation-timing-function:steps(6)}
+@keyframes t-iris-tb{0%,30%{opacity:1;clip-path:circle(0% at 50% 50%)}70%,100%{opacity:1;clip-path:circle(75% at 50% 50%)}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=iris] .tb{animation-name:t-iris-tb}
+.tpv[data-t=burn] .tc{background:radial-gradient(circle at 32% 42%,rgba(255,196,90,.98),rgba(255,98,20,.75) 38%,rgba(120,20,0,0) 70%)}
+@keyframes t-burn-tb{0%,45%{opacity:0}55%,100%{opacity:1}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=burn] .tb{animation-name:t-burn-tb}
+@keyframes t-burn-tc{0%,30%{opacity:0;transform:scale(.6)}50%{opacity:1;transform:scale(1.3)}70%,100%{opacity:0;transform:scale(1.6)}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=burn] .tc{animation-name:t-burn-tc}
+@keyframes t-blur-ta{0%,30%{filter:none}50%,100%{filter:blur(8px)}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=blur] .ta{animation-name:t-blur-ta}
+@keyframes t-blur-tb{0%,30%{opacity:0;filter:blur(8px)}50%{opacity:1;filter:blur(8px)}70%,100%{opacity:1;filter:none}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=blur] .tb{animation-name:t-blur-tb}
+.tpv[data-t=flash] .tc{background:#FFF8EC}
+@keyframes t-flash-tb{0%,49%{opacity:0}50%,100%{opacity:1}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=flash] .tb{animation-name:t-flash-tb}
+@keyframes t-flash-tc{0%,40%{opacity:0}50%{opacity:1}62%,100%{opacity:0}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=flash] .tc{animation-name:t-flash-tc}
+.tpv[data-t=dip] .tc{background:#000}
+@keyframes t-dip-tb{0%,49%{opacity:0}50%,100%{opacity:1}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=dip] .tb{animation-name:t-dip-tb}
+@keyframes t-dip-tc{0%,30%{opacity:0}50%{opacity:1}70%,100%{opacity:0}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=dip] .tc{animation-name:t-dip-tc}
+@keyframes t-cut-tb{0%,49.9%{opacity:0}50%,100%{opacity:1}}
+.tcard:is(:hover,:focus-visible,.on) .tpv[data-t=cut] .tb{animation-name:t-cut-tb}
 /* ===================== Thèmes : sombre (défaut), clair, extérieur ===================== */
 :root{--pf-bg:#132636;--pf-fill:rgba(45,72,91,.9);--pf-line:#93A9B6;--pf-tick:rgba(234,241,244,.4);--pf-empty:#1E384B;--wave:#2D485B;--ok:#A9D18E;--danger-ink:#FFD7D8;--bw:1px}
 .themesw{display:flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--alt)}
@@ -448,7 +534,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>DroneStudio <span id="appVer">2.2</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button></p>
+      <p class="ver"><span>DroneStudio <span id="appVer">2.3</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -482,11 +568,20 @@ details>summary{display:flex;align-items:center}
     <section class="pane" id="pane-film">
       <h2><span class="pnum">4</span>Ton film</h2>
       <p class="lead">Chaque réglage s'applique tout de suite à l'aperçu. Exporte quand le film te plaît.</p>
+      <details class="grp" id="styleBox" open><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4.5 19.5l9-9M14.5 4l1.1 2.4L18 7.5l-2.4 1.1-1.1 2.4-1.1-2.4L11 7.5l2.4-1.1zM19 13l.7 1.5 1.5.7-1.5.7L19 17.4l-.7-1.5-1.5-.7 1.5-.7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Style du film</span></summary><div class="gb">
+        <p class="fine">Un style règle d'un coup les couleurs, les effets, les transitions et le rythme. Tu peux ensuite tout ajuster.</p>
+        <div id="vstyles" class="vstyles" role="radiogroup" aria-label="Style du film"></div>
+      </div></details>
       <details class="grp" open><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Cadrage et rythme</span></summary><div class="gb">
       <div class="field"><span class="lbl">Format</span><div class="seg" id="segFormat"><button data-v="16:9">16:9</button><button data-v="9:16">9:16</button><button data-v="1:1">1:1</button><button data-v="4:5">4:5</button></div></div>
       <div class="field"><span class="lbl">Durée</span><div class="seg" id="segDur"><button data-v="15">15 s</button><button data-v="30">30 s</button><button data-v="60">60 s</button><button data-v="90">90 s</button><button data-v="full">Morceau</button></div></div>
       <div class="field"><span class="lbl">Rythme du montage</span><div class="seg" id="segRhythm"><button data-v="0">Posé</button><button data-v="1">Équilibré</button><button data-v="2">Nerveux</button></div></div>
       <button id="btnTake" class="btn wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 5h14v14H5zM9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Nouvelle prise</button>
+      </div></details>
+      <details class="grp" id="transBox" open><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="2.5" y="6" width="11" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M13.5 6h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-dasharray="2.2 2.2"/><path d="M9 12h7m-2.5-2.5L16 12l-2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Transitions</span></summary><div class="gb">
+        <p class="fine">Choisis un ensemble, ou une transition pour toutes les coupes. Chaque vignette montre son mouvement : survole-la, ou touche-la pour l'appliquer. Chaque plan peut aussi avoir la sienne dans la liste des plans.</p>
+        <div id="tpacks" class="tpacks" role="group" aria-label="Ensembles de transitions"></div>
+        <div id="tlist" class="tlist" role="group" aria-label="Transitions"></div>
       </div></details>
       <details class="grp" id="shotsBox" open><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 9l1.2-4.4 15 2-1 2.4M8.5 5.2L10 9M13.5 5.9L15 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plans du film <span id="shotsN" class="cnt"></span></span></summary><div class="gb">
         <p class="fine">Retire un plan qui ne te plaît pas : un autre passage de tes rushes prend sa place, toujours calé sur la musique.</p>
@@ -504,6 +599,10 @@ details>summary{display:flex;align-items:center}
       <label class="sw">Ralentis et accélérés<input type="checkbox" id="optRamps" checked></label>
       <label class="sw">Recadrage intelligent<input type="checkbox" id="optReframe" checked></label>
       <label class="sw">Pulsation sur le beat<input type="checkbox" id="optPulse" checked></label>
+      <label class="sw">Effet maquette (miniature)<input type="checkbox" id="optTilt"></label>
+      <label class="sw">Cassette VHS<input type="checkbox" id="optVhs"></label>
+      <label class="sw">Fuites de lumière<input type="checkbox" id="optLeak"></label>
+      <label class="sw">Lueur de rêve<input type="checkbox" id="optDream"></label>
       </div></details>
       <details class="grp"><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 6V4.5h14V6M12 4.5v15M9 19.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Titres</span></summary><div class="gb">
       <label class="lbl" for="tTitle">Titre du film</label><input type="text" id="tTitle" placeholder="Titre du film" maxlength="40">
@@ -519,7 +618,7 @@ details>summary{display:flex;align-items:center}
         <div class="field"><span class="lbl">Images par seconde</span><div class="seg" id="segFps"><button data-v="30">30 i/s</button><button data-v="60">60 i/s</button></div></div>
       </details>
       <button id="btnCover" class="btn wide" type="button" disabled>Exporter l'image de couverture</button>
-      <p class="fine">L'export se fait en temps réel : un film de 30 s prend 30 s. Garde la fenêtre au premier plan.</p>
+      <p class="fine">Le film est calculé image par image, à cadence constante : le résultat est parfaitement fluide, et tu peux utiliser l'ordinateur pendant ce temps.</p>
       </div></details>
       <div class="ctabar"><button id="btnExport2" class="btn primary wide" type="button" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Exporter le film</button></div>
     </section>
@@ -541,7 +640,7 @@ details>summary{display:flex;align-items:center}
       </div>
       <div class="busy" id="busy" hidden><span id="busyT"></span><div class="bar"><i id="busyBar"></i></div></div>
       <div class="expbar" id="exp">
-        <div class="expinfo"><b id="expT">Export en cours</b><span>Garde cette fenêtre au premier plan jusqu'à la fin.</span></div>
+        <div class="expinfo"><b id="expT">Export en cours</b><span id="expSub">Calcul image par image, parfaitement fluide.</span></div>
         <div class="bar"><i id="expBar"></i></div>
         <a id="expDl" class="btn primary" hidden>Télécharger</a>
         <button id="expCancel" class="btn" type="button">Annuler</button>
@@ -593,8 +692,8 @@ function download(blob,name){const u=URL.createObjectURL(blob);const a=document.
 function mkBtn(label,fn){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=label;b.onclick=fn;return b;}
 
 /* ========== État et constantes ========== */
-const S={clips:[],analyzed:false,mood:null,music:null,edit:null,busy:false,excl:[],props:[],
-  st:{format:'16:9',dur:30,rhythm:1,rhythmUser:false,look:'natural',lookUser:false,amt:0.85,bars:true,grain:true,hal:true,ramps:true,reframe:true,pulse:true,
+const S={clips:[],analyzed:false,mood:null,music:null,edit:null,busy:false,excl:[],props:[],trOv:{},
+  st:{format:'16:9',dur:30,rhythm:1,rhythmUser:false,look:'natural',lookUser:false,amt:0.85,bars:true,grain:true,hal:true,ramps:true,reframe:true,pulse:true,tilt:false,vhs:false,leak:false,dream:false,trans:'auto',vstyle:'auto',
       title:'',sub:'',subUser:false,credit:'',creditUser:false,res:'hd',fps:30,seed:1,mseed:1,style:'auto',dest:'',sharp:true}};
 const KK=['static','approach','retreat','orbit','vertical','rotate','fast'];
 const KNAME={static:'Stationnaire',approach:'Approche',retreat:'Recul',orbit:'Travelling',vertical:'Vertical',rotate:'Rotation',fast:'Survol rapide',insert:'Insert'};
@@ -1177,7 +1276,7 @@ async function proposeMusic(){
       mu.gainPrev=loudGain(mu.buffer,Math.max(0,mu.dropT-5),12);S.props.push(mu);renderProposals();
     }
   }catch(e){toast("Les propositions n'ont pas pu être composées. Recharge la page puis réessaie."+" (détail : "+(e&&e.message?e.message:e)+")",8000);}
-  finally{composing=false;busyHide();updateButtons();}
+  finally{composing=false;busyHide();updateButtons();if(rebuildAgain){rebuildAgain=false;setTimeout(rebuild,0);}}
 }
 function renderProposals(){
   const box=$('#props');if(!box)return;box.innerHTML='';
@@ -1337,7 +1436,45 @@ function buildEdit(){
     if(type==='cut'){sh.tr.d=0;sh.dIn=0;p.dOut=0;p.span=p.len+p.dIn/2;sh.span=sh.len+sh.dOut/2;}
     else if(type==='whip'){const n=lat||1;sh.tr.dir=[p.mtx/n,p.mty/n];}
   });
-  return{T,off,drop,I,O,beats,downs,bd,shots,bpm:mu.bpm,gain:loudGain(mu.buffer,off,T)};
+  shots.forEach(sh=>{sh.trAuto=Object.assign({},sh.tr);});
+  const E={T,off,drop,I,O,beats,downs,bd,shots,bpm:mu.bpm,gain:loudGain(mu.buffer,off,T)};
+  applyTransitions(E);
+  return E;
+}
+
+/* ========== Transitions au choix ========== */
+const TR_ORDER=['dissolve','luma','whip','push','zoom','spin','glitch','iris','burn','blur','flash','dip','cut'];
+const TNAME={dissolve:'Fondu',luma:'Fondu lumineux',whip:'Filé',push:'Poussée',zoom:'Zoom',punch:'Zoom et flash',spin:'Rotation',glitch:'Glitch',iris:'Iris',burn:'Brûlure de pellicule',blur:'Flou',flash:'Flash',dip:'Noir',cut:'Coupe franche'};
+const TDESC={dissolve:"Les deux images se mélangent en douceur.",luma:"Les zones claires de l'image suivante apparaissent d'abord, comme le ciel.",whip:"Un panoramique très rapide et flou, dans le sens du vol.",push:"L'image suivante pousse la précédente hors du cadre.",zoom:"Zoom avant avec flou de mouvement.",spin:"Rotation rapide floutée, très utilisée pour les vidéos de drone.",glitch:"Décalages de couleurs et lignes brouillées, style numérique.",iris:"Un cercle s'ouvre depuis le centre sur l'image suivante.",burn:"Une brûlure de pellicule orangée traverse l'image.",blur:"L'image se floute puis la suivante redevient nette.",flash:"Un éclair blanc entre les deux plans.",dip:"Passage par le noir, pour marquer une pause.",cut:"Changement de plan net, pile sur le temps."};
+const TPACKS={
+  doux:{name:'Douces',intro:['luma','dissolve'],build:['blur','dissolve','iris'],hero:'flash',climax:['blur','dissolve','iris'],outro:['dissolve','luma']},
+  dyn:{name:'Dynamiques',intro:['push','luma'],build:['whip','push','zoom'],hero:'spin',climax:['whip','zoom','push','cut'],outro:['dissolve','push']},
+  retro:{name:'Glitch',intro:['glitch','dissolve'],build:['glitch','cut','push'],hero:'glitch',climax:['glitch','cut','flash','cut'],outro:['dissolve','glitch']},
+  cine:{name:'Cinéma',intro:['dip','luma'],build:['dissolve','burn','cut'],hero:'burn',climax:['cut','dissolve','burn','cut'],outro:['dip','dissolve']},
+  net:{name:'Coupes nettes',intro:['cut'],build:['cut'],hero:'punch',climax:['cut'],outro:['dissolve']}
+};
+const TR_DUR={dissolve:[2,0.5,1.2],luma:[2,0.6,1.3],whip:[0,0.34,0.34],push:[1,0.3,0.5],zoom:[1,0.3,0.5],punch:[1,0.3,0.5],spin:[1,0.35,0.55],glitch:[0.75,0.25,0.4],iris:[1.5,0.4,0.9],burn:[2,0.6,1.2],blur:[1.5,0.4,0.9],flash:[1,0.3,0.5],dip:[2,0.6,1.2]};
+function trDur(type,bd){const t=TR_DUR[type];if(!t)return 0;return clamp(t[0]?t[0]*bd:t[1],t[1],t[2]);}
+function applyTransitions(E){
+  if(!E)return;const st=S.st,sh=E.shots,ov=S.trOv||{},mode=st.trans||'auto';
+  sh.forEach((s,k)=>{
+    if(k===0){s.tr={type:'none',d:0};return;}
+    const p=sh[k-1],o=ov[k];
+    if(!o&&mode==='auto'){s.tr=Object.assign({},s.trAuto);return;}
+    let type;
+    if(o)type=o;
+    else if(TPACKS[mode]){const v=TPACKS[mode][s.hero?'hero':['intro','build','climax','outro'][s.sec]];type=Array.isArray(v)?v[k%v.length]:v;}
+    else type=mode;
+    const tr={type,d:type==='cut'?0:Math.min(trDur(type,E.bd),0.7*Math.min(p.len,s.len))};
+    if(type==='whip'||type==='push'){const lat=Math.hypot(p.mtx||0,p.mty||0);tr.dir=(type==='whip'&&lat>0.02)?[p.mtx/lat,p.mty/lat]:[(p.mtx||0)<0?-1:1,0];}
+    s.tr=tr;
+  });
+  const spans=()=>sh.forEach((s,k)=>{s.dIn=k?s.tr.d:0;s.dOut=k+1<sh.length?sh[k+1].tr.d:0;s.span=s.len+s.dIn/2+s.dOut/2;});
+  spans();
+  for(let k=1;k<sh.length;k++){
+    const p=sh[k-1],over=p.srcIn+needSrc(p.rates,p.span)-(p.clip.duration-0.06);
+    if(over>0&&sh[k].tr.d>0){const rr=p.rates[p.rates.length-1].r||1;sh[k].tr.d=Math.max(0,sh[k].tr.d-2*over/rr);if(sh[k].tr.d<0.12)sh[k].tr={type:'cut',d:0};spans();}
+  }
 }
 
 /* ========== Rendu WebGL ========== */
@@ -1350,7 +1487,7 @@ const FS=[
 'varying vec2 vUv;',
 'uniform sampler2D tA,tB,tO;',
 'uniform vec4 cA,cB;',
-'uniform float zA,zB,mixv,trans,hasB,hasO,time,grain,vig,black,flash,expo,contr,sat,temp,split,lift,hal,logfix,barH,shp,ss;',
+'uniform float zA,zB,mixv,trans,hasB,hasO,time,grain,vig,black,flash,expo,contr,sat,temp,split,lift,hal,logfix,barH,shp,ss,tilt,vhs,leak,dream;',
 'uniform vec2 dir,res;',
 'vec2 mapUV(vec2 uv,vec4 c,float z){vec2 p=(uv-0.5)/z+0.5;return c.xy+clamp(p,0.0,1.0)*c.zw;}',
 'vec3 sA(vec2 uv){return texture2D(tA,mapUV(uv,cA,zA)).rgb;}',
@@ -1362,6 +1499,7 @@ const FS=[
 'vec3 blurB(vec2 uv,vec2 d){vec3 s=vec3(0.0);for(int i=0;i<10;i++){float f=float(i)/9.0-0.5;s+=sB(uv+d*f);}return s/10.0;}',
 'vec3 radA(vec2 uv,float k){vec3 s=vec3(0.0);for(int i=0;i<10;i++){float f=1.0-k*float(i)/9.0;s+=sA((uv-0.5)*f+0.5);}return s/10.0;}',
 'vec3 radB(vec2 uv,float k){vec3 s=vec3(0.0);for(int i=0;i<10;i++){float f=1.0-k*float(i)/9.0;s+=sB((uv-0.5)*f+0.5);}return s/10.0;}',
+'vec3 lite(vec2 uv){if(hasB<0.5)return sA(uv);return mix(sA(uv),sB(uv),smoothstep(0.35,0.65,mixv));}',
 'vec3 scene(vec2 uv){',
 ' if(hasB<0.5)return sAq(uv);',
 ' float m=clamp(mixv,0.0,1.0);',
@@ -1370,23 +1508,35 @@ const FS=[
 ' if(trans<3.5){float e=smoothstep(0.0,1.0,m);float bl=sin(m*3.14159)*0.22;vec3 a=blurA(uv-dir*e,dir*bl);vec3 b=blurB(uv+dir*(1.0-e),dir*bl);return mix(a,b,smoothstep(0.42,0.58,m));}',
 ' if(trans<4.5){float k=sin(m*3.14159)*0.35;vec3 a=radA((uv-0.5)/(1.0+m*0.6)+0.5,k);vec3 b=radB((uv-0.5)/(1.0+(1.0-m)*0.6)+0.5,k);return mix(a,b,smoothstep(0.45,0.55,m));}',
 ' if(trans<5.5){vec3 w=vec3(1.0,0.97,0.92);return m<0.5?mix(sA(uv),w,m*2.0):mix(w,sB(uv),(m-0.5)*2.0);}',
-' return m<0.5?sA(uv)*(1.0-m*2.0):sB(uv)*((m-0.5)*2.0);',
+' if(trans<6.5)return m<0.5?sA(uv)*(1.0-m*2.0):sB(uv)*((m-0.5)*2.0);',
+' if(trans<7.5){float e=smoothstep(0.0,1.0,m);float bl=sin(m*3.14159)*0.10;vec2 p=uv+dir*e;if(p.x>=0.0&&p.x<=1.0&&p.y>=0.0&&p.y<=1.0)return blurA(p,dir*bl);return blurB(p-dir,dir*bl);}',
+' if(trans<8.5){float e=smoothstep(0.0,1.0,m);float ang=(m<0.5?e:e-1.0)*2.8;float ar=res.x/res.y;vec2 q=uv-0.5;q.x*=ar;float z=1.0+sin(m*3.14159)*0.45;vec3 acc=vec3(0.0);for(int i=0;i<8;i++){float a=ang*(1.0-float(i)*0.07);vec2 r=vec2(cos(a)*q.x-sin(a)*q.y,sin(a)*q.x+cos(a)*q.y)/z;r.x/=ar;acc+=m<0.5?sA(r+0.5):sB(r+0.5);}return acc/8.0;}',
+' if(trans<9.5){float k=sin(m*3.14159);float row=floor(uv.y*24.0);float sh=(hash(vec2(row,floor(time*24.0)))-0.5)*0.2*k*step(0.55,hash(vec2(row*1.7,floor(m*20.0))));vec2 p=vec2(uv.x+sh,uv.y);float ca=0.03*k;bool useB=m>0.5+(hash(vec2(row,floor(m*12.0)))-0.5)*0.3;vec3 c=useB?vec3(sB(p+vec2(ca,0.0)).r,sB(p).g,sB(p-vec2(ca,0.0)).b):vec3(sA(p+vec2(ca,0.0)).r,sA(p).g,sA(p-vec2(ca,0.0)).b);float blk=step(0.93,hash(vec2(floor(uv.x*16.0),floor(uv.y*9.0)+floor(m*30.0))))*k;return mix(c,c.gbr,blk);}',
+' if(trans<10.5){float ar=res.x/res.y;vec2 q=(uv-0.5)*vec2(ar,1.0);float r=length(q)/length(vec2(ar*0.5,0.5));float e=smoothstep(0.0,1.0,m);float a=smoothstep(e*1.1-0.08,e*1.1,r);return mix(sB(uv),sA((uv-0.5)/(1.0+e*0.08)+0.5),a);}',
+' if(trans<11.5){float k=sin(m*3.14159);float g=uv.x*0.72+uv.y*0.28+0.05*sin(uv.y*9.0+time*2.0);float w=smoothstep(m*1.7-0.7,m*1.7-0.15,g)*(1.0-smoothstep(m*1.7-0.15,m*1.7+0.45,g));vec3 base=mix(sA(uv),sB(uv),smoothstep(0.35,0.65,m));return base+vec3(1.0,0.52,0.16)*w*1.7*k+vec3(1.0,0.86,0.62)*k*k*0.45;}',
+' float kb=sin(m*3.14159);vec3 ba=vec3(0.0),bb=vec3(0.0);for(int i=0;i<8;i++){float an=float(i)*0.7854;vec2 o=vec2(cos(an),sin(an))*kb*0.025;ba+=sA(uv+o);bb+=sB(uv+o);}',
+' return mix(ba,bb,smoothstep(0.3,0.7,m))/8.0;',
 '}',
 'void main(){',
 ' vec2 uv=vUv;',
 ' vec3 c=scene(uv);',
+' if(tilt>0.001){float dd=abs(uv.y-0.56);float b=smoothstep(0.07,0.3,dd)*tilt;if(b>0.01){vec3 acc=vec3(0.0);float ar=res.x/res.y;for(int i=0;i<12;i++){float an=float(i)*0.5236;vec2 o=vec2(cos(an)/ar,sin(an))*0.011*b;acc+=lite(uv+o)+lite(uv+o*2.2);}c=mix(c,acc/24.0,min(1.0,b*1.25));}}',
+' if(vhs>0.001){float j=(hash(vec2(floor(uv.y*res.y/3.0),floor(time*30.0)))-0.5)*0.004*vhs;vec2 p=vec2(uv.x+j,uv.y);float ca=0.0045*vhs;c=mix(c,vec3(lite(p+vec2(ca,0.0)).r,lite(p).g,lite(p-vec2(ca,0.0)).b),vhs);}',
+' if(dream>0.001){vec3 acc=vec3(0.0);float ar=res.x/res.y;for(int i=0;i<8;i++){float an=float(i)*0.7854+0.39;acc+=lite(uv+vec2(cos(an)/ar,sin(an))*0.022);}acc/=8.0;c=1.0-(1.0-c)*(1.0-acc*0.55*dream);c=mix(c,c*0.94+0.05,dream*0.5);}',
 ' if(shp>0.001&&hasB<0.5){vec2 px=1.0/res;vec3 nb=(sA(uv+vec2(px.x,0.0))+sA(uv-vec2(px.x,0.0))+sA(uv+vec2(0.0,px.y))+sA(uv-vec2(0.0,px.y)))*0.25;c=clamp(c+shp*(c-nb),0.0,1.0);}',
 ' if(hal>0.001){vec3 h=vec3(0.0);vec2 px=vec2(14.0)/res;bool useB=hasB>0.5&&mixv>0.5;for(int i=0;i<6;i++){float an=float(i)*1.0472;vec2 o=vec2(cos(an),sin(an))*px;vec3 s=useB?sB(uv+o):sA(uv+o);h+=max(s-vec3(0.7),vec3(0.0));}c+=hal*(h/6.0)*vec3(1.0,0.5,0.3)*2.4;}',
 ' c=mix(c,clamp((c-0.5)*1.22+0.52,0.0,1.0),logfix);',
 ' c*=exp2(expo);',
 ' c*=vec3(1.0+0.08*temp,1.0+0.01*temp,1.0-0.1*temp);',
 ' c=clamp(c,0.0,1.0);',
-' c=mix(c,c*c*(3.0-2.0*c),contr);',
+' c=mix(c,c*c*(3.0-2.0*c),contr+0.12*tilt);',
 ' float l=luma(c);',
-' c=mix(vec3(l),c,sat*(1.0+0.3*logfix));',
+' c=mix(vec3(l),c,sat*(1.0+0.3*logfix)*(1.0+0.35*tilt)*(1.0-0.25*vhs));',
 ' c+=split*(vec3(-0.035,0.015,0.05)*(1.0-smoothstep(0.0,0.55,l))+vec3(0.06,0.02,-0.05)*smoothstep(0.45,1.0,l));',
 ' c=mix(c,c*0.92+vec3(0.055,0.06,0.075),lift);',
 ' c=clamp(c,0.0,1.0);',
+' if(vhs>0.001){c*=1.0-vhs*0.13*(0.5+0.5*sin(uv.y*res.y*1.5708));c+=vhs*0.05*(hash(vec2(floor(uv.y*res.y),floor(time*30.0)))-0.5);c*=vec3(1.0+0.04*vhs,1.0,1.0-0.06*vhs);}',
+' if(leak>0.001){float t2=time*0.12;float ar2=res.x/res.y;vec2 p1=vec2(0.15+0.25*sin(t2*1.3),0.2+0.2*cos(t2));vec2 p2=vec2(0.85+0.15*cos(t2*0.8),0.75+0.2*sin(t2*1.1));vec2 d1=(uv-p1)*vec2(ar2,1.0);vec2 d2=(uv-p2)*vec2(ar2,1.0);vec3 lk=vec3(1.0,0.45,0.15)*exp(-dot(d1,d1)*3.5)+vec3(1.0,0.75,0.35)*exp(-dot(d2,d2)*4.5);c=1.0-(1.0-c)*(1.0-lk*leak*0.55*(0.55+0.45*sin(time*0.7)));}',
 ' float ar=res.x/res.y;vec2 q=(uv-0.5)*vec2(ar,1.0);float vd=length(q)/length(vec2(ar*0.5,0.5));',
 ' c*=1.0-vig*smoothstep(0.45,1.05,vd);',
 ' c=mix(c,vec3(1.0,0.97,0.92),flash);',
@@ -1406,7 +1556,7 @@ function glInit(){
   gl.useProgram(p);
   const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
   const loc=gl.getAttribLocation(p,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-  ['tA','tB','tO','cA','cB','zA','zB','mixv','trans','hasB','hasO','dir','res','time','grain','vig','black','flash','expo','contr','sat','temp','split','lift','hal','logfix','barH','shp','ss'].forEach(n=>{R.u[n]=gl.getUniformLocation(p,n);});
+  ['tA','tB','tO','cA','cB','zA','zB','mixv','trans','hasB','hasO','dir','res','time','grain','vig','black','flash','expo','contr','sat','temp','split','lift','hal','logfix','barH','shp','ss','tilt','vhs','leak','dream'].forEach(n=>{R.u[n]=gl.getUniformLocation(p,n);});
   const tx=()=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,255]));return t;};
   R.tex=[tx(),tx(),tx()];R.otex=tx();
   gl.uniform1i(R.u.tA,0);gl.uniform1i(R.u.tB,1);gl.uniform1i(R.u.tO,2);
@@ -1435,7 +1585,7 @@ function pair(t){
   const nx=sh[k+1];if(nx&&nx.dIn>0&&t>=nx.start-nx.dIn/2)return{a:k,b:k+1,m:(t-(nx.start-nx.dIn/2))/nx.dIn,tr:nx.tr};
   return{a:k,b:-1,m:0,tr:null};
 }
-const TRN={dissolve:1,luma:2,whip:3,zoom:4,punch:4,flash:5,dip:6};
+const TRN={dissolve:1,luma:2,whip:3,zoom:4,punch:4,flash:5,dip:6,push:7,spin:8,glitch:9,iris:10,burn:11,blur:12};
 function deckOf(j){return decks[((j%3)+3)%3];}
 function deckOk(j){if(EXP_SRC)return EXP_SRC.has(j);const d=deckOf(j);return d.shot===j&&d.ready&&d.v.readyState>=2;}
 function shotU(sh,t){const a=sh.start-sh.dIn/2,b=sh.end+sh.dOut/2;return clamp((t-a)/((b-a)||1),0,1);}
@@ -1456,7 +1606,7 @@ function render(t,cover){
     if(pr.tr.type==='punch')flash=0.55*Math.exp(-Math.pow((pr.m-0.5)*5,2));}
   else{gl.uniform1f(U.hasB,0);gl.uniform1f(U.mixv,0);gl.uniform1f(U.trans,0);}
   const L=lookParams();
-  gl.uniform1f(U.expo,L.expo);gl.uniform1f(U.contr,L.contr);gl.uniform1f(U.sat,L.sat);gl.uniform1f(U.temp,L.temp);gl.uniform1f(U.split,L.split);gl.uniform1f(U.lift,L.lift);gl.uniform1f(U.hal,L.hal);gl.uniform1f(U.grain,L.grain);gl.uniform1f(U.vig,L.vig);gl.uniform1f(U.logfix,L.logfix);
+  gl.uniform1f(U.expo,L.expo);gl.uniform1f(U.contr,L.contr);gl.uniform1f(U.sat,L.sat);gl.uniform1f(U.temp,L.temp);gl.uniform1f(U.split,L.split);gl.uniform1f(U.lift,L.lift);gl.uniform1f(U.hal,L.hal);gl.uniform1f(U.grain,L.grain);gl.uniform1f(U.vig,L.vig);gl.uniform1f(U.logfix,L.logfix);gl.uniform1f(U.tilt,S.st.tilt?1:0);gl.uniform1f(U.vhs,S.st.vhs?1:0);gl.uniform1f(U.leak,S.st.leak?1:0);gl.uniform1f(U.dream,S.st.dream?1:0);
   let black=(t<0.7&&!socialFmt())?1-t/0.7:0;const fe=E.T-1.4;if(t>fe)black=Math.max(black,clamp((t-fe)/1.4,0,1));
   const a=outAspect();let barH=0;if(S.st.bars&&a>1.2&&a<2.39)barH=(1-a/2.39)/2*ease((t-0.2)/1.2);
   gl.uniform1f(U.flash,flash);gl.uniform1f(U.black,black);gl.uniform1f(U.barH,barH);
@@ -1751,7 +1901,7 @@ function buildMP4(v,a){
 function waitEv(target,ev,ms){return new Promise(r=>{const h=()=>{target.removeEventListener(ev,h);r();};target.addEventListener(ev,h);setTimeout(h,ms);});}
 async function exportFast(plan){
   const E=S.edit,fps=S.st.fps,dm=plan.dm,N=Math.max(1,Math.round(E.T*fps)),isAvc=plan.v.codec.indexOf('avc')===0;
-  FX.cancel=false;P.fast=true;P.exporting=true;updateButtons();
+  FX.cancel=false;P.fast=true;P.exporting=true;updateButtons();$('#expSub').textContent="Calcul image par image, parfaitement fluide. Tu peux utiliser l'ordinateur pendant ce temps.";
   $('#exp').classList.add('on');$('#expDl').hidden=true;$('#expCancel').textContent='Annuler';$('#expBar').style.width='0%';$('#expT').textContent='Préparation';
   setOutSize(dm.w,dm.h);
   const vChunks=[];let vDesc=null,vErr=null;
@@ -1935,6 +2085,7 @@ async function exportFilm(){
     let res='err',msg='';
     try{res=await exportFast(plan);}catch(e){msg=e&&e.message?e.message:String(e);}
     P.fast=false;P.exporting=false;EXP_SRC=null;applyFormat();updateButtons();P.dirty=true;
+    if(rebuildAgain){rebuildAgain=false;setTimeout(rebuild,0);}
     if(res==='ok')return;
     if(res==='cancel'){$('#exp').classList.remove('on');toast('Export annulé.');return;}
     toast("Le calcul image par image s'est arrêté ("+msg+"). Export en temps réel à la place.",8000);
@@ -1951,7 +2102,7 @@ async function exportRealtime(){
   let rec;
   try{rec=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:dm.br,audioBitsPerSecond:256000}:{videoBitsPerSecond:dm.br});}
   catch(e){try{rec=new MediaRecorder(stream);}catch(e2){toast("L'export n'a pas pu démarrer : ce navigateur refuse l'enregistrement vidéo. Utilise Chrome ou Edge.",8000);try{limiter.disconnect(dest);}catch(e3){}applyFormat();return;}}
-  P.rec=rec;P.chunks=[];P.dest=dest;P.exporting=true;
+  P.rec=rec;P.chunks=[];P.dest=dest;P.exporting=true;$('#expSub').textContent="Export en temps réel : garde cette fenêtre au premier plan jusqu'à la fin.";
   rec.ondataavailable=ev=>{if(ev.data&&ev.data.size)P.chunks.push(ev.data);};
   $('#exp').classList.add('on');$('#expDl').hidden=true;$('#expCancel').textContent='Annuler';$('#expT').textContent='Préparation';$('#expBar').style.width='0%';
   updateButtons();resetDecks();P.t=0;P.dirty=true;
@@ -1968,12 +2119,13 @@ function finishExport(){
     $('#expT').textContent='Film prêt   '+Math.max(1,Math.round(blob.size/1048576))+' Mo, '+ext.toUpperCase();$('#expBar').style.width='100%';$('#expCancel').textContent='Fermer';
     try{limiter.disconnect(P.dest);}catch(e){}
     P.rec=null;applyFormat();updateButtons();a.click();
+    if(rebuildAgain){rebuildAgain=false;setTimeout(rebuild,0);}
   };
   setTimeout(()=>{try{rec.stop();}catch(e){}},350);
 }
 function closeExport(){
   if(P.fast){FX.cancel=true;return;}
-  if(P.exporting&&P.rec){P.exporting=false;const rec=P.rec;rec.onstop=null;try{rec.stop();}catch(e){}P.rec=null;pause();try{limiter.disconnect(P.dest);}catch(e){}applyFormat();toast('Export annulé.');}
+  if(P.exporting&&P.rec){P.exporting=false;const rec=P.rec;rec.onstop=null;try{rec.stop();}catch(e){}P.rec=null;pause();try{limiter.disconnect(P.dest);}catch(e){}applyFormat();toast('Export annulé.');if(rebuildAgain){rebuildAgain=false;setTimeout(rebuild,0);}}
   $('#exp').classList.remove('on');updateButtons();
 }
 
@@ -1995,7 +2147,7 @@ function updateButtons(){
   const has=S.clips.length>0,rush=S.clips.some(c=>!c.insert);
   $('#btnAuto').disabled=S.busy||!rush;$('#btnAnalyse').disabled=S.busy||!has||S.clips.every(c=>c.analyzed);
   $('#btnToMusic').disabled=!S.analyzed;$('#btnEdit').disabled=S.busy||!S.analyzed;$('#btnCompose').disabled=S.busy||composing;$('#btnPropose').disabled=S.busy||composing;
-  $('#btnPlay').disabled=!S.edit;$('#btnExport').disabled=!S.edit||P.exporting;$('#btnTake').disabled=!S.edit||P.exporting;$('#btnCut').disabled=!S.edit||P.exporting;$('#btnCover').disabled=!S.edit||P.exporting;
+  $('#btnPlay').disabled=!S.edit;$('#btnExport').disabled=!S.edit||P.exporting||composing;$('#btnTake').disabled=!S.edit||P.exporting;$('#btnCut').disabled=!S.edit||P.exporting;$('#btnCover').disabled=!S.edit||P.exporting||composing;
   $('#btnEdit').textContent='Monter mon film';
   const done={rushes:has,analyse:S.analyzed,music:!!S.music,film:!!S.edit};
   $$('.step').forEach(b=>b.classList.toggle('done',!!done[b.dataset.tab]));
@@ -2003,12 +2155,15 @@ function updateButtons(){
 function invalidateEdit(){pause();S.edit=null;resetDecks();P.t=0;refreshEmpty();drawProfileStatic();updateButtons();$('#tc').textContent='0:00 / 0:00';$('#shotInfo').textContent='';renderShotList();}
 function showStage(){try{if(window.matchMedia('(max-width:900px)').matches){const r=$('.stage').getBoundingClientRect();if(r.top<0||r.top>window.innerHeight*0.3)window.scrollTo({top:Math.max(0,window.scrollY+r.top-8),behavior:'smooth'});}}catch(e){}}
 function makeEdit(){
-  pause();resetDecks();S.edit=buildEdit();
+  if(P.exporting){rebuildAgain=true;return false;} /* jamais de nouveau montage pendant un export */
+  pause();resetDecks();S.trOv={};S.edit=buildEdit();
   if(!S.edit){toast("Le film n'a pas pu être monté : les rushes sont trop courts ou illisibles. Ajoute une vidéo de plus de 10 secondes.",8000);refreshEmpty();updateButtons();return false;}
-  P.t=0;P.dirty=true;applyFormat();refreshEmpty();drawProfileStatic();updateButtons();renderShotList();updTC(0);return true;
+  P.t=0;P.dirty=true;applyFormat();refreshEmpty();drawProfileStatic();updateButtons();renderShotList();renderTrans();updTC(0);return true;
 }
+let rebuildAgain=false;
 async function rebuild(){
   if(!S.edit)return;
+  if(composing||P.exporting){rebuildAgain=true;return;} /* une composition est en cours : on refera le montage juste après, avec le dernier réglage */
   if(S.music&&S.music.kind==='composed'&&S.music.key!==durKey())await composeMusic();
   makeEdit();
 }
@@ -2021,7 +2176,7 @@ async function autoFilm(){
 }
 function syncControls(){
   [['#segFormat','format'],['#segDur','dur'],['#segRhythm','rhythm'],['#segRes','res'],['#segFps','fps'],['#segDest','dest']].forEach(p=>{$$('button',$(p[0])).forEach(b=>b.classList.toggle('on',b.dataset.v===String(S.st[p[1]])));});
-  $('#optSharp').checked=S.st.sharp;$('#optBars').checked=S.st.bars;$('#optGrain').checked=S.st.grain;$('#optHal').checked=S.st.hal;$('#optRamps').checked=S.st.ramps;$('#optReframe').checked=S.st.reframe;$('#optPulse').checked=S.st.pulse;
+  $('#optSharp').checked=S.st.sharp;$('#optBars').checked=S.st.bars;$('#optGrain').checked=S.st.grain;$('#optHal').checked=S.st.hal;$('#optRamps').checked=S.st.ramps;$('#optReframe').checked=S.st.reframe;$('#optPulse').checked=S.st.pulse;$('#optTilt').checked=S.st.tilt;$('#optVhs').checked=S.st.vhs;$('#optLeak').checked=S.st.leak;$('#optDream').checked=S.st.dream;
   $('#lookAmt').value=Math.round(S.st.amt*100);
   $('#tTitle').value=S.st.title;$('#tTitle').placeholder=S.mood?S.mood.title:'Titre du film';$('#tSub').value=S.st.sub;$('#tCredit').value=S.st.credit;updDestInfo();renderStyleChips();
 }
@@ -2076,6 +2231,12 @@ function renderShotList(){
     li.querySelector('img').src=sh.thumb||sh.clip.poster;
     li.querySelector('b').textContent='Plan '+(k+1)+(sh.hero?', plan héros':'');
     li.querySelector('span').textContent=fmt(sh.start)+'   '+(KNAME[sh.kind]||'')+'   '+sh.clip.name+' à '+fmt(sh.srcIn);
+    if(k>0){const sel=document.createElement('select');sel.className='trsel';sel.setAttribute('aria-label','Transition avant le plan '+(k+1));
+      const o0=document.createElement('option');o0.value='';o0.textContent='Transition : selon le réglage ('+(TNAME[sh.tr.type]||'Coupe franche')+')';sel.appendChild(o0);
+      TR_ORDER.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent='Transition : '+TNAME[t];sel.appendChild(o);});
+      sel.value=S.trOv[k]||'';sel.onclick=e=>e.stopPropagation();
+      sel.onchange=()=>{if(sel.value)S.trOv[k]=sel.value;else delete S.trOv[k];applyTransitions(S.edit);drawProfileStatic();renderShotList();P.dirty=true;previewCut(k);};
+      li.querySelector('.cm').appendChild(sel);}
     const bt=li.querySelector('button');bt.title='Retirer ce plan';bt.setAttribute('aria-label','Retirer le plan '+(k+1));
     bt.onclick=e=>{e.stopPropagation();removeShot(k);};
     li.onclick=()=>seek(sh.start+0.02);
@@ -2195,7 +2356,7 @@ $('#btnRestore').addEventListener('click',()=>{S.excl=[];if(S.edit&&makeEdit())t
 $('#btnPropose').addEventListener('click',proposeMusic);
 $('#btnCover').addEventListener('click',exportCover);
 $('#btnPrivacy').addEventListener('click',privacyDialog);
-[['#optBars','bars'],['#optGrain','grain'],['#optHal','hal'],['#optReframe','reframe'],['#optPulse','pulse']].forEach(p=>{$(p[0]).addEventListener('change',e=>{S.st[p[1]]=e.target.checked;P.dirty=true;});});
+[['#optBars','bars'],['#optGrain','grain'],['#optHal','hal'],['#optReframe','reframe'],['#optPulse','pulse'],['#optTilt','tilt'],['#optVhs','vhs'],['#optLeak','leak'],['#optDream','dream']].forEach(p=>{$(p[0]).addEventListener('change',e=>{S.st[p[1]]=e.target.checked;P.dirty=true;});});
 $('#optRamps').addEventListener('change',e=>{S.st.ramps=e.target.checked;if(S.edit)makeEdit();});
 $('#lookAmt').addEventListener('input',e=>{S.st.amt=e.target.value/100;P.dirty=true;});
 $('#tTitle').addEventListener('input',e=>{S.st.title=e.target.value;P.dirty=true;});
@@ -2346,6 +2507,10 @@ const TIPS=[
  ['label.sw:has(#optRamps)',"Ralentis sur les plans forts et accélération avant le drop, selon la cadence de tes rushes"],
  ['label.sw:has(#optReframe)',"En vertical ou en carré, le cadre suit le sujet principal"],
  ['label.sw:has(#optPulse)',"Léger zoom sur chaque temps fort, pendant le sommet du film"],
+ ['label.sw:has(#optTilt)',"Floute le haut et le bas de l'image : les paysages ressemblent à une maquette"],
+ ['label.sw:has(#optVhs)',"Lignes, couleurs décalées et léger tremblé de cassette vidéo"],
+ ['label.sw:has(#optLeak)',"Halos chauds qui traversent l'image, comme sur une vieille pellicule"],
+ ['label.sw:has(#optDream)',"Lueur douce autour des zones claires"],
  ['label.sw:has(#optSharp)',"Renforce les détails pour compenser la compression des réseaux"],
  ['#tTitle',"Affiché au début du film"],
  ['#tSub',"Affiché sous le titre"],
@@ -2505,10 +2670,82 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 if(/[?&]maj=/.test(location.search)){try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}setTimeout(()=>toast('DroneStudio est à jour : version '+APP_VERSION+'.'),900);}
 setTimeout(()=>checkUpdate(false),4000);
 
+/* ========== Styles du film et galerie de transitions ========== */
+const VSTYLES=[
+  {id:'auto',name:'Automatique',desc:"Selon l'ambiance de tes images",look:null,amt:0.85,trans:'auto',rhythm:null,fx:{bars:true,grain:true,hal:true,pulse:true,tilt:false,vhs:false,leak:false,dream:false}},
+  {id:'cinema',name:'Cinéma',desc:'Bandes larges, pellicule, fondus lents',look:'film',amt:0.9,trans:'cine',rhythm:0,fx:{bars:true,grain:true,hal:true,pulse:false,tilt:false,vhs:false,leak:false,dream:false}},
+  {id:'voyage',name:'Voyage',desc:'Couleurs vives, poussées et filés',look:'medi',amt:0.85,trans:'dyn',rhythm:1,fx:{bars:false,grain:false,hal:true,pulse:true,tilt:false,vhs:false,leak:true,dream:false}},
+  {id:'epique',name:'Épique',desc:'Bleu et ambre, rotation sur le drop',look:'teal',amt:0.95,trans:'dyn',rhythm:2,fx:{bars:true,grain:true,hal:true,pulse:true,tilt:false,vhs:false,leak:false,dream:false}},
+  {id:'maquette',name:'Maquette',desc:'Effet miniature : le monde comme un jouet',look:'natural',amt:0.9,trans:'doux',rhythm:1,fx:{bars:false,grain:false,hal:false,pulse:true,tilt:true,vhs:false,leak:false,dream:false}},
+  {id:'retro',name:'Rétro',desc:'Cassette VHS, glitchs et grain',look:'film',amt:0.7,trans:'retro',rhythm:2,fx:{bars:false,grain:true,hal:false,pulse:true,tilt:false,vhs:true,leak:false,dream:false}},
+  {id:'reve',name:'Rêve',desc:'Lueur douce et fuites de lumière',look:'golden',amt:0.85,trans:'doux',rhythm:0,fx:{bars:false,grain:true,hal:true,pulse:false,tilt:false,vhs:false,leak:true,dream:true}},
+  {id:'noir',name:'Noir et blanc',desc:'Contraste, grain, fondus au noir',look:'mono',amt:1,trans:'cine',rhythm:0,fx:{bars:true,grain:true,hal:true,pulse:false,tilt:false,vhs:false,leak:false,dream:false}}
+];
+function topThumbs(n){const all=[];S.clips.forEach(c=>{if(c.insert||!c.analyzed)return;c.samples.forEach(s=>{if(s.edge>=0.6)all.push({c,s});});});all.sort((a,b)=>b.s.sc-a.s.sc);const out=[];for(const it of all){if(out.length>=n)break;if(out.some(o=>o.c===it.c&&Math.abs(o.s.t-it.s.t)<6))continue;out.push(it);}return out.map(o=>o.s.thumb);}
+function paintStyle(cv,v,src){
+  const x=cv.getContext('2d'),W=cv.width,H=cv.height,L=LOOKS.find(l=>l.id===(v.look||(S.mood?S.mood.look:'natural')))||LOOKS[0];
+  const go=im=>{
+    if(im)x.drawImage(im,0,0,W,H);else{const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#7FB6D6');g.addColorStop(0.55,'#E9C089');g.addColorStop(0.56,'#4F6B3E');g.addColorStop(1,'#2C3B2A');x.fillStyle=g;x.fillRect(0,0,W,H);}
+    const d=x.getImageData(0,0,W,H);gradeCPU(d.data,W,H,L,v.amt);x.putImageData(d,0,0);
+    const fx=v.fx;
+    if(fx.tilt&&'filter' in x){const c2=document.createElement('canvas');c2.width=W;c2.height=H;const y=c2.getContext('2d');y.filter='blur(2.2px) saturate(1.35)';y.drawImage(cv,0,0);x.save();x.beginPath();x.rect(0,0,W,H*0.36);x.rect(0,H*0.76,W,H*0.24);x.clip();x.drawImage(c2,0,0);x.restore();}
+    if(fx.dream&&'filter' in x){x.save();x.globalCompositeOperation='screen';x.globalAlpha=0.55;x.filter='blur(4px)';x.drawImage(cv,0,0);x.restore();}
+    if(fx.leak){x.save();x.globalCompositeOperation='screen';const g=x.createRadialGradient(W*0.15,H*0.2,0,W*0.15,H*0.2,W*0.55);g.addColorStop(0,'rgba(255,120,40,0.75)');g.addColorStop(1,'rgba(255,120,40,0)');x.fillStyle=g;x.fillRect(0,0,W,H);x.restore();}
+    if(fx.vhs){x.fillStyle='rgba(0,0,0,0.22)';for(let yy=0;yy<H;yy+=3)x.fillRect(0,yy,W,1);x.fillStyle='rgba(255,60,90,0.08)';x.fillRect(0,0,W,H);}
+    if(fx.bars){const b=Math.round(H*0.12);x.fillStyle='#000';x.fillRect(0,0,W,b);x.fillRect(0,H-b,W,b);}
+  };
+  if(src){const im=new Image();im.onload=()=>go(im);im.onerror=()=>go(null);im.src=src;}else go(null);
+}
+function renderVStyles(){
+  const box=$('#vstyles');if(!box)return;box.innerHTML='';const src=topThumbs(1)[0]||null;
+  VSTYLES.forEach(v=>{
+    const b=document.createElement('button');b.type='button';b.className='vstyle'+(S.st.vstyle===v.id?' on':'');b.setAttribute('role','radio');b.setAttribute('aria-checked',S.st.vstyle===v.id?'true':'false');
+    const cv=document.createElement('canvas');cv.width=160;cv.height=90;
+    const nm=document.createElement('b');nm.textContent=v.name;const ds=document.createElement('span');ds.textContent=v.id==='auto'&&S.mood?"Selon l'ambiance détectée : "+S.mood.name.toLowerCase():v.desc;
+    b.append(cv,nm,ds);b.onclick=()=>applyStyle(v.id);box.appendChild(b);paintStyle(cv,v,src);
+  });
+}
+function applyStyle(id){
+  const v=VSTYLES.find(x=>x.id===id)||VSTYLES[0];
+  S.st.vstyle=v.id;S.st.look=v.look||(S.mood?S.mood.look:'natural');S.st.lookUser=!!v.look;S.st.amt=v.amt;Object.assign(S.st,v.fx);S.st.trans=v.trans;
+  const r=v.rhythm==null?(S.mood?S.mood.energy:1):v.rhythm,again=!!S.edit&&r!==S.st.rhythm;S.st.rhythm=r;S.st.rhythmUser=v.rhythm!=null;
+  syncControls();renderLooks();renderVStyles();
+  if(again)rebuild();else if(S.edit){applyTransitions(S.edit);drawProfileStatic();renderShotList();}
+  renderTrans();P.dirty=true;toast('Style '+v.name+' appliqué : couleurs, effets, transitions et rythme.');
+}
+function renderTrans(){
+  const pk=$('#tpacks'),gr=$('#tlist');if(!pk||!gr)return;pk.innerHTML='';gr.innerHTML='';
+  const th=topThumbs(2),bgA=th[0]?'url("'+th[0]+'")':'linear-gradient(135deg,#4a7fa0,#d9a55c)',bgB=th[1]?'url("'+th[1]+'")':'linear-gradient(135deg,#2f5f3a,#9fd0e8)';
+  [['auto','Auto']].concat(Object.keys(TPACKS).map(k=>[k,TPACKS[k].name])).forEach(p=>{
+    const b=document.createElement('button');b.type='button';b.textContent=p[0]==='auto'?'Auto (selon les plans)':p[1];b.className=S.st.trans===p[0]?'on':'';b.setAttribute('aria-pressed',S.st.trans===p[0]?'true':'false');
+    b.title=p[0]==='auto'?"L'app choisit pour chaque coupe selon le mouvement du drone et la section du film":'Ensemble '+p[1]+' : transitions variées, accordées à chaque partie du film';
+    b.onclick=()=>setTrans(p[0]);pk.appendChild(b);
+  });
+  TR_ORDER.forEach(t=>{
+    const b=document.createElement('button');b.type='button';b.className='tcard'+(S.st.trans===t?' on':'');b.setAttribute('aria-pressed',S.st.trans===t?'true':'false');b.title=TDESC[t];
+    b.innerHTML='<span class="tpv" data-t="'+t+'"><i class="ta"></i><i class="tb"></i><i class="tc"></i></span><span class="tn"></span>';
+    b.querySelector('.tn').textContent=TNAME[t];b.querySelector('.ta').style.backgroundImage=bgA;b.querySelector('.tb').style.backgroundImage=bgB;
+    b.onclick=()=>setTrans(t);gr.appendChild(b);
+  });
+}
+function setTrans(mode){
+  S.st.trans=mode;S.trOv={};
+  if(S.edit){applyTransitions(S.edit);drawProfileStatic();renderShotList();P.dirty=true;}
+  renderTrans();
+  toast(mode==='auto'?"Transitions automatiques, choisies pour chaque coupe.":(TPACKS[mode]?'Ensemble '+TPACKS[mode].name+' appliqué.':TNAME[mode]+' sur toutes les coupes.')+(S.edit?' Aperçu en cours.':''));
+  previewCut(-1);
+}
+function previewCut(k){
+  const E=S.edit;if(!E||P.exporting)return;
+  if(k<0){const t0=P.playing?clock():P.t;k=E.shots.findIndex((s,i)=>i>0&&s.tr.d>0&&s.start>t0+0.4);if(k<0)k=E.shots.findIndex((s,i)=>i>0&&s.tr.d>0);if(k<0)k=Math.min(1,E.shots.length-1);}
+  const sh=E.shots[k];if(!sh)return;play(Math.max(0,sh.start-Math.max(1.1,sh.tr.d)));
+}
+if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock};
+
 /* ========== Démarrage ========== */
 try{glInit();}catch(e){R.ok=false;toast("L'aperçu ne peut pas s'afficher : la carte graphique a refusé l'initialisation. Mets à jour ton navigateur ou essaie Chrome ou Edge.",10000);}
 if(document.fonts&&document.fonts.load){Promise.all([document.fonts.load('700 40px Archivo'),document.fonts.load('400 20px Archivo')]).then(()=>{P.dirty=true;drawProfileStatic();}).catch(()=>{});}
-applyFormat();renderLooks();renderSuno();syncControls();updateButtons();updPlayBtn();refreshEmpty();drawProfileStatic();setupInstallBtn();updInstallBtn();applyTheme(curTheme(),false);applyTips();
+applyFormat();renderLooks();renderSuno();syncControls();updateButtons();updPlayBtn();refreshEmpty();drawProfileStatic();setupInstallBtn();updInstallBtn();renderVStyles();renderTrans();applyTheme(curTheme(),false);applyTips();
 requestAnimationFrame(loop);
 })();
 
