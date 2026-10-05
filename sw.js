@@ -1,6 +1,6 @@
 /* DroneStudio : service worker (ouverture hors connexion).
    Change le numéro de version après une modification des icônes ou du manifeste. */
-const CACHE = 'dronestudio-v6';
+const CACHE = 'dronestudio-v7';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.ico', './archivo.woff2', './archivo.ttf'];
 
 self.addEventListener('install', e => {
@@ -25,10 +25,11 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   if (url.searchParams.has('vcheck')) return; /* vérification de version : toujours le réseau */
 
-  /* Pages : réseau d'abord (mises à jour immédiates), cache si hors connexion */
+  /* Pages : réseau d'abord, en demandant TOUJOURS au serveur si la page a changé (cache: 'no-cache' = requête conditionnelle ETag, réponse 304 si rien de nouveau).
+     Sans cela, GitHub Pages fait garder la page 10 minutes par le navigateur et la nouvelle version n'apparaît pas. Cache de l'app seulement hors connexion. */
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req).then(res => {
+      fetch(req, { cache: 'no-cache' }).then(res => {
         if (res && res.ok) { const cp = res.clone(); caches.open(CACHE).then(c => c.put(req, cp)); }
         return res;
       }).catch(() => caches.match(req)
@@ -44,7 +45,7 @@ self.addEventListener('fetch', e => {
   if (url.origin === self.location.origin || fonts) {
     e.respondWith(
       caches.match(req).then(hit => {
-        const net = fetch(req).then(res => {
+        const net = fetch(req, fonts ? undefined : { cache: 'no-cache' }).then(res => {
           if (res && (res.ok || res.type === 'opaque')) { const cp = res.clone(); caches.open(CACHE).then(c => c.put(req, cp)); }
           return res;
         }).catch(() => hit || Response.error());

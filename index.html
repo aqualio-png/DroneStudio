@@ -596,7 +596,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>DroneStudio <span id="appVer">2.7</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
+      <p class="ver"><span>DroneStudio <span id="appVer">2.8</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -2932,6 +2932,9 @@ function helpDialog(){
   if(!IS_MOBILE){const h=document.createElement('h3');h.textContent='Raccourcis clavier';k.box.appendChild(h);const d=document.createElement('div');d.className='keys';d.innerHTML='<kbd>Espace</kbd><span>Lecture ou pause</span><kbd>← →</kbd><span>Plan précédent ou suivant</span><kbd>F</kbd><span>Plein écran</span><kbd>?</kbd><span>Cette aide</span>';k.box.appendChild(d);}
   k.para('DroneStudio version '+APP_VERSION+'. Les mises à jour sont vérifiées à chaque ouverture avec internet.');
   const sb=document.createElement('button');sb.type='button';sb.className='btn wide';sb.textContent="Faire découvrir DroneStudio à un ami";sb.onclick=()=>{closeDlg();shareDialog();};k.box.appendChild(sb);
+  const ov=document.createElement('p');ov.className='fine';ov.textContent=onlineHere()?'Version en ligne : vérification…':'';k.box.appendChild(ov);
+  if(onlineHere())fetchOnline().then(o=>{const c=verCmp(o.v,APP_VERSION);ov.textContent='Version en ligne : '+o.v+(o.when?' (publiée le '+o.when+')':'')+(c>0?'. Une mise à jour est disponible.':(c<0?'. Elle est plus ancienne que la tienne : la dernière mise en ligne n\'a pas abouti.':'. Tu es à jour.'));}).catch(()=>{ov.textContent='Version en ligne : indisponible pour le moment.';});
+  const hb=document.createElement('button');hb.type='button';hb.className='btn wide';hb.textContent="Recharger l'app depuis internet";hb.onclick=()=>{closeDlg();setTimeout(hardReload,60);};k.box.appendChild(hb);
   const jb=document.createElement('button');jb.type='button';jb.className='btn wide';jb.textContent="Journal d'import (en cas de problème)";jb.onclick=()=>{closeDlg();setTimeout(importLogDialog,60);};k.box.appendChild(jb);
   openDlg();
 }
@@ -3002,6 +3005,14 @@ function showUpdBar(v){
   const g=$('#updGo');g.disabled=false;g.textContent=onlineHere()?'Mettre à jour':'Ouvrir la version en ligne';
   placeUpdBar();$('#updBar').hidden=false;
 }
+function fmtWhen(lm){try{const d=new Date(lm);if(isNaN(d))return '';return d.toLocaleString('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});}catch(x){return '';}}
+async function fetchOnline(){
+  const now=Date.now(),r=await fetch(appUrl()+'index.html?vcheck='+now,{cache:'no-store'});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const lm=r.headers.get('last-modified')||'',m=(await r.text()).match(/id="appVer"[^>]*>\s*([0-9][0-9.]*)\s*</);
+  if(!m)throw new Error('version introuvable');
+  return{v:m[1],when:fmtWhen(lm)};
+}
 async function checkUpdate(manual){
   if(P.exporting)return;
   if(!onlineHere()){if(manual)toast("Ouvre DroneStudio depuis son adresse en ligne (ton raccourci) pour rechercher une mise à jour : depuis un fichier, GitHub bloque la vérification.",8000);return;}
@@ -3009,17 +3020,25 @@ async function checkUpdate(manual){
   if(!manual&&navigator.onLine===false)return;
   const btn=$('#btnUpd');if(manual){btn.disabled=true;btn.textContent='Recherche en cours…';}
   try{
-    const r=await fetch(appUrl()+'index.html?vcheck='+now,{cache:'no-store'});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const m=(await r.text()).match(/id="appVer"[^>]*>\s*([0-9][0-9.]*)\s*</);
-    if(!m)throw new Error('version introuvable');
-    if(verCmp(m[1],APP_VERSION)>0)showUpdBar(m[1]);
-    else if(manual)toast('Tu as la dernière version : '+APP_VERSION+'.');
+    const o=await fetchOnline(),c=verCmp(o.v,APP_VERSION),on=' En ligne : version '+o.v+(o.when?' (publiée le '+o.when+')':'')+'.';
+    if(c>0)showUpdBar(o.v);
+    else if(manual&&c===0)toast('Tu as la dernière version : '+APP_VERSION+'.'+on,9000);
+    else if(manual)toast("Le site en ligne est resté à la version "+o.v+", plus ancienne que la tienne ("+APP_VERSION+") : la dernière mise en ligne n'a pas abouti. Vérifie sur GitHub que index.html est bien à la racine du dépôt, que « Commit changes » a été fait et que l'onglet Actions affiche une coche verte.",14000);
   }catch(e){if(manual)toast('Vérification impossible : vérifie ta connexion internet.');}
   finally{if(manual){btn.disabled=false;btn.textContent='Rechercher une mise à jour';}}
 }
+/* Recharge l'app en ignorant tout ce que le navigateur a gardé (cache de l'app et service worker) */
+async function hardReload(){
+  if(S.clips.length&&!confirm("Recharger efface le montage en cours : tes rushes devront être ajoutés de nouveau. Continuer ?"))return;
+  toast('Rechargement depuis internet…');
+  try{if(window.caches){const ks=await caches.keys();for(const k of ks){if(k.indexOf('dronestudio-')===0)await caches.delete(k);}}}catch(x){}
+  try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){const scope=new URL('./',location.href).href,rs=await navigator.serviceWorker.getRegistrations();for(const r of rs){if(r.scope===scope)await r.unregister();}}}catch(x){}
+  if(!onlineHere()){window.open(APP_URL,'_blank','noopener');return;}
+  location.replace(location.pathname+'?maj='+Date.now());
+}
 function doUpdate(){
   if(!onlineHere()){window.open(APP_URL,'_blank','noopener');return;}
+  if(S.clips.length&&!confirm("La mise à jour recharge l'app : le montage en cours sera effacé et tes rushes devront être ajoutés de nouveau. Continuer ?"))return;
   const b=$('#updGo');b.disabled=true;b.textContent='Mise à jour…';
   try{const p=navigator.serviceWorker&&navigator.serviceWorker.getRegistration();if(p&&p.then)p.then(r=>{if(r)r.update();}).catch(()=>{});}catch(e){}
   setTimeout(()=>{location.replace(location.pathname+'?maj='+encodeURIComponent(updShown||String(Date.now())));},150);
@@ -3110,7 +3129,7 @@ function previewCut(k){
   const sh=E.shots[k];if(!sh)return;
   const d=sh.tr.d||0;play(Math.max(0,sh.start-d/2-1.4));P.stopAt=sh.start+d/2+1.6;
 }
-if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause,qrMatrix,drawQR,shareDialog,exportRealtime,exportFilm,fastPlan,handleFiles,impCancel,fmtD,IMPLOG,cleanTmp,opfsTmp,IMP};
+if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause,qrMatrix,drawQR,shareDialog,exportRealtime,exportFilm,fastPlan,handleFiles,impCancel,fmtD,IMPLOG,cleanTmp,opfsTmp,IMP,fetchOnline,hardReload};
 
 /* ========== Démarrage ========== */
 try{glInit();}catch(e){R.ok=false;toast("L'aperçu ne peut pas s'afficher : la carte graphique a refusé l'initialisation. Mets à jour ton navigateur ou essaie Chrome ou Edge.",10000);}
