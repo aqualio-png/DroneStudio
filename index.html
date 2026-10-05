@@ -596,7 +596,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>DroneStudio <span id="appVer">2.8</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
+      <p class="ver"><span>DroneStudio <span id="appVer">2.9</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -874,8 +874,13 @@ async function probeSpeed(f,ms){
 const MEMCAP=629145600;
 /* Copie locale d'un fichier lent (serveur distant, cloud, réseau mobile) : sur disque si possible, sinon en mémoire pour les fichiers raisonnables */
 async function localizeFile(f,label,step){
-  const total=f.size||0;let done=0,last=0;
-  const upd=force=>{const n=performance.now();if(!force&&n-last<200)return;last=n;busyShow(step+'Récupération de '+label+' : '+mbs(done)+(total?' / '+mbs(total):'')+' Mo',total?Math.min(1,done/total):null,true);};
+  const total=f.size||0,t0=performance.now();let done=0,last=0;const hist=[];
+  const left=s=>s<90?Math.max(1,Math.round(s))+' s':Math.round(s/60)+' min';
+  const upd=force=>{const n=performance.now();if(!force&&n-last<250)return;last=n;
+    hist.push([n,done]);while(hist.length>2&&n-hist[0][0]>4000)hist.shift();
+    const dt=(n-hist[0][0])/1000,rate=dt>0.8?(done-hist[0][1])/dt:0;
+    const extra=rate>0?'   '+fmtNum(rate/1048576,rate<10485760?1:0)+' Mo/s'+(total>done?', reste '+left((total-done)/rate):''):'';
+    busyShow(step+'Récupération de '+label+' : '+mbs(done)+(total?' / '+mbs(total):'')+' Mo'+extra,total?Math.min(1,done/total):null,true);};
   const dir=await opfsTmp();let w=null,fh=null,tmpName=null;
   if(dir){try{tmpName=uid()+'_'+String(f.name||'rush').replace(/[^A-Za-z0-9._-]/g,'_').slice(-60);fh=await dir.getFileHandle(tmpName,{create:true});w=await fh.createWritable();}catch(e){ilog('Copie sur disque impossible : '+(e&&e.message?e.message:e));w=null;fh=null;tmpName=null;}}
   if(!w&&total>MEMCAP)throw new Error('trop gros');
@@ -883,23 +888,26 @@ async function localizeFile(f,label,step){
   let blob=new Blob([],{type:f.type||'video/mp4'}),buf=[],bufN=0;
   const flush=()=>{if(buf.length){blob=new Blob([blob].concat(buf),{type:blob.type});buf=[];bufN=0;}};
   const rd=f.stream().getReader();IMP.hooks.push(()=>{try{rd.cancel();}catch(e){}});
+  /* écriture sur le disque par paquets de 8 Mo, pendant que le paquet suivant arrive du réseau */
+  const B=(IMP.batch!=null?IMP.batch:8388608);let pend=[],pendN=0,wp=Promise.resolve();
+  const flushW=async()=>{if(!pendN)return;const part=new Blob(pend);pend=[];pendN=0;await wp;wp=w.write(part);};
   upd(true);
   try{
     for(;;){
       if(IMP.cancel)throw new Error('annulé');
       const r=await rd.read();if(r.done)break;
       done+=r.value.length;
-      if(w)await w.write(r.value);else{buf.push(r.value);bufN+=r.value.length;if(bufN>=16777216)flush();}
+      if(w){if(B<=0)await w.write(r.value);else{pend.push(r.value);pendN+=r.value.length;if(pendN>=B)await flushW();}}else{buf.push(r.value);bufN+=r.value.length;if(bufN>=16777216)flush();}
       upd(false);
     }
     if(IMP.cancel)throw new Error('annulé');
     upd(true);
-    if(w){await w.close();w=null;const file=await fh.getFile();ilog('Copie terminée : '+mbs(file.size)+' Mo');return{file,tmpName};}
+    if(w){await flushW();await wp;await w.close();w=null;const file=await fh.getFile(),sec=(performance.now()-t0)/1000;ilog('Copie terminée : '+mbs(file.size)+' Mo en '+Math.round(sec)+' s ('+fmtNum(file.size/1048576/Math.max(0.1,sec),1)+' Mo/s)');return{file,tmpName};}
     flush();ilog('Copie terminée en mémoire : '+mbs(blob.size)+' Mo');
     return{file:new File([blob],f.name||'rush',{type:blob.type,lastModified:f.lastModified||Date.now()}),tmpName:null};
   }catch(e){
     try{rd.cancel();}catch(x){}
-    if(w){try{await w.abort();}catch(x){}}
+    if(w){try{await wp;}catch(x){}try{await w.abort();}catch(x){}}
     if(dir&&tmpName){try{await dir.removeEntry(tmpName);}catch(x){}}
     throw e;
   }
@@ -3129,7 +3137,7 @@ function previewCut(k){
   const sh=E.shots[k];if(!sh)return;
   const d=sh.tr.d||0;play(Math.max(0,sh.start-d/2-1.4));P.stopAt=sh.start+d/2+1.6;
 }
-if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause,qrMatrix,drawQR,shareDialog,exportRealtime,exportFilm,fastPlan,handleFiles,impCancel,fmtD,IMPLOG,cleanTmp,opfsTmp,IMP,fetchOnline,hardReload};
+if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause,qrMatrix,drawQR,shareDialog,exportRealtime,exportFilm,fastPlan,handleFiles,impCancel,fmtD,IMPLOG,cleanTmp,opfsTmp,IMP,fetchOnline,hardReload,localizeFile};
 
 /* ========== Démarrage ========== */
 try{glInit();}catch(e){R.ok=false;toast("L'aperçu ne peut pas s'afficher : la carte graphique a refusé l'initialisation. Mets à jour ton navigateur ou essaie Chrome ou Edge.",10000);}
