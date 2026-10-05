@@ -596,7 +596,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>DroneStudio <span id="appVer">2.6</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
+      <p class="ver"><span>DroneStudio <span id="appVer">2.7</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -742,8 +742,8 @@ function pct(arr,p){if(!arr.length)return 0;const a=Float64Array.from(arr).sort(
 function bell(x,mu,sg){const l=(Math.log(Math.max(0,x)+0.01)-Math.log(mu))/sg;return Math.exp(-l*l/2);}
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
 function toast(msg,ms){const el=$('#toast');el.textContent=msg;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),ms||4200);}
-const IMP={cancel:false,rej:null};
-function impCancel(){IMP.cancel=true;if(IMP.rej){const r=IMP.rej;IMP.rej=null;r(new Error('annulé'));}}
+const IMP={cancel:false,rej:null,hooks:[]};
+function impCancel(){IMP.cancel=true;ilog('Annulé par l\'utilisateur');IMP.hooks.forEach(h=>{try{h();}catch(e){}});IMP.hooks=[];if(IMP.rej){const r=IMP.rej;IMP.rej=null;r(new Error('annulé'));}}
 function cancellable(p){return new Promise((res,rej)=>{IMP.rej=rej;p.then(v=>{IMP.rej=null;res(v);},e=>{IMP.rej=null;rej(e);});});}
 function waitEvent(el,ev,ms){return new Promise((res,rej)=>{let done=false;const to=setTimeout(()=>fin(new Error('délai dépassé')),ms||15000),iv=setInterval(()=>{if(IMP.cancel)fin(new Error('annulé'));},300);function ok(){fin(null);}function ko(){fin(new Error('erreur média'));}function fin(err){if(done)return;done=true;clearTimeout(to);clearInterval(iv);el.removeEventListener(ev,ok);el.removeEventListener('error',ko);if(err)rej(err);else res();}el.addEventListener(ev,ok);el.addEventListener('error',ko);});}
 async function seekTo(v,t){
@@ -819,14 +819,33 @@ async function probeClip(c){
   await waitEvent(v,'loadedmetadata',60000);
   if(!v.videoWidth||!isFinite(v.duration)||v.duration<=0)throw new Error('vidéo illisible');
   c.duration=v.duration;c.w=v.videoWidth;c.h=v.videoHeight;
-  try{await seekTo(v,Math.min(c.duration*0.3,4));c.poster=snap(v,192,108);}catch(e){if(IMP.cancel)throw e;c.poster=blankPoster();}
+  try{await withTimeout(seekTo(v,Math.min(c.duration*0.3,4)),25000);c.poster=snap(v,192,108);}catch(e){if(IMP.cancel)throw e;c.poster=blankPoster();}
   try{c.fps=await probeFps(v);}catch(e){c.fps=30;}
   v.pause();v.removeAttribute('src');v.load();
   /* cadence réelle lue dans le fichier, plus fiable qu'une lecture de 1,5 s */
-  try{const mx=await demux(c.file);c.mx=mx;const std=[24,25,30,48,50,60,100,120];let b=std[0];std.forEach(x=>{if(Math.abs(x-mx.fps)<Math.abs(b-mx.fps))b=x;});if(Math.abs(b-mx.fps)<0.6)c.fps=b;}catch(e){}
+  try{const mx=await withTimeout(demux(c.file),30000);c.mx=mx;const std=[24,25,30,48,50,60,100,120];let b=std[0];std.forEach(x=>{if(Math.abs(x-mx.fps)<Math.abs(b-mx.fps))b=x;});if(Math.abs(b-mx.fps)<0.6)c.fps=b;}catch(e){}
 }
 function shortName(n){n=String(n||'rush');return n.length>26?n.slice(0,12)+'…'+n.slice(-11):n;}
 function mbs(n){return Math.max(1,Math.round(n/1048576));}
+/* ---- Journal d'import : permet de savoir à quelle étape un fichier distant bloque ---- */
+const IMPLOG=[];
+function ilog(m){if(!IMPLOG.t0)IMPLOG.t0=performance.now();IMPLOG.push(((performance.now()-IMPLOG.t0)/1000).toFixed(1)+' s  '+m);if(IMPLOG.length>200)IMPLOG.shift();}
+function envInfo(){const n=navigator,c=n.connection||{};return 'DroneStudio '+(($('#appVer')||{}).textContent||'?')+' | '+String(n.userAgent||'').replace(/^Mozilla\/5\.0 /,'').slice(0,110)+' | réseau '+(c.type||'?')+'/'+(c.effectiveType||'?')+(c.downlink?' '+c.downlink+' Mb/s':'')+(c.saveData?' économie de données':'')+' | mémoire '+(n.deviceMemory||'?')+' Go | copie sur disque '+((n.storage&&n.storage.getDirectory)?'oui':'non')+' | écran maintenu allumé '+(n.wakeLock?'oui':'non');}
+/* ---- Espace de travail privé du navigateur (OPFS) : copie temporaire d'un fichier distant, sans surcharger la mémoire ---- */
+let tmpDir=null;
+async function opfsTmp(){
+  if(tmpDir)return tmpDir;
+  try{if(!(navigator.storage&&navigator.storage.getDirectory))return null;const root=await navigator.storage.getDirectory();tmpDir=await root.getDirectoryHandle('dronestudio-tmp',{create:true});return tmpDir;}
+  catch(e){ilog('Copie sur disque indisponible : '+(e&&e.message?e.message:e));return null;}
+}
+async function cleanTmp(keep){
+  let n=0;try{const d=await opfsTmp();if(!d)return 0;const names=[];for await(const ent of d.entries())names.push(ent[0]);for(const nm of names){if(keep&&keep.indexOf(nm)>=0)continue;try{await d.removeEntry(nm);n++;}catch(e){}}}catch(e){}
+  return n;
+}
+async function wipeTmp(){try{if(navigator.storage&&navigator.storage.getDirectory){const root=await navigator.storage.getDirectory();await root.removeEntry('dronestudio-tmp',{recursive:true});}}catch(e){}tmpDir=null;}
+async function dropClipFile(c){try{if(c&&c.tmpName){const d=await opfsTmp();if(d)await d.removeEntry(c.tmpName);c.tmpName=null;}}catch(e){}}
+async function spaceInfo(){try{const e=await navigator.storage.estimate();return{free:Math.max(0,(e.quota||0)-(e.usage||0))};}catch(x){return null;}}
+function isCell(){const c=navigator.connection;return !!(c&&(c.type==='cellular'||c.saveData));}
 /* Reconnaît le contenu d'un fichier à ses premiers octets : certains serveurs ou applications cloud donnent un nom sans extension et pas de type */
 async function sniffKind(f){
   let b;try{b=await fileBytes(f,0,16);}catch(e){if(IMP.cancel)throw e;return 'unknown';}
@@ -839,60 +858,111 @@ async function sniffKind(f){
   if(s0==='%PDF'||s0.slice(1,4)==='PNG'||s0.slice(0,3)==='GIF'||(b[0]===0xFF&&b[1]===0xD8)||s0==='PK\x03\x04')return 'other';
   return 'unknown';
 }
-/* Copie locale (en mémoire, pendant la session) d'un fichier lent : serveur distant, cloud, réseau mobile */
-async function localizeFile(f,label){
-  const total=f.size||1;let done=0,last=0,blob=new Blob([],{type:f.type||'video/mp4'}),buf=[],bufN=0;
-  const flush=()=>{if(buf.length){blob=new Blob([blob].concat(buf),{type:blob.type});buf=[];bufN=0;}};
-  const upd=(force)=>{const n=performance.now();if(!force&&n-last<180)return;last=n;busyShow('Récupération de '+label+' : '+mbs(done)+' / '+mbs(total)+' Mo',Math.min(1,done/total),true);};
-  upd(true);
-  if(typeof f.stream==='function'){
-    const rd=f.stream().getReader();
-    for(;;){
-      if(IMP.cancel){try{rd.cancel();}catch(e){}throw new Error('annulé');}
-      const r=await rd.read();if(r.done)break;
-      buf.push(r.value);bufN+=r.value.length;done+=r.value.length;if(bufN>=16777216)flush();upd(false);
-    }
-  }else{
-    for(let o=0;o<total;o+=8388608){
-      if(IMP.cancel)throw new Error('annulé');
-      const ab=await f.slice(o,Math.min(total,o+8388608)).arrayBuffer();buf.push(new Uint8Array(ab));done+=ab.byteLength;flush();upd(false);
-    }
-  }
-  flush();upd(true);
-  return new File([blob],f.name||'rush',{type:blob.type,lastModified:f.lastModified||Date.now()});
+/* Test de vitesse sans rien télécharger de plus : lecture de 256 Ko au milieu, interrompue au bout de ms millisecondes */
+async function probeSpeed(f,ms){
+  const size=f.size||0;if(size<4194304||typeof f.slice(0,1).stream!=='function')return{slow:false,ms:0};
+  const a=Math.floor(size*0.5),t0=performance.now();let rd=null,to=0;
+  try{
+    rd=f.slice(a,Math.min(size,a+262144)).stream().getReader();
+    IMP.hooks.push(()=>{try{rd.cancel();}catch(e){}});
+    const lim=new Promise((_,rej)=>{to=setTimeout(()=>rej(new Error('lent')),ms);});
+    for(;;){const r=await Promise.race([rd.read(),lim]);if(r.done)break;}
+    clearTimeout(to);return{slow:false,ms:Math.round(performance.now()-t0)};
+  }catch(e){clearTimeout(to);if(IMP.cancel)throw e;return{slow:true,ms:Math.round(performance.now()-t0)};}
+  finally{try{if(rd)rd.cancel();}catch(e){}}
 }
+const MEMCAP=629145600;
+/* Copie locale d'un fichier lent (serveur distant, cloud, réseau mobile) : sur disque si possible, sinon en mémoire pour les fichiers raisonnables */
+async function localizeFile(f,label,step){
+  const total=f.size||0;let done=0,last=0;
+  const upd=force=>{const n=performance.now();if(!force&&n-last<200)return;last=n;busyShow(step+'Récupération de '+label+' : '+mbs(done)+(total?' / '+mbs(total):'')+' Mo',total?Math.min(1,done/total):null,true);};
+  const dir=await opfsTmp();let w=null,fh=null,tmpName=null;
+  if(dir){try{tmpName=uid()+'_'+String(f.name||'rush').replace(/[^A-Za-z0-9._-]/g,'_').slice(-60);fh=await dir.getFileHandle(tmpName,{create:true});w=await fh.createWritable();}catch(e){ilog('Copie sur disque impossible : '+(e&&e.message?e.message:e));w=null;fh=null;tmpName=null;}}
+  if(!w&&total>MEMCAP)throw new Error('trop gros');
+  ilog('Récupération '+(w?'sur le disque du téléphone':'en mémoire')+' de '+mbs(total)+' Mo');
+  let blob=new Blob([],{type:f.type||'video/mp4'}),buf=[],bufN=0;
+  const flush=()=>{if(buf.length){blob=new Blob([blob].concat(buf),{type:blob.type});buf=[];bufN=0;}};
+  const rd=f.stream().getReader();IMP.hooks.push(()=>{try{rd.cancel();}catch(e){}});
+  upd(true);
+  try{
+    for(;;){
+      if(IMP.cancel)throw new Error('annulé');
+      const r=await rd.read();if(r.done)break;
+      done+=r.value.length;
+      if(w)await w.write(r.value);else{buf.push(r.value);bufN+=r.value.length;if(bufN>=16777216)flush();}
+      upd(false);
+    }
+    if(IMP.cancel)throw new Error('annulé');
+    upd(true);
+    if(w){await w.close();w=null;const file=await fh.getFile();ilog('Copie terminée : '+mbs(file.size)+' Mo');return{file,tmpName};}
+    flush();ilog('Copie terminée en mémoire : '+mbs(blob.size)+' Mo');
+    return{file:new File([blob],f.name||'rush',{type:blob.type,lastModified:f.lastModified||Date.now()}),tmpName:null};
+  }catch(e){
+    try{rd.cancel();}catch(x){}
+    if(w){try{await w.abort();}catch(x){}}
+    if(dir&&tmpName){try{await dir.removeEntry(tmpName);}catch(x){}}
+    throw e;
+  }
+}
+/* Fenêtre de confirmation avant de copier un gros fichier distant */
+function askBig(label,size){
+  return new Promise(res=>{
+    const k=dlgKit('Copier ce fichier sur le téléphone ?'),d=$('#instDlg');
+    k.para(label+' ('+mbs(size)+" Mo) est lu depuis un serveur distant ou le cloud. Pour l'analyser et le monter, l'app doit d'abord le copier sur ton téléphone.");
+    if(isCell())k.para("Tu es en données mobiles : cela consommera environ "+mbs(size)+" Mo de ton forfait. Le Wi-Fi est préférable.");
+    k.para("Tu peux aussi copier la vidéo toi-même dans le stockage du téléphone (appli Freebox, Téléchargements), puis la choisir : c'est plus rapide.");
+    const ic=$('#instClose');ic.className='btn wide';let decided=false;const done=v=>{if(decided)return;decided=true;d.removeEventListener('close',onc);ic.className='btn primary wide';res(v);},onc=()=>done(false);
+    const b=document.createElement('button');b.type='button';b.className='btn primary wide';b.textContent='Copier ('+mbs(size)+' Mo)';b.onclick=()=>{done(true);closeDlg();};
+    k.box.appendChild(b);$('#instClose').textContent='Annuler';d.addEventListener('close',onc);openDlg();
+  });
+}
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('lent')),ms))]);}
 async function importOne(f){
-  IMP.cancel=false;IMP.rej=null;
+  IMP.cancel=false;IMP.rej=null;IMP.hooks=[];
   const label=shortName(f.name),t0=performance.now(),type=f.type||'';
   const nameAudio=type.indexOf('audio/')===0||/\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(f.name||'');
-  let c=null;
-  const tick=setInterval(()=>busyShow('En attente du fichier '+label+'   '+Math.round((performance.now()-t0)/1000)+' s',null,true),1000);
-  busyShow('En attente du fichier '+label,null,true);
+  const sec=()=>Math.round((performance.now()-t0)/1000);
+  let c=null,tmpName=null;
+  ilog('Fichier choisi : '+(f.name||'(sans nom)')+' | type '+(type||'inconnu')+' | '+mbs(f.size||0)+' Mo');
+  const tick=setInterval(()=>busyShow('1/4  En attente du fichier '+label+'   '+sec()+' s',null,true),1000);
+  busyShow('1/4  En attente du fichier '+label,null,true);
   try{
     /* 1. premiers octets : peuvent mettre longtemps à arriver si le fichier vient d'un serveur distant ou du cloud */
-    let kind=await cancellable(sniffKind(f));
+    let kind=await cancellable(sniffKind(f));ilog('Étape 1 terminée après '+sec()+' s : contenu '+kind);
     if(kind==='unknown')kind=nameAudio?'audio':'video';
     if(kind==='other')throw new Error('autre');
     clearInterval(tick);
     if(kind==='audio'){busyHide();await importMusic(f);return 'audio';}
-    /* 2. lecture au milieu du fichier lente : on le récupère d'abord en entier, avec une vraie progression */
+    /* 2. test de vitesse (sans télécharger davantage) */
+    busyShow('2/4  Test de lecture de '+label,null,true);
+    const sp=await cancellable(probeSpeed(f,1500));ilog('Étape 2 : lecture '+(sp.slow?'LENTE (plus de 1,5 s pour 256 Ko)':'rapide ('+sp.ms+' ms)'));
     let src=f;
-    const tm=performance.now();
-    try{await cancellable(fileBytes(f,Math.floor((f.size||0)*0.5),262144));}catch(e){if(IMP.cancel)throw e;}
-    if(performance.now()-tm>1500)src=await cancellable(localizeFile(f,label));
-    busyShow('Lecture de '+label,null,true);
-    c={id:uid(),file:src,name:f.name||'rush',url:URL.createObjectURL(src),duration:0,w:0,h:0,fps:30,samples:[],step:0.5,analyzed:false,insert:false,poster:'',date:new Date(f.lastModified||Date.now())};
-    await probeClip(c);
+    if(sp.slow){
+      /* 3. copie sur le téléphone, avec confirmation pour les gros fichiers */
+      const sz=f.size||0,si=await spaceInfo();
+      if(si&&sz&&sz>si.free*0.9)throw new Error('espace:'+mbs(sz)+':'+mbs(si.free));
+      if(sz>(IMP.bigMB||250)*1048576){busyHide();const ok=await cancellable(askBig(label,sz));if(!ok)throw new Error('annulé');}
+      const r=await cancellable(localizeFile(f,label,'3/4  '));src=r.file;tmpName=r.tmpName;
+    }
+    /* 4. informations du fichier */
+    busyShow('4/4  Lecture des informations de '+label,null,true);
+    c={id:uid(),file:src,name:f.name||'rush',url:URL.createObjectURL(src),duration:0,w:0,h:0,fps:30,samples:[],step:0.5,analyzed:false,insert:false,poster:'',date:new Date(f.lastModified||Date.now()),tmpName};
+    await cancellable(probeClip(c));
+    ilog('Rush ajouté : '+c.w+'×'+c.h+', '+fmtD(c.duration)+', '+c.fps+' i/s, après '+sec()+' s');
     S.clips.push(c);return 'video';
   }catch(e){
     if(c)URL.revokeObjectURL(c.url);
-    const m=String(e&&e.message?e.message:e);
+    if(tmpName&&!(c&&S.clips.indexOf(c)>=0))await dropClipFile({tmpName});
+    const m=String(e&&e.message?e.message:e);ilog('Échec : '+m);
+    const more=" Détails : bouton ? puis Journal d'import.";
     if(m==='annulé'||IMP.cancel)toast('Import annulé.');
     else if(m==='autre')toast((f.name||'Ce fichier')+" n'est pas une vidéo : choisis un fichier MP4 ou MOV.",7000);
-    else if(m==='délai dépassé')toast(label+" met trop de temps à arriver. S'il est sur un serveur distant ou dans le cloud, attends une meilleure connexion ou copie-le d'abord sur ton téléphone, puis réessaie.",11000);
-    else toast(label+" : format ou codec non pris en charge par ce navigateur. Essaie Chrome ou Edge, ou réexporte en H.264.",8000);
+    else if(m.indexOf('espace:')===0){const p=m.split(':');toast("Pas assez de place sur le téléphone : il faut "+p[1]+" Mo et il n'en reste que "+p[2]+" Mo. Libère de la place, puis réessaie.",10000);}
+    else if(m==='trop gros')toast("Ce navigateur ne peut pas copier un fichier aussi gros depuis un serveur distant. Copie d'abord la vidéo dans le stockage du téléphone (appli Freebox, Téléchargements), puis choisis-la."+more,12000);
+    else if(m==='délai dépassé')toast(label+" met trop de temps à arriver. S'il est sur un serveur distant ou dans le cloud, attends une meilleure connexion ou copie-le d'abord sur ton téléphone, puis réessaie."+more,12000);
+    else toast(label+" : format ou codec non pris en charge par ce navigateur. Essaie Chrome ou Edge, ou réexporte en H.264."+more,9000);
     return null;
-  }finally{clearInterval(tick);busyHide();IMP.rej=null;}
+  }finally{clearInterval(tick);busyHide();IMP.rej=null;IMP.hooks=[];}
 }
 async function handleFiles(list){
   const files=Array.from(list||[]);let added=0;
@@ -915,7 +985,7 @@ function renderClipList(){
     const st=li.querySelector('.star');st.title=c.insert?'Retirer des inserts':'Utiliser comme insert';st.setAttribute('aria-label',st.title);
     st.onclick=()=>{c.insert=!c.insert;if(S.analyzed){computeGlobal();renderAnalysis();}invalidateEdit();renderClipList();};
     const del=li.querySelector('.del');del.title='Retirer ce rush';del.setAttribute('aria-label',del.title);
-    del.onclick=()=>{invalidateEdit();S.excl=S.excl.filter(x=>x.clip!==c.id);S.clips=S.clips.filter(x=>x!==c);URL.revokeObjectURL(c.url);
+    del.onclick=()=>{invalidateEdit();S.excl=S.excl.filter(x=>x.clip!==c.id);S.clips=S.clips.filter(x=>x!==c);URL.revokeObjectURL(c.url);dropClipFile(c);
       if(S.analyzed){if(S.clips.some(x=>!x.insert&&x.analyzed)){computeGlobal();renderAnalysis();}else{S.analyzed=false;S.mood=null;renderAnalysis();}}
       renderClipList();refreshEmpty();updateButtons();};
     ul.appendChild(li);
@@ -2390,8 +2460,10 @@ function closeExport(){
 }
 
 /* ========== Interface ========== */
-function busyShow(txt,p,canc){$('#busy').hidden=false;$('#busyT').textContent=txt+(p!=null?'   '+Math.round(p*100)+' %':'');$('#busyBar').style.width=(p!=null?Math.round(p*100):35)+'%';const x=$('#busyX');if(x)x.hidden=!canc;}
-function busyHide(){$('#busy').hidden=true;const x=$('#busyX');if(x)x.hidden=true;}
+let wlock=null;
+async function keepAwake(on){try{if(on){if(!wlock&&navigator.wakeLock&&document.visibilityState==='visible'){wlock=await navigator.wakeLock.request('screen');wlock.addEventListener('release',()=>{wlock=null;});}}else if(wlock){const w=wlock;wlock=null;await w.release();}}catch(x){wlock=null;}}
+function busyShow(txt,p,canc){keepAwake(true);$('#busy').hidden=false;$('#busyT').textContent=txt+(p!=null?'   '+Math.round(p*100)+' %':'');$('#busyBar').style.width=(p!=null?Math.round(p*100):35)+'%';const x=$('#busyX');if(x)x.hidden=!canc;}
+function busyHide(){keepAwake(false);$('#busy').hidden=true;const x=$('#busyX');if(x)x.hidden=true;}
 function setTab(name){
   $$('.step').forEach(b=>{const on=b.dataset.tab===name;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false');});
   $$('.pane').forEach(p=>p.classList.toggle('on',p.id==='pane-'+name));
@@ -2551,6 +2623,7 @@ async function exportCover(){
 /* ========== Confidentialité et désinstallation ========== */
 async function wipeData(){
   let n=0;
+  await wipeTmp();
   try{localStorage.removeItem('dronestudio-theme');}catch(e){}
   try{if(window.caches){const ks=await caches.keys();for(const k of ks){if(k.indexOf('dronestudio-')===0&&await caches.delete(k))n++;}}}catch(e){}
   try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){const scope=new URL('./',location.href).href;const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs){if(r.scope===scope&&await r.unregister())n++;}}}catch(e){}
@@ -2569,7 +2642,7 @@ function privacyDialog(){
   const head=t=>{const e=document.createElement('h3');e.textContent=t;box.appendChild(e);};
   const steps=items=>{const o=document.createElement('ol');items.forEach(h=>{const li=document.createElement('li');li.innerHTML=h;o.appendChild(li);});box.appendChild(o);};
   para("Tes vidéos ne sont jamais copiées ni envoyées en ligne : DroneStudio les lit directement sur ton appareil et les oublie à la fermeture.");
-  para("Ce qui peut rester sur l'appareil : les fichiers de l'app gardés pour l'ouverture hors connexion (environ 200 Ko), ton choix de thème, et les films, couvertures ou musiques que tu as téléchargés.");
+  para("Ce qui peut rester sur l'appareil : les fichiers de l'app gardés pour l'ouverture hors connexion (environ 200 Ko), ton choix de thème, la copie temporaire d'un rush récupéré depuis un serveur distant (supprimée aussi à la fermeture de l'app), et les films, couvertures ou musiques que tu as téléchargés.");
   head('1. Effacer les données de DroneStudio');
   para("Supprime les fichiers gardés pour le hors connexion et vide la session en cours. Les données des autres sites et outils ne sont pas touchées.");
   const b=document.createElement('button');b.type='button';b.className='btn danger wide';b.textContent='Effacer les données de DroneStudio';
@@ -2859,7 +2932,16 @@ function helpDialog(){
   if(!IS_MOBILE){const h=document.createElement('h3');h.textContent='Raccourcis clavier';k.box.appendChild(h);const d=document.createElement('div');d.className='keys';d.innerHTML='<kbd>Espace</kbd><span>Lecture ou pause</span><kbd>← →</kbd><span>Plan précédent ou suivant</span><kbd>F</kbd><span>Plein écran</span><kbd>?</kbd><span>Cette aide</span>';k.box.appendChild(d);}
   k.para('DroneStudio version '+APP_VERSION+'. Les mises à jour sont vérifiées à chaque ouverture avec internet.');
   const sb=document.createElement('button');sb.type='button';sb.className='btn wide';sb.textContent="Faire découvrir DroneStudio à un ami";sb.onclick=()=>{closeDlg();shareDialog();};k.box.appendChild(sb);
+  const jb=document.createElement('button');jb.type='button';jb.className='btn wide';jb.textContent="Journal d'import (en cas de problème)";jb.onclick=()=>{closeDlg();setTimeout(importLogDialog,60);};k.box.appendChild(jb);
   openDlg();
+}
+function importLogDialog(){
+  hideTip();const k=dlgKit("Journal d'import");
+  k.para("Si un fichier ne s'importe pas, copie ce texte : il montre à quelle étape ça bloque.");
+  const ta=document.createElement('textarea');ta.readOnly=true;ta.rows=11;ta.setAttribute('aria-label',"Journal d'import");ta.value=envInfo()+'\n\n'+(IMPLOG.length?IMPLOG.join('\n'):'(aucun import pour le moment)');k.box.appendChild(ta);
+  const b=document.createElement('button');b.type='button';b.className='btn wide';b.textContent='Copier le journal';
+  b.onclick=async()=>{try{await navigator.clipboard.writeText(ta.value);toast('Journal copié.');}catch(x){ta.focus();ta.select();try{document.execCommand('copy');toast('Journal copié.');}catch(y){toast('Sélectionne le texte et copie-le.');}}};
+  k.box.appendChild(b);openDlg();
 }
 function gotoShot(d){
   const E=S.edit;if(!E||P.exporting)return;const t=P.playing?clock():P.t;let k=shotAt(t);
@@ -3028,12 +3110,12 @@ function previewCut(k){
   const sh=E.shots[k];if(!sh)return;
   const d=sh.tr.d||0;play(Math.max(0,sh.start-d/2-1.4));P.stopAt=sh.start+d/2+1.6;
 }
-if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause,qrMatrix,drawQR,shareDialog,exportRealtime,exportFilm,fastPlan,handleFiles,impCancel,fmtD};
+if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause,qrMatrix,drawQR,shareDialog,exportRealtime,exportFilm,fastPlan,handleFiles,impCancel,fmtD,IMPLOG,cleanTmp,opfsTmp,IMP};
 
 /* ========== Démarrage ========== */
 try{glInit();}catch(e){R.ok=false;toast("L'aperçu ne peut pas s'afficher : la carte graphique a refusé l'initialisation. Mets à jour ton navigateur ou essaie Chrome ou Edge.",10000);}
 if(document.fonts&&document.fonts.load){Promise.all([document.fonts.load('700 40px Archivo'),document.fonts.load('400 20px Archivo')]).then(()=>{P.dirty=true;drawProfileStatic();}).catch(()=>{});}
-applyFormat();renderLooks();renderSuno();syncControls();updateButtons();updPlayBtn();refreshEmpty();drawProfileStatic();setupInstallBtn();updInstallBtn();renderVStyles();renderTrans();applyTheme(curTheme(),false);applyTips();
+cleanTmp();applyFormat();renderLooks();renderSuno();syncControls();updateButtons();updPlayBtn();refreshEmpty();drawProfileStatic();setupInstallBtn();updInstallBtn();renderVStyles();renderTrans();applyTheme(curTheme(),false);applyTips();
 requestAnimationFrame(loop);
 })();
 
