@@ -1,7 +1,7 @@
 /* DroneStudio : service worker (ouverture hors connexion).
    Change le numéro de version après une modification des icônes ou du manifeste. */
-const CACHE = 'dronestudio-v5';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.ico'];
+const CACHE = 'dronestudio-v6';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.ico', './archivo.woff2', './archivo.ttf'];
 
 self.addEventListener('install', e => {
   e.waitUntil(

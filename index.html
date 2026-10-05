@@ -15,10 +15,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DroneStudio">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap">
 <style>
+/* Police Archivo : servie depuis ton propre site si tu déposes archivo.woff2 ou archivo.ttf à côté de index.html. Sinon, police du système. Aucune requête vers un site tiers. */
+@font-face{font-family:"Archivo";src:local("Archivo"),url("archivo.woff2") format("woff2"),url("archivo.ttf") format("truetype");font-weight:100 900;font-stretch:62% 125%;font-style:normal;font-display:swap}
 :root{--strato:#10202E;--alt:#162B3B;--alt2:#1E384B;--ridge:#2D485B;--mist:#93A9B6;--cloud:#EAF1F4;--gold:#F2B35B;--gold-ink:#F2B35B;--beacon:#E5484D;--deep:#0C1A26;
 --f:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--r1:6px;--r2:10px}
 *{box-sizing:border-box}
@@ -398,6 +397,22 @@ body{background:radial-gradient(1100px 520px at 72% -12%,#183650 0%,rgba(24,54,8
 :root[data-theme=sun] .ico.cmp.held{background:#000;color:#FFB020}
 @keyframes t-wipe-tb{0%,30%{opacity:1;clip-path:inset(0 100% 0 0)}70%,100%{opacity:1;clip-path:inset(0 0 0 0)}}
 .tcard:is(:hover,:focus-visible,.on) .tpv[data-t=wipe] .tb{animation-name:t-wipe-tb}
+.vbadge{appearance:none;flex:none;margin-left:2px;padding:4px 9px;border:1px solid var(--border-strong);border-radius:var(--r-pill);background:transparent;color:var(--text-2);font:600 11.5px/1 var(--f);letter-spacing:0;cursor:pointer;display:inline-flex;align-items:center;font-variant-numeric:tabular-nums}
+.vbadge:hover{color:var(--text)}
+.vbadge.new{color:var(--accent-ink);border-color:var(--accent-ink)}
+.vbadge.new::after{content:"";width:6px;height:6px;margin-left:6px;border-radius:50%;background:var(--accent)}
+@media (max-width:900px){.vbadge{min-height:var(--tap);padding:0 10px}}
+.qrcv{display:block;margin:8px auto 10px;border-radius:12px;image-rendering:pixelated;max-width:100%;height:auto;box-shadow:0 0 0 1px var(--border)}
+.shareurl{text-align:center;word-break:break-all;font-size:13px;color:var(--text-2);margin:0 0 8px}
+:root[data-theme=sun] .vbadge{border:2px solid #000;color:#000}
+:root[data-theme=sun] .vbadge.new{background:#000;color:#FFB020}
+/* Petits écrans : la pastille de version et Exporter tiennent sur la première ligne de l'en-tête */
+@media (max-width:430px){
+.top{gap:6px}
+#btnExport .xs{display:none}
+#btnExport{padding:0;width:var(--tap);min-width:var(--tap);height:var(--tap);justify-content:center}
+.vbadge{padding:0 8px}
+}
 /* ===================== Thèmes : sombre (défaut), clair, extérieur ===================== */
 :root{--pf-bg:#132636;--pf-fill:rgba(45,72,91,.9);--pf-line:#93A9B6;--pf-tick:rgba(234,241,244,.4);--pf-empty:#1E384B;--wave:#2D485B;--ok:#A9D18E;--danger-ink:#FFD7D8;--bw:1px}
 .themesw{display:flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--alt)}
@@ -529,7 +544,7 @@ details>summary{display:flex;align-items:center}
 </head>
 <body>
 <header class="top">
-  <div class="brand"><svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#142A3B"/><line x1="256" y1="256" x2="144" y2="144" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="368" y2="144" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="144" y2="368" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="368" y2="368" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><circle cx="144" cy="144" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M111.52 144 A32.48 32.48 0 0 1 144 111.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M176.48 144 A32.48 32.48 0 0 1 144 176.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="144" cy="144" r="8" fill="#C9D6DD"/><circle cx="368" cy="144" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M335.52 144 A32.48 32.48 0 0 1 368 111.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M400.48 144 A32.48 32.48 0 0 1 368 176.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="368" cy="144" r="8" fill="#C9D6DD"/><circle cx="144" cy="368" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M111.52 368 A32.48 32.48 0 0 1 144 335.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M176.48 368 A32.48 32.48 0 0 1 144 400.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="144" cy="368" r="8" fill="#C9D6DD"/><circle cx="368" cy="368" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M335.52 368 A32.48 32.48 0 0 1 368 335.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M400.48 368 A32.48 32.48 0 0 1 368 400.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="368" cy="368" r="8" fill="#C9D6DD"/><rect x="194" y="194" width="124" height="124" rx="30" fill="#F2B35B"/><path d="M231.82 223.76 L289.852 256 L231.82 288.24 Z" fill="#10202E" stroke="#10202E" stroke-width="8" stroke-linejoin="round"/></svg><span>DroneStudio</span></div>
+  <div class="brand"><svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#142A3B"/><line x1="256" y1="256" x2="144" y2="144" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="368" y2="144" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="144" y2="368" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><line x1="256" y1="256" x2="368" y2="368" stroke="#93A9B6" stroke-width="20" stroke-linecap="round"/><circle cx="144" cy="144" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M111.52 144 A32.48 32.48 0 0 1 144 111.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M176.48 144 A32.48 32.48 0 0 1 144 176.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="144" cy="144" r="8" fill="#C9D6DD"/><circle cx="368" cy="144" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M335.52 144 A32.48 32.48 0 0 1 368 111.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M400.48 144 A32.48 32.48 0 0 1 368 176.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="368" cy="144" r="8" fill="#C9D6DD"/><circle cx="144" cy="368" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M111.52 368 A32.48 32.48 0 0 1 144 335.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M176.48 368 A32.48 32.48 0 0 1 144 400.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="144" cy="368" r="8" fill="#C9D6DD"/><circle cx="368" cy="368" r="58" fill="#162B3B" stroke="#C9D6DD" stroke-width="13"/><path d="M335.52 368 A32.48 32.48 0 0 1 368 335.52" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><path d="M400.48 368 A32.48 32.48 0 0 1 368 400.48" fill="none" stroke="#93A9B6" stroke-width="9.75" stroke-linecap="round" opacity=".9"/><circle cx="368" cy="368" r="8" fill="#C9D6DD"/><rect x="194" y="194" width="124" height="124" rx="30" fill="#F2B35B"/><path d="M231.82 223.76 L289.852 256 L231.82 288.24 Z" fill="#10202E" stroke="#10202E" stroke-width="8" stroke-linejoin="round"/></svg><span>DroneStudio</span><button id="verBadge" class="vbadge" type="button">v2.5</button></div>
   <nav class="steps" role="tablist" aria-label="Étapes">
     <button class="step on" data-tab="rushes" role="tab" aria-selected="true"><i>1</i><span>Rushes</span></button>
     <button class="step" data-tab="analyse" role="tab" aria-selected="false"><i>2</i><span>Analyse</span></button>
@@ -539,7 +554,7 @@ details>summary{display:flex;align-items:center}
   <div class="themesw" id="themeSw" role="group" aria-label="Thème d'affichage"><button type="button" data-th="dark" aria-label="Thème sombre"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M19.5 14.6A7.5 7.5 0 0 1 9.4 4.5a7.5 7.5 0 1 0 10.1 10.1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button><button type="button" data-th="light" aria-label="Thème clair"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><button type="button" data-th="sun" aria-label="Mode extérieur"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor"/><path d="M12 1.8v3M12 19.2v3M1.8 12h3M19.2 12h3M4.8 4.8l2.1 2.1M17.1 17.1l2.1 2.1M4.8 19.2l2.1-2.1M17.1 6.9l2.1-2.1" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button></div>
   <button id="btnHelp" class="btn ghost iconly" type="button" aria-label="Aide">?</button>
   <button id="btnInstall" class="btn" type="button" aria-label="Installer l'app" hidden></button>
-  <button id="btnExport" class="btn primary" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Exporter<span class="xl"> le film</span></button>
+  <button id="btnExport" class="btn primary" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="xs">Exporter</span><span class="xl"> le film</span></button>
 </header>
 <main class="work">
   <aside class="panel">
@@ -551,7 +566,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>DroneStudio <span id="appVer">2.4</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button></p>
+      <p class="ver"><span>DroneStudio <span id="appVer">2.5</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -622,6 +637,7 @@ details>summary{display:flex;align-items:center}
       <label class="lbl" for="tTitle">Titre du film</label><input type="text" id="tTitle" placeholder="Titre du film" maxlength="40">
       <label class="lbl" for="tSub">Sous-titre</label><input type="text" id="tSub" placeholder="Lieu et date" maxlength="60">
       <label class="lbl" for="tCredit">Générique de fin</label><input type="text" id="tCredit" placeholder="Crédit musique" maxlength="80">
+      <label class="sw">Ajouter « Monté avec DroneStudio » à la fin<input type="checkbox" id="optBrand"></label>
       </div></details>
       <details class="grp" open><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Export</span></summary><div class="gb">
       <div class="field"><span class="lbl">Destination</span><div class="seg wrap" id="segDest"><button data-v="social">TikTok, Reels, Shorts</button><button data-v="insta">Publication Instagram</button><button data-v="yt">YouTube 4K</button><button data-v="tv">TV et archive</button></div></div>
@@ -709,7 +725,7 @@ function mkBtn(label,fn){const b=document.createElement('button');b.type='button
 /* ========== État et constantes ========== */
 const S={clips:[],analyzed:false,mood:null,music:null,edit:null,busy:false,excl:[],props:[],trOv:{},
   st:{format:'16:9',dur:30,rhythm:1,rhythmUser:false,look:'none',lookUser:false,amt:0,bars:false,grain:false,hal:false,ramps:true,reframe:true,pulse:false,tilt:false,vhs:false,leak:false,dream:false,trans:'auto',trdur:1,vstyle:'original',logfix:false,logfixUser:false,
-      title:'',sub:'',subUser:false,credit:'',creditUser:false,res:'hd',fps:30,seed:1,mseed:1,style:'auto',dest:'',sharp:false}};
+      title:'',sub:'',subUser:false,credit:'',creditUser:false,res:'hd',fps:30,seed:1,mseed:1,style:'auto',dest:'',sharp:false,brand:false}};
 const KK=['static','approach','retreat','orbit','vertical','rotate','fast'];
 const KNAME={static:'Stationnaire',approach:'Approche',retreat:'Recul',orbit:'Travelling',vertical:'Vertical',rotate:'Rotation',fast:'Survol rapide',insert:'Insert'};
 const KCOL={static:'#93A9B6',approach:'#F2B35B',retreat:'#E8875A',orbit:'#6FB7D9',vertical:'#A9D18E',rotate:'#C3A3E6',fast:'#E5484D'};
@@ -1690,6 +1706,15 @@ function drawTitle(x,W,H,title,sub,credit,a,D,end){
   if(end&&credit){x.globalAlpha=al*sstep(0.6,1.3,a)*0.85;const cs=Math.max(12,Math.round(Math.max(ts*0.26,m*0.022)));x.font='400 '+cs+'px Archivo, system-ui, sans-serif';spaced(x,credit,W/2,H*(H>W?0.76:0.88),cs*0.05);}
   x.restore();
 }
+function drawBrand(x,W,H,a,centered){
+  const m=Math.min(W,H),al=sstep(0,0.8,a);if(al<=0.001)return;
+  const F=(w,n)=>w+' '+n+'px Archivo, system-ui, sans-serif',host=appUrl().replace(/^https?:\/\//,'').replace(/\/$/,'');
+  const s1=Math.max(13,Math.round(m*(centered?0.04:0.026))),s2=Math.max(11,Math.round(s1*0.7)),y1=H*(centered?0.48:0.94);
+  x.save();x.globalAlpha=al;x.textAlign='left';x.textBaseline='alphabetic';x.shadowColor='rgba(0,0,0,0.4)';x.shadowBlur=m*0.012;
+  setStretch(x,'expanded');x.font=F(700,s1);x.fillStyle='#F4F7F8';spaced(x,'Monté avec DroneStudio',W/2,y1,s1*0.12);
+  setStretch(x,'normal');x.font=F(400,s2);x.fillStyle='#C9D6DD';spaced(x,host,W/2,y1+s2*1.9,s2*0.06);
+  x.restore();
+}
 function drawOverlay(t,cover){
   const E=S.edit,st=S.st,W=ov.width,H=ov.height;ovx.clearRect(0,0,W,H);
   const title=(st.title||'').trim(),sub=st.sub.trim(),credit=st.credit.trim();let any=false;
@@ -1697,7 +1722,7 @@ function drawOverlay(t,cover){
   const t0=socialFmt()?0.05:0.45,tEnd=Math.max(2.6,Math.min(E.I||4,5.5));
   if(title&&t>=t0&&t<=tEnd+0.05){drawTitle(ovx,W,H,title,sub,'',t-t0,tEnd-t0,false);any=true;}
   const es=E.T-Math.min(3.6,Math.max(2.2,(E.T-E.O)*0.8));
-  if((title||credit)&&t>=es){drawTitle(ovx,W,H,title,sub,credit,t-es,E.T-es,true);any=true;}
+  if((title||credit||st.brand)&&t>=es){if(title||credit)drawTitle(ovx,W,H,title,sub,credit,t-es,E.T-es,true);if(st.brand)drawBrand(ovx,W,H,t-es-0.3,!(title||credit));any=true;}
   return any;
 }
 function gradeCPU(d,W,H,L,a){
@@ -1999,6 +2024,93 @@ async function exportFast(plan){
   return'ok';
 }
 
+/* ========== Code QR (aucune bibliothèque, niveau de correction M, versions 1 à 10) ========== */
+const QR_ECC={1:[10,1],2:[16,1],3:[26,1],4:[18,2],5:[24,2],6:[16,4],7:[18,4],8:[22,4],9:[22,5],10:[26,5]};
+const QR_ALIGN={1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50]};
+function qrRaw(v){let r=(16*v+128)*v+64;if(v>=2){const n=Math.floor(v/7)+2;r-=(25*n-10)*n-55;if(v>=7)r-=36;}return Math.floor(r/8);}
+function qrMul(x,y){let z=0;for(let i=7;i>=0;i--){z=(z<<1)^((z>>>7)*0x11D);z^=((y>>>i)&1)*x;}return z;}
+function qrDivisor(deg){const r=new Array(deg).fill(0);r[deg-1]=1;let root=1;for(let i=0;i<deg;i++){for(let j=0;j<deg;j++){r[j]=qrMul(r[j],root);if(j+1<deg)r[j]^=r[j+1];}root=qrMul(root,2);}return r;}
+function qrRemainder(data,div){const r=div.map(()=>0);for(const b of data){const f=b^r.shift();r.push(0);div.forEach((c,i)=>{r[i]^=qrMul(c,f);});}return r;}
+function qrPenalty(m,n){
+  let res=0;
+  for(let pass=0;pass<2;pass++)for(let a=0;a<n;a++){let run=1,prev=pass?m[0][a]:m[a][0];for(let b=1;b<n;b++){const c=pass?m[b][a]:m[a][b];if(c===prev){run++;if(run===5)res+=3;else if(run>5)res++;}else{run=1;prev=c;}}}
+  for(let y=0;y<n-1;y++)for(let x=0;x<n-1;x++){const c=m[y][x];if(c===m[y][x+1]&&c===m[y+1][x]&&c===m[y+1][x+1])res+=3;}
+  const p1=[1,0,1,1,1,0,1,0,0,0,0],p2=[0,0,0,0,1,0,1,1,1,0,1];
+  for(let pass=0;pass<2;pass++)for(let a=0;a<n;a++)for(let b=0;b<=n-11;b++){let o1=true,o2=true;for(let k=0;k<11;k++){const c=(pass?m[b+k][a]:m[a][b+k])?1:0;if(c!==p1[k])o1=false;if(c!==p2[k])o2=false;}if(o1)res+=40;if(o2)res+=40;}
+  let dark=0;for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(m[y][x])dark++;
+  res+=Math.max(0,Math.ceil(Math.abs(dark*20-n*n*10)/(n*n))-1)*10;
+  return res;
+}
+function qrMatrix(text){
+  const bytes=Array.from(new TextEncoder().encode(text));let ver=0;
+  for(let v=1;v<=10;v++){const d=qrRaw(v)-QR_ECC[v][0]*QR_ECC[v][1];if(bytes.length<=Math.floor((d*8-4-(v<10?8:16))/8)){ver=v;break;}}
+  if(!ver)return null;
+  const eccLen=QR_ECC[ver][0],nBlocks=QR_ECC[ver][1],raw=qrRaw(ver),dataCw=raw-eccLen*nBlocks;
+  const bits=[],put=(val,len)=>{for(let i=len-1;i>=0;i--)bits.push((val>>>i)&1);};
+  put(4,4);put(bytes.length,ver<10?8:16);bytes.forEach(b=>put(b,8));
+  put(0,Math.min(4,dataCw*8-bits.length));while(bits.length%8)bits.push(0);
+  const data=[];for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=(b<<1)|bits[i+j];data.push(b);}
+  for(let pad=0xEC;data.length<dataCw;pad^=0xEC^0x11)data.push(pad);
+  const nShort=nBlocks-raw%nBlocks,shortLen=Math.floor(raw/nBlocks),div=qrDivisor(eccLen),blocks=[];
+  for(let i=0,k=0;i<nBlocks;i++){const dat=data.slice(k,k+shortLen-eccLen+(i<nShort?0:1));k+=dat.length;const ecc=qrRemainder(dat,div);if(i<nShort)dat.push(0);blocks.push(dat.concat(ecc));}
+  const cw=[];for(let i=0;i<blocks[0].length;i++)blocks.forEach((b,j)=>{if(i!==shortLen-eccLen||j>=nShort)cw.push(b[i]);});
+  const size=ver*4+17,m=[],fn=[];
+  for(let y=0;y<size;y++){m.push(new Array(size).fill(false));fn.push(new Array(size).fill(false));}
+  const setF=(x,y,d)=>{m[y][x]=d;fn[y][x]=true;};
+  for(let i=0;i<size;i++){setF(6,i,i%2===0);setF(i,6,i%2===0);}
+  const finder=(cx,cy)=>{for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const d=Math.max(Math.abs(dx),Math.abs(dy)),x=cx+dx,y=cy+dy;if(x>=0&&x<size&&y>=0&&y<size)setF(x,y,d!==2&&d!==4);}};
+  finder(3,3);finder(size-4,3);finder(3,size-4);
+  const ap=QR_ALIGN[ver],na=ap.length;
+  for(let i=0;i<na;i++)for(let j=0;j<na;j++){if((i===0&&j===0)||(i===0&&j===na-1)||(i===na-1&&j===0))continue;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)setF(ap[i]+dx,ap[j]+dy,Math.max(Math.abs(dx),Math.abs(dy))!==1);}
+  const fmt=mask=>{const d=mask;let rem=d;for(let i=0;i<10;i++)rem=(rem<<1)^((rem>>>9)*0x537);const b=((d<<10)|rem)^0x5412,g=i=>((b>>>i)&1)!==0;
+    for(let i=0;i<=5;i++)setF(8,i,g(i));setF(8,7,g(6));setF(8,8,g(7));setF(7,8,g(8));for(let i=9;i<15;i++)setF(14-i,8,g(i));
+    for(let i=0;i<8;i++)setF(size-1-i,8,g(i));for(let i=8;i<15;i++)setF(8,size-15+i,g(i));setF(8,size-8,true);};
+  fmt(0);
+  if(ver>=7){let rem=ver;for(let i=0;i<12;i++)rem=(rem<<1)^((rem>>>11)*0x1F25);const b=(ver<<12)|rem;for(let i=0;i<18;i++){const c=((b>>>i)&1)!==0,a=size-11+i%3,q=Math.floor(i/3);setF(a,q,c);setF(q,a,c);}}
+  let bi=0;const total=cw.length*8;
+  for(let right=size-1;right>=1;right-=2){if(right===6)right=5;
+    for(let vert=0;vert<size;vert++)for(let j=0;j<2;j++){const x=right-j,up=((right+1)&2)===0,y=up?size-1-vert:vert;
+      if(!fn[y][x]&&bi<total){m[y][x]=((cw[bi>>>3]>>>(7-(bi&7)))&1)!==0;bi++;}}}
+  const apply=mask=>{for(let y=0;y<size;y++)for(let x=0;x<size;x++){let inv;
+    switch(mask){case 0:inv=(x+y)%2===0;break;case 1:inv=y%2===0;break;case 2:inv=x%3===0;break;case 3:inv=(x+y)%3===0;break;case 4:inv=(Math.floor(x/3)+Math.floor(y/2))%2===0;break;case 5:inv=x*y%2+x*y%3===0;break;case 6:inv=(x*y%2+x*y%3)%2===0;break;default:inv=((x+y)%2+x*y%3)%2===0;}
+    if(!fn[y][x]&&inv)m[y][x]=!m[y][x];}};
+  let best=0,bestP=1e9;
+  for(let mask=0;mask<8;mask++){apply(mask);fmt(mask);const p=qrPenalty(m,size);if(p<bestP){bestP=p;best=mask;}apply(mask);}
+  apply(best);fmt(best);
+  return m;
+}
+function drawQR(cv,m,scale,quiet){
+  const n=m.length,S2=(n+2*quiet)*scale;cv.width=S2;cv.height=S2;const x=cv.getContext('2d');
+  x.fillStyle='#FFFFFF';x.fillRect(0,0,S2,S2);x.fillStyle='#000000';
+  for(let y=0;y<n;y++)for(let q=0;q<n;q++)if(m[y][q])x.fillRect((q+quiet)*scale,(y+quiet)*scale,scale,scale);
+}
+
+/* ========== Partager l'app : code QR, lien, message prêt à envoyer ========== */
+function shareMsg(url){return"DroneStudio : une appli gratuite qui monte automatiquement tes vidéos de drone (plans, musique, transitions, export pour les réseaux). Sans compte, tes vidéos restent sur ton appareil. "+url;}
+async function copyText(t,okMsg){
+  try{await navigator.clipboard.writeText(t);toast(okMsg);}
+  catch(e){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-999px;top:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast(okMsg);}catch(e2){toast("Sélectionne le texte et copie-le à la main.");}ta.remove();}
+}
+function shareDialog(){
+  try{hideTip();}catch(e){}
+  const url=appUrl(),k=dlgKit('Faire découvrir DroneStudio'),m=qrMatrix(url);
+  $('#instClose').textContent='Fermer';
+  k.para("Un ami n'a qu'à scanner ce code avec son téléphone, ou ouvrir le lien. Rien à installer, aucun compte.");
+  if(m){const cv=document.createElement('canvas');cv.className='qrcv';drawQR(cv,m,Math.max(3,Math.floor(280/(m.length+8))),4);cv.setAttribute('role','img');cv.setAttribute('aria-label','Code QR vers '+url);k.box.appendChild(cv);}
+  const u=document.createElement('p');u.className='shareurl';u.textContent=url;k.box.appendChild(u);
+  const row=document.createElement('div');row.className='row';
+  const mk=(label,fn,primary)=>{const b=document.createElement('button');b.type='button';b.className='btn'+(primary?' primary':'');b.textContent=label;b.onclick=fn;row.appendChild(b);return b;};
+  if(navigator.share)mk('Partager…',async()=>{try{await navigator.share({title:'DroneStudio',text:shareMsg(''),url});}catch(e){}},true);
+  mk('Copier le lien',()=>copyText(url,'Lien copié.'),!navigator.share);
+  if(m)mk('Télécharger le QR code',()=>{const c=document.createElement('canvas');drawQR(c,m,12,4);c.toBlob(b=>{if(b)download(b,'DroneStudio-QR.png');});});
+  k.box.appendChild(row);
+  const h=document.createElement('h3');h.textContent='Message prêt à envoyer';k.box.appendChild(h);
+  const ta=document.createElement('textarea');ta.rows=6;ta.readOnly=true;ta.value=shareMsg(url);ta.setAttribute('aria-label','Message à envoyer à un ami');k.box.appendChild(ta);
+  const r2=document.createElement('div');r2.className='row';const b2=document.createElement('button');b2.type='button';b2.className='btn';b2.textContent='Copier le message';b2.onclick=()=>copyText(ta.value,'Message copié.');r2.appendChild(b2);k.box.appendChild(r2);
+  openDlg();
+}
+$('#btnShare').addEventListener('click',shareDialog);
+
 /* ========== Lecteur ========== */
 function srcAt(sh,t){const tau=Math.max(0,t-(sh.start-sh.dIn/2));let s=sh.srcIn;const Rr=sh.rates;for(let i=0;i<Rr.length;i++){const a=Rr[i].at,b=i+1<Rr.length?Rr[i+1].at:1e9;if(tau<=a)break;s+=(Math.min(tau,b)-a)*Rr[i].r;}return s;}
 function rateAt(sh,t){const tau=t-(sh.start-sh.dIn/2);let r=sh.rates[0].r;sh.rates.forEach(x=>{if(tau>=x.at)r=x.r;});return clamp(r,0.0625,4);}
@@ -2228,7 +2340,7 @@ async function autoFilm(){
 }
 function syncControls(){
   [['#segFormat','format'],['#segDur','dur'],['#segRhythm','rhythm'],['#segRes','res'],['#segFps','fps'],['#segDest','dest'],['#segTrDur','trdur']].forEach(p=>{$$('button',$(p[0])).forEach(b=>b.classList.toggle('on',b.dataset.v===String(S.st[p[1]])));});
-  $('#optSharp').checked=S.st.sharp;$('#optBars').checked=S.st.bars;$('#optGrain').checked=S.st.grain;$('#optHal').checked=S.st.hal;$('#optRamps').checked=S.st.ramps;$('#optReframe').checked=S.st.reframe;$('#optPulse').checked=S.st.pulse;$('#optLog').checked=S.st.logfix;
+  $('#optSharp').checked=S.st.sharp;$('#optBars').checked=S.st.bars;$('#optGrain').checked=S.st.grain;$('#optHal').checked=S.st.hal;$('#optRamps').checked=S.st.ramps;$('#optReframe').checked=S.st.reframe;$('#optPulse').checked=S.st.pulse;$('#optLog').checked=S.st.logfix;$('#optBrand').checked=S.st.brand;
   $('#lookAmt').value=Math.round(S.st.amt*100);$('#lookAmt').disabled=S.st.look==='none';
   $('#tTitle').value=S.st.title;$('#tTitle').placeholder='Ex. Calanques de Marseille';$('#tSub').value=S.st.sub;$('#tCredit').value=S.st.credit;updDestInfo();renderStyleChips();updDurNote();
 }
@@ -2417,7 +2529,7 @@ $('#btnRestore').addEventListener('click',()=>{S.excl=[];if(S.edit&&makeEdit())t
 $('#btnPropose').addEventListener('click',proposeMusic);
 $('#btnCover').addEventListener('click',exportCover);
 $('#btnPrivacy').addEventListener('click',privacyDialog);
-[['#optBars','bars'],['#optGrain','grain'],['#optHal','hal'],['#optReframe','reframe'],['#optPulse','pulse'],['#optLog','logfix']].forEach(p=>{$(p[0]).addEventListener('change',e=>{S.st[p[1]]=e.target.checked;P.dirty=true;});});
+[['#optBars','bars'],['#optGrain','grain'],['#optHal','hal'],['#optReframe','reframe'],['#optPulse','pulse'],['#optLog','logfix'],['#optBrand','brand']].forEach(p=>{$(p[0]).addEventListener('change',e=>{S.st[p[1]]=e.target.checked;P.dirty=true;});});
 $('#optLog').addEventListener('change',()=>{S.st.logfixUser=true;});
 $('#optRamps').addEventListener('change',e=>{S.st.ramps=e.target.checked;if(S.edit)makeEdit();});
 $('#lookAmt').addEventListener('input',e=>{S.st.amt=e.target.value/100;P.dirty=true;});
@@ -2565,6 +2677,9 @@ const TIPS=[
  ['#segTrDur [data-v="1"]',"Transitions d'environ une seconde et demie"],
  ['#segTrDur [data-v="1.5"]',"Transitions de plus de deux secondes, avec des plans plus longs"],
  ['label.sw:has(#optLog)',"À activer si ton drone a filmé en D-Log : restaure le contraste et les couleurs d'une image plate"],
+ ['label.sw:has(#optBrand)',"Affiche « Monté avec DroneStudio » et l'adresse de l'app à la fin du film : une façon simple d'en parler autour de toi"],
+ ['#verBadge',"Version installée. Touche pour rechercher une mise à jour"],
+ ['#btnShare',"Faire découvrir DroneStudio à un ami : code QR, lien et message prêt à envoyer"],
  ['#btnCmp',"Maintiens pour voir tes images d'origine, sans style ni effet (touche C)"],
  ['#btnTake',"Un autre montage avec la même musique : autres plans, autres transitions"],
  ['#lookAmt',"Dosage du style, de discret à prononcé"],
@@ -2643,6 +2758,7 @@ function helpDialog(){
   k.para(IS_MOBILE?"Appui long sur un bouton pour afficher son explication.":"Survole un bouton pour afficher son explication.");
   if(!IS_MOBILE){const h=document.createElement('h3');h.textContent='Raccourcis clavier';k.box.appendChild(h);const d=document.createElement('div');d.className='keys';d.innerHTML='<kbd>Espace</kbd><span>Lecture ou pause</span><kbd>← →</kbd><span>Plan précédent ou suivant</span><kbd>F</kbd><span>Plein écran</span><kbd>?</kbd><span>Cette aide</span>';k.box.appendChild(d);}
   k.para('DroneStudio version '+APP_VERSION+'. Les mises à jour sont vérifiées à chaque ouverture avec internet.');
+  const sb=document.createElement('button');sb.type='button';sb.className='btn wide';sb.textContent="Faire découvrir DroneStudio à un ami";sb.onclick=()=>{closeDlg();shareDialog();};k.box.appendChild(sb);
   openDlg();
 }
 function gotoShot(d){
@@ -2699,7 +2815,8 @@ function verCmp(a,b){const A=String(a).split('.').map(n=>parseInt(n,10)||0),B=St
 let updLast=0,updShown='';
 function placeUpdBar(){const h=$('.top');$('#updBar').style.top=Math.round((h?h.getBoundingClientRect().bottom:70)+10)+'px';}
 function showUpdBar(v){
-  updShown=v;$('#updT').textContent='Nouvelle version '+v+' disponible (tu as la '+APP_VERSION+').';
+  updShown=v;{const vb=$('#verBadge');if(vb){vb.classList.add('new');vb.title='Nouvelle version '+v+' disponible';}}
+  $('#updT').textContent='Nouvelle version '+v+' disponible (tu as la '+APP_VERSION+').';
   const g=$('#updGo');g.disabled=false;g.textContent=onlineHere()?'Mettre à jour':'Ouvrir la version en ligne';
   placeUpdBar();$('#updBar').hidden=false;
 }
@@ -2725,6 +2842,7 @@ function doUpdate(){
   try{const p=navigator.serviceWorker&&navigator.serviceWorker.getRegistration();if(p&&p.then)p.then(r=>{if(r)r.update();}).catch(()=>{});}catch(e){}
   setTimeout(()=>{location.replace(location.pathname+'?maj='+encodeURIComponent(updShown||String(Date.now())));},150);
 }
+{const vb=$('#verBadge');vb.textContent='v'+APP_VERSION;vb.setAttribute('aria-label','Version '+APP_VERSION+', rechercher une mise à jour');vb.addEventListener('click',()=>checkUpdate(true));}
 $('#btnUpd').addEventListener('click',()=>checkUpdate(true));
 $('#updGo').addEventListener('click',doUpdate);
 $('#updX').addEventListener('click',()=>{$('#updBar').hidden=true;});
@@ -2810,7 +2928,7 @@ function previewCut(k){
   const sh=E.shots[k];if(!sh)return;
   const d=sh.tr.d||0;play(Math.max(0,sh.start-d/2-1.4));P.stopAt=sh.start+d/2+1.6;
 }
-if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause};
+if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause,qrMatrix,drawQR,shareDialog};
 
 /* ========== Démarrage ========== */
 try{glInit();}catch(e){R.ok=false;toast("L'aperçu ne peut pas s'afficher : la carte graphique a refusé l'initialisation. Mets à jour ton navigateur ou essaie Chrome ou Edge.",10000);}
