@@ -601,7 +601,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>MonDroneStudio <span id="appVer">3.4</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
+      <p class="ver"><span>MonDroneStudio <span id="appVer">3.5</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -1905,11 +1905,12 @@ function buildEdit(){
   const gPos=(c,A)=>G.get(c)+(c.photo?0:A),gEnd=(c,B)=>G.get(c)+(c.photo?3:B);
   const insAt=new Map();{let q=0;slots.forEach((s,k)=>{if(inserts.length&&q<inserts.length&&(k===0||k===preHero))insAt.set(k,inserts[q++]);});}
   /* 1. passages possibles pour chaque plan, avec leur note */
-  const cands=slots.map((s,k)=>{
+  const hr=(a,b,c)=>{let h=(a*374761393+b*668265263+c*2246822519+st.seed*3266489917)|0;h=Math.imul(h^(h>>>15),2246822507);h=Math.imul(h^(h>>>13),3266489909);h^=h>>>16;return(h>>>0)/4294967296;};
+  const gen=EX=>slots.map((s,k)=>{
     if(insAt.has(k))return null;
     const role=s.hero?4:s.sec,want=Gtot*(s.start/Math.max(0.1,T)),list=[];
     for(const c of rushes){
-      const ex=S.excl.filter(x=>x.clip===c.id),n=c.samples.length,stp=c.step;
+      const ex=EX.filter(x=>x.clip===c.id),n=c.samples.length,stp=c.step;
       if(ex.some(x=>x.all))continue;
       for(const R of schedules(s,k,c)){
         const src=needSrc(R,s.span);if(src>c.duration-0.25)continue;
@@ -1923,7 +1924,7 @@ function buildEdit(){
           let sc=avgP(c,'sc',i,j)+affinity(role,c,i,j,mr);
           sc-=1.4*Math.abs(gA-want)/Math.max(1,Gtot);        /* rester près de sa place dans le temps */
           if(c.photo){sc+=0.45;if(s.span>5)sc-=(s.span-5)*0.12;} /* les photos choisies doivent apparaître, sur des plans courts */
-          sc+=rnd()*0.1;
+          sc+=hr(k,S.clips.indexOf(c),i)*0.1;             /* hasard stable : ne dépend pas des autres plans */
           list.push({sc,c,i,j,t0,R,gA,gB:gEnd(c,B)});
           if(c.photo)break;
         }
@@ -1931,7 +1932,18 @@ function buildEdit(){
     }
     return list;
   });
-  const chain=slots.map((s,k)=>k).filter(k=>cands[k]);
+  const base=gen(S.excl);
+  /* Retrait d'un plan : les autres plans sont verrouillés tels quels, seul le plan retiré est remplacé
+     (sinon, en dernier recours, ceux qui le suivent ; jamais ceux qui le précèdent). */
+  const L0=S.lock,lockOK=!!(L0&&L0.shots.length===slots.length&&L0.shots.every((l,q)=>Math.abs(l.start-slots[q].start)<0.05&&(l.ins||rushes.indexOf(l.c)>=0)));
+  const lockedCand=q=>{const l=L0.shots[q],src=needSrc(l.R,slots[q].span);return{sc:0,c:l.c,i:l.i,j:l.j,t0:l.t0,R:l.R,gA:gPos(l.c,l.t0),gB:gEnd(l.c,l.t0+src),locked:true};};
+  const same=(o,l)=>o.c===l.c&&Math.abs(o.t0-l.t0)<0.01&&o.R.length===l.R.length&&Math.abs(o.R[0].r-l.R[0].r)<1e-6;
+  /* plans suivants : on les garde quand c'est possible (bonus), sinon ils sont réajustés */
+  const withLock=(B,after)=>B.map((L,q)=>{if(!L||!lockOK||q===L0.k||L0.shots[q].ins)return L;
+    if(q>L0.k&&!after){const l=L0.shots[q];return L.map(o=>same(o,l)?Object.assign({},o,{sc:o.sc+0.6}):o);}return[lockedCand(q)];});
+  /* si la scène retirée est longue, on n'écarte en dernier recours que le passage exact du plan retiré */
+  const narrow=()=>{if(!lockOK||!L0.ex)return null;const r=S.excl.indexOf(L0.ex);if(r<0)return null;const sh=L0.shots[L0.k],e=S.excl.slice();e[r]={clip:L0.ex.clip,a:sh.t0-0.1,b:sh.t0+needSrc(sh.R,slots[L0.k].span)+0.1,all:L0.ex.all};return e;};
+  let cands=base,chain=slots.map((s,k)=>k).filter(k=>base[k]);
   /* 2. meilleure suite qui avance dans le temps : niveau 0 avec un petit écart entre deux passages,
         niveau 1 en tolérant un léger chevauchement, niveau 2 avec au moins 60 % d'images nouvelles par plan,
         niveau 3 en n'exigeant que des débuts croissants (reprises possibles) */
@@ -1968,8 +1980,22 @@ function buildEdit(){
     for(;q>=0;q--){pick[q]=cands[chain[q]][x];x=BK[q][x];}
     return pick;
   };
-  let pick=null;
-  for(const lvl of [0,1,2,3,4]){if(chain.every(k=>cands[k].length)){pick=solve(lvl);if(pick)break;}}
+  let pick=null,lockUsed=null;
+  const tries=[];
+  if(lockOK){tries.push(()=>['tous',withLock(base,true),[0,1,2]],()=>['avant',withLock(base,false),[0,1,2,3,4]]);
+    tries.push(()=>{const e=narrow();if(!e)return null;const b2=gen(e);return['tous',withLock(b2,true),[0,1,2]];},()=>{const e=narrow();if(!e)return null;const b2=gen(e);return['avant',withLock(b2,false),[0,1,2,3,4]];});}
+  tries.push(()=>['aucun',base,[0,1,2,3,4]]);
+  for(const mk of tries){const tr=mk();if(!tr)continue;if(tr[0]==='aucun'&&lockOK)break;cands=tr[1];for(const lvl of tr[2]){if(chain.every(k=>cands[k].length)){pick=solve(lvl);if(pick)break;}}if(pick){lockUsed=tr[0];break;}}
+  if(!pick&&lockOK){
+    /* plus assez de passages après le plan retiré : les plans précédents restent intacts quoi qu'il arrive,
+       les suivants prennent le meilleur passage restant, de préférence plus récent */
+    const e=narrow(),B=e?gen(e):base,kq=chain.indexOf(L0.k);let lastB=-1;
+    pick=chain.map((k,q)=>{if(q<kq||!B[k].length){const c=lockedCand(k);lastB=Math.max(lastB,c.gB);return c;}
+      const after=B[k].filter(o=>o.gA>=lastB-0.05),L=after.length?after:B[k],o=L.reduce((a,b)=>a.sc>b.sc?a:b);lastB=Math.max(lastB,o.gB);return o;});
+    lockUsed='avant';
+  }
+  if(!pick){cands=base;for(const lvl of [0,1,2,3,4]){if(chain.every(k=>cands[k].length)){pick=solve(lvl);if(pick)break;}}if(pick)lockUsed='aucun';}
+  cands=base;
   if(!pick){ /* dernier recours (rushes trop courts) : le meilleur passage de chaque plan, sans contrainte d'ordre */
     disorder=1;pick=chain.map(k=>{const L=cands[k];if(L.length)return L.reduce((a,b)=>a.sc>b.sc?a:b);
       const c=rushes.reduce((a,b)=>a.duration>b.duration?a:b),r=clamp((c.duration-0.3)/slots[k].span,0.25,1);return{c,i:0,j:c.samples.length,t0:0.1,R:[{at:0,r}]};});
@@ -1985,15 +2011,16 @@ function buildEdit(){
   shots.forEach((sh,k)=>{
     if(sh.tr.type!=='auto')return;
     const p=shots[k-1],lat=Math.hypot(p.mtx||0,p.mty||0);let type='dissolve';
-    if(lat>0.05&&rnd()<0.45)type=rnd()<0.5?'push':'wipe';
-    else if((p.mdiv||0)>0.035&&rnd()<0.5)type='zoom';
-    else if(st.rhythm===2&&rnd()<0.3)type='cut';
+    const r1=hr(k,901,1),r2=hr(k,902,2); /* propre à chaque raccord : retirer un plan ne change pas les autres transitions */
+    if(lat>0.05&&r1<0.45)type=r2<0.5?'push':'wipe';
+    else if((p.mdiv||0)>0.035&&r1<0.5)type='zoom';
+    else if(st.rhythm===2&&r1<0.3)type='cut';
     sh.tr.type=type;
     if(type==='cut'){sh.tr.d=0;sh.dIn=0;p.dOut=0;p.span=p.len+p.dIn/2;sh.span=sh.len+sh.dOut/2;}
     else{sh.tr.d=Math.min(trDur(type),0.7*Math.min(p.len,sh.len));if(type==='push'||type==='wipe')sh.tr.dir=trDir(type,p);}
   });
   shots.forEach(sh=>{sh.trAuto=Object.assign({},sh.tr);});
-  const E={T,off,drop,I,O,beats,downs,bd,shots,bpm:mu.bpm,gain:loudGain(mu.buffer,off,T),repeats,disorder};
+  const E={T,off,drop,I,O,beats,downs,bd,shots,bpm:mu.bpm,gain:loudGain(mu.buffer,off,T),repeats,disorder,lockUsed};
   applyTransitions(E);
   return E;
 }
@@ -2455,7 +2482,7 @@ function stblBox(entry,smp,offs,isV){
   if(smp.some(s=>s.cto)){const cr=runsOf(smp.map(s=>s.cto||0));parts.push(fbox('ctts',1,0,[U32(cr.length)].concat(cr.map(r=>cat([U32(r[0]),U32(r[1])])))));}
   if(isV&&smp.some(s=>!s.key)){const ks=[];smp.forEach((s,i)=>{if(s.key)ks.push(U32(i+1));});parts.push(fbox('stss',0,0,[U32(ks.length)].concat(ks)));}
   parts.push(fbox('stsc',0,0,[U32(1),U32(1),U32(1),U32(1)]));
-  parts.push(fbox('stsz',0,0,[U32(0),U32(smp.length)].concat(smp.map(s=>U32(s.d.length)))));
+  parts.push(fbox('stsz',0,0,[U32(0),U32(smp.length)].concat(smp.map(s=>U32(s.n!=null?s.n:s.d.length)))));
   const big=offs.some(o=>o>4294967295);
   parts.push(big?fbox('co64',0,0,[U32(offs.length)].concat(offs.map(U64))):fbox('stco',0,0,[U32(offs.length)].concat(offs.map(o=>U32(o)))));
   return mbox('stbl',parts);
@@ -2476,16 +2503,19 @@ function trakBox(id,isV,w,h,ts,dur,mvDur,stbl){
 }
 function buildMP4(v,a){
   const vts=90000,vd=Math.round(vts/v.fps);
-  const vs=v.chunks.map((c,i)=>({d:c.d,key:c.key,delta:vd,cto:Math.round(c.ts*vts/1e6)-i*vd,t:c.ts}));
-  const as=a.chunks.map(c=>({d:c.d,delta:Math.max(1,Math.round((c.dur||(a.codec==='opus'?20000:21333))*a.sr/1e6)),t:c.ts}));
+  const vs=v.chunks.map((c,i)=>({d:c.d,n:c.d?c.d.length:c.n,key:c.key,delta:vd,cto:Math.round(c.ts*vts/1e6)-i*vd,t:c.ts}));
+  const as=a.chunks.map(c=>({d:c.d,n:c.d.length,delta:Math.max(1,Math.round((c.dur||(a.codec==='opus'?20000:21333))*a.sr/1e6)),t:c.ts}));
   const order=[];let i=0,j=0;
   while(i<vs.length||j<as.length){if(j>=as.length||(i<vs.length&&vs[i].t<=as[j].t))order.push([0,i++]);else order.push([1,j++]);}
   const isAvc=v.codec.indexOf('avc')===0;
   const ftyp=mbox('ftyp',[S4('isom'),U32(0x200),S4('isom'),S4('iso2'),S4(isAvc?'avc1':'iso6'),S4('mp41')]);
-  let total=0;for(const o of order)total+=(o[0]?as[o[1]]:vs[o[1]]).d.length;
+  let total=0;for(const o of order)total+=(o[0]?as[o[1]]:vs[o[1]]).n;
   const large=total+8>4294967295,mdatH=large?cat([U32(1),S4('mdat'),U64(total+16)]):cat([U32(total+8),S4('mdat')]);
   let pos=ftyp.length+mdatH.length;const vo=new Array(vs.length),ao=new Array(as.length),parts=[ftyp,mdatH];
-  for(const o of order){const smp=o[0]?as[o[1]]:vs[o[1]];(o[0]?ao:vo)[o[1]]=pos;pos+=smp.d.length;parts.push(smp.d);}
+  if(v.blob){ /* images déjà écrites sur le disque, à la suite : la vidéo d'abord, puis le son */
+    vs.forEach((s,i)=>{vo[i]=pos;pos+=s.n;});parts.push(v.blob);
+    as.forEach((s,j)=>{ao[j]=pos;pos+=s.n;parts.push(s.d);});
+  }else for(const o of order){const smp=o[0]?as[o[1]]:vs[o[1]];(o[0]?ao:vo)[o[1]]=pos;pos+=smp.n;parts.push(smp.d);}
   const vdur=vs.length*vd,mvV=Math.round(vdur*1000/vts),adur=as.reduce((x,s)=>x+s.delta,0),mvA=Math.round(adur*1000/a.sr);
   const ventry=isAvc?visualEntry('avc1',v.w,v.h,mbox('avcC',[v.desc])):visualEntry('vp09',v.w,v.h,vpcCBox(v.codec));
   const aentry=a.codec==='opus'?audioEntry('Opus',48000,dOpsBox(a.pre)):audioEntry('mp4a',a.sr,esdsBox(a.desc,192000));
@@ -2497,13 +2527,21 @@ function buildMP4(v,a){
 
 /* --- Export complet --- */
 function waitEv(target,ev,ms){return new Promise(r=>{const h=()=>{target.removeEventListener(ev,h);r();};target.addEventListener(ev,h);setTimeout(h,ms);});}
+let lastExpFile=null;
 async function exportFast(plan){
   const E=S.edit,fps=S.st.fps,dm=plan.dm,N=Math.max(1,Math.round(E.T*fps)),isAvc=plan.v.codec.indexOf('avc')===0;
   FX.cancel=false;P.fast=true;P.exporting=true;updateButtons();$('#expSub').textContent="Calcul image par image, parfaitement fluide. Garde cette page ouverte jusqu'à la fin : l'écran reste allumé.";keepAwake(true);
   $('#exp').classList.add('on');$('#expDl').hidden=true;$('#expCancel').textContent='Annuler';$('#expBar').style.width='0%';$('#expT').textContent='Préparation';
   setOutSize(dm.w,dm.h);
   const vChunks=[];let vDesc=null,vErr=null;
-  const venc=new VideoEncoder({output:(ch,meta)=>{if(!vDesc&&meta&&meta.decoderConfig&&meta.decoderConfig.description)vDesc=u8of(meta.decoderConfig.description);const d=new Uint8Array(ch.byteLength);ch.copyTo(d);vChunks.push({d,ts:ch.timestamp,key:ch.type==='key'});},error:e=>{vErr=e;}});
+  /* Les images encodées sont écrites au fur et à mesure dans l'espace privé du navigateur, et non gardées en mémoire :
+     un film d'une minute et demie en 1080p pèse plusieurs centaines de Mo, de quoi faire planter un téléphone. */
+  const vdir=await opfsTmp();let vw=null,vfh=null,vName=null,vPend=[],vPendN=0,vWp=Promise.resolve(),vOK=false;
+  if(vdir&&lastExpFile){try{await vdir.removeEntry(lastExpFile);}catch(e){}lastExpFile=null;} /* film précédent, déjà téléchargé */
+  if(vdir){try{vName='export_'+uid()+'.bin';vfh=await vdir.getFileHandle(vName,{create:true});vw=await vfh.createWritable();}catch(e){vw=null;vfh=null;}}
+  const vFlush=async()=>{if(!vw||!vPendN)return;const part=new Blob(vPend);vPend=[];vPendN=0;await vWp;vWp=vw.write(part);};
+  const venc=new VideoEncoder({output:(ch,meta)=>{if(!vDesc&&meta&&meta.decoderConfig&&meta.decoderConfig.description)vDesc=u8of(meta.decoderConfig.description);const d=new Uint8Array(ch.byteLength);ch.copyTo(d);
+    if(vw){vPend.push(d);vPendN+=d.length;vChunks.push({n:d.length,ts:ch.timestamp,key:ch.type==='key'});}else vChunks.push({d,ts:ch.timestamp,key:ch.type==='key'});},error:e=>{vErr=e;}});
   venc.configure(plan.v);
   const tracks=new Map(),t0=performance.now();
   try{
@@ -2519,13 +2557,18 @@ async function exportFast(plan){
       const vf=new VideoFrame(glc,{timestamp:Math.round(i*1e6/fps),duration:Math.round(1e6/fps)});
       venc.encode(vf,{keyFrame:i%(fps*2)===0});vf.close();
       while(venc.encodeQueueSize>2)await waitEv(venc,'dequeue',50);
+      if(vPendN>=8388608)await vFlush();
       if(i%5===0||i===N-1){const el=(performance.now()-t0)/1000,sp=(i+1)/fps/Math.max(0.001,el);
         $('#expBar').style.width=Math.round((i+1)/N*90)+'%';
         const left=(N-i-1)/fps/Math.max(0.05,sp);
         $('#expT').textContent='Image '+(i+1)+' / '+N+(el>3?'  · reste '+fmtLeft(left):'');}
     }
     await venc.flush();if(vErr)throw vErr;
-  }finally{tracks.forEach(trClose);tracks.clear();EXP_SRC=null;try{venc.close();}catch(e){}}
+    if(vw){await vFlush();await vWp;await vw.close();vw=null;vOK=true;}
+  }finally{tracks.forEach(trClose);tracks.clear();EXP_SRC=null;try{venc.close();}catch(e){}
+    if(!vOK&&vfh){try{if(vw){try{await vWp;}catch(x){}await vw.abort();}}catch(x){}try{await vdir.removeEntry(vName);}catch(x){}}}
+  const vBlob=vOK?await vfh.getFile():null;if(vOK)lastExpFile=vName;
+  if(vBlob)ilog('Export : '+Math.round(vBlob.size/1048576)+' Mo d\'images écrits sur le disque');
   if(isAvc&&!vDesc)throw new Error('configuration H.264 absente');
   $('#expT').textContent='Mixage et encodage du son';$('#expBar').style.width='93%';
   const ab=await exportAudio(E,N/fps);if(FX.cancel)return'cancel';
@@ -2540,7 +2583,7 @@ async function exportFast(plan){
   $('#expT').textContent='Assemblage du fichier';$('#expBar').style.width='97%';
   const opus=plan.a.codec==='opus';let pre=312;
   if(opus&&aDesc&&aDesc.length>=12&&String.fromCharCode(aDesc[0],aDesc[1],aDesc[2],aDesc[3],aDesc[4],aDesc[5],aDesc[6],aDesc[7])==='OpusHead')pre=aDesc[10]|(aDesc[11]<<8);
-  const blob=buildMP4({codec:plan.v.codec,desc:vDesc,w:dm.w,h:dm.h,fps,chunks:vChunks},{codec:opus?'opus':'aac',desc:aDesc||new Uint8Array([0x11,0x90]),sr:48000,pre,chunks:aChunks.filter(c=>c.ts<N/fps*1e6-1000)});
+  const blob=buildMP4({codec:plan.v.codec,desc:vDesc,w:dm.w,h:dm.h,fps,chunks:vChunks,blob:vBlob},{codec:opus?'opus':'aac',desc:aDesc||new Uint8Array([0x11,0x90]),sr:48000,pre,chunks:aChunks.filter(c=>c.ts<N/fps*1e6-1000)});
   const name=slug(S.st.title||(S.mood?S.mood.title:'film'))+'-'+(S.st.dest||S.st.format.replace(':','x'))+'.mp4';
   const a=$('#expDl');if(a.dataset.url)URL.revokeObjectURL(a.dataset.url);const u=URL.createObjectURL(blob);a.href=u;a.dataset.url=u;a.download=name;a.hidden=false;
   const secs=(performance.now()-t0)/1000;
@@ -2970,10 +3013,11 @@ function removeShot(k){
   const wasP=P.playing;
   if(sh.ins||sh.clip.photo)S.excl.push({clip:sh.clip.id,a:-1,b:1e9,all:true}); /* une photo retirée disparaît du film */
   else{const r=sceneRange(sh);S.excl.push({clip:sh.clip.id,a:r[0],b:r[1]});}
-  if(!makeEdit())return;
+  S.lock={k,ex:S.excl[S.excl.length-1],shots:E.shots.map(s=>({start:s.start,c:s.clip,t0:s.srcIn,R:s.rates,i:s.i,j:s.j,ins:s.ins}))};
+  const ok=makeEdit();const lu=S.edit&&S.edit.lockUsed;S.lock=null;if(!ok)return;
   const N=S.edit.shots,t=clamp(N[Math.min(k,N.length-1)].start-0.6,0,S.edit.T-0.1);
   P.t=t;P.dirty=true;updTC(t);profDraw(t);if(wasP)play(t);
-  toast('Plan '+(k+1)+' retiré : un autre passage de tes rushes prend sa place.');
+  toast(lu==='tous'?'Plan '+(k+1)+' remplacé par un autre passage. Les autres plans ne changent pas.':(lu==='avant'?'Plan '+(k+1)+' remplacé. Les plans précédents ne changent pas ; les suivants ont été réajustés pour garder l\'ordre du film.':'Plan '+(k+1)+' retiré : le film a été remonté, il ne restait pas assez de passages.'),7000);
 }
 
 /* ========== Image de couverture ========== */
