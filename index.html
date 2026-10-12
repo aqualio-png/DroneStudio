@@ -601,7 +601,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>MonDroneStudio <span id="appVer">3.6</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
+      <p class="ver"><span>MonDroneStudio <span id="appVer">3.7</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -2417,7 +2417,8 @@ async function trFrameAt(tr,s,tolUs){
     for(let k=0;k<F.length;k++){if(F[k].timestamp<=us+tol)idx=k;else break;}
     if(idx>0){for(let k=0;k<idx;k++)F[k].close();F.splice(0,idx);}
     if((F.length&&F[F.length-1].timestamp>=us-tol)||tr.eof)break;
-    if(tr.next<mx.N){if(tr.dec.decodeQueueSize<4){tr.dec.decode(await trChunk(tr,tr.next++));continue;}}
+    if(tr.dec.state==='closed')throw tr.err||new Error('décodeur fermé');
+    if(tr.next<mx.N){if(tr.dec.decodeQueueSize<4){const ch=await trChunk(tr,tr.next++);if(tr.dec.state==='closed')throw tr.err||new Error('décodeur fermé');tr.dec.decode(ch);continue;}}
     else if(!tr.flushed){tr.flushed=true;try{await tr.dec.flush();}catch(e){}tr.eof=true;continue;}
     /* plus aucune image depuis 8 s alors que le décodeur a du travail : il est bloqué (fréquent sur Android en haute définition) */
     if(performance.now()-tr.lastOut>8000&&!tr.eof)throw new Error('décodeur bloqué');
@@ -2541,7 +2542,7 @@ async function exportFast(plan){
   /* Les images encodées sont écrites au fur et à mesure dans l'espace privé du navigateur, et non gardées en mémoire :
      un film d'une minute et demie en 1080p pèse plusieurs centaines de Mo, de quoi faire planter un téléphone. */
   const vdir=await opfsTmp();let vw=null,vfh=null,vName=null,vPend=[],vPendN=0,vWp=Promise.resolve(),vOK=false;
-  FX.sw=false;
+  FX.sw=false;FX.single=false;FX.trBack=null;
   if(vdir&&lastExpFile){try{await vdir.removeEntry(lastExpFile);}catch(e){}lastExpFile=null;} /* film précédent, déjà téléchargé */
   if(vdir){try{vName='export_'+uid()+'.bin';vfh=await vdir.getFileHandle(vName,{create:true});vw=await vfh.createWritable();}catch(e){vw=null;vfh=null;}}
   const vFlush=async()=>{if(!vw||!vPendN)return;const part=new Blob(vPend);vPend=[];vPendN=0;await vWp;vWp=vw.write(part);};
@@ -2554,27 +2555,44 @@ async function exportFast(plan){
       if(FX.cancel)return'cancel';
       if(vErr)throw vErr;
       const t=i/fps,pr=pair(t),need=pr.b>=0?[pr.a,pr.b]:[pr.a];
-      for(const [j,tr] of tracks){if(need.indexOf(j)<0){trClose(tr);tracks.delete(j);}}
+      /* mode « un seul décodeur » : pendant un raccord, on ne décode que le plan visible (fondu au noir) */
+      const use=(FX.single&&need.length===2)?[pr.m<0.5?pr.a:pr.b]:need;
+      for(const [j,tr] of tracks){if(use.indexOf(j)<0){trClose(tr);tracks.delete(j);}}
       EXP_SRC=new Map();
-      for(const j of need){if(E.shots[j].clip.photo){EXP_SRC.set(j,E.shots[j].clip.img);continue;}let tr=tracks.get(j);if(!tr){tr=mkTrack(E.shots[j]);tracks.set(j,tr);}
-        let f;
-        try{f=await trFrameAt(tr,srcAt(E.shots[j],t));if(!f)throw new Error('aucune image rendue par le décodeur');}
-        catch(e){
-          if(FX.sw)throw e;
-          /* reprise : tous les décodeurs sont refermés puis recréés en mode logiciel, l'export continue au même endroit */
-          FX.sw=true;ilog('Export : décodeur matériel bloqué à l\'image '+(i+1)+' ('+(e&&e.message?e.message:e)+'), passage au décodage logiciel');
-          tracks.forEach(trClose);tracks.clear();EXP_SRC=new Map();
-          for(const q of need){if(E.shots[q].clip.photo){EXP_SRC.set(q,E.shots[q].clip.img);continue;}const t2=mkTrack(E.shots[q]);tracks.set(q,t2);
-            const f2=await trFrameAt(t2,srcAt(E.shots[q],t));if(!f2)throw new Error('image source manquante');EXP_SRC.set(q,f2);}
-          tr=tracks.get(j);f=EXP_SRC.get(j);
+      try{
+        for(const j of use){
+          if(E.shots[j].clip.photo){EXP_SRC.set(j,E.shots[j].clip.img);continue;}
+          let tr=tracks.get(j);if(!tr){tr=mkTrack(E.shots[j]);tracks.set(j,tr);}
+          const f=await trFrameAt(tr,srcAt(E.shots[j],t));if(!f)throw new Error('aucune image rendue par le décodeur');
+          EXP_SRC.set(j,f);
         }
-        if(!f)throw new Error('image source manquante');EXP_SRC.set(j,f);}
+      }catch(e){
+        /* Reprise sans perdre ce qui est fait : décodeurs refermés, puis
+           1) un seul décodeur à la fois (raccords en fondu au noir), car beaucoup de téléphones n'en font pas tourner deux en haute définition ;
+           2) sinon le décodage logiciel, s'il existe sur ce téléphone ;
+           3) sinon l'erreur remonte et l'export passe en temps réel. */
+        const why=e&&e.message?e.message:String(e);
+        tracks.forEach(trClose);tracks.clear();EXP_SRC=new Map();
+        if(!FX.single){
+          FX.single=true;FX.trBack=[];
+          E.shots.forEach(sh=>{if(sh.dIn>0&&sh.tr&&sh.tr.type!=='dip'){FX.trBack.push([sh,sh.tr.type]);sh.tr.type='dip';}});
+          ilog("Export : décodeur bloqué à l'image "+(i+1)+' ('+why+'), reprise avec un seul décodeur à la fois (raccords en fondu au noir)');
+          await sleep(300);i--;continue;
+        }
+        if(!FX.sw){
+          let ok=false;try{const c=Object.assign({},E.shots[need[0]].clip.mx.config,{hardwareAcceleration:'prefer-software'});const r=await VideoDecoder.isConfigSupported(c);ok=!!(r&&r.supported);}catch(x){}
+          if(ok){FX.sw=true;ilog("Export : décodeur encore bloqué à l'image "+(i+1)+' ('+why+'), passage au décodage logiciel');await sleep(300);i--;continue;}
+          ilog("Export : décodeur encore bloqué à l'image "+(i+1)+', pas de décodage logiciel sur ce téléphone');
+        }
+        throw e;
+      }
+      if(use.length<need.length){const f=EXP_SRC.get(use[0]);need.forEach(q=>EXP_SRC.set(q,f));}
       render(t);
       const vf=new VideoFrame(glc,{timestamp:Math.round(i*1e6/fps),duration:Math.round(1e6/fps)});
       venc.encode(vf,{keyFrame:i%(fps*2)===0});vf.close();
       {const w0=performance.now();while(venc.encodeQueueSize>2){if(performance.now()-w0>15000)throw new Error('encodeur bloqué');await waitEv(venc,'dequeue',50);}}
       if(vPendN>=8388608)await vFlush();
-      if(i>0&&i%Math.max(1,Math.round(N/4))===0)ilog('Export : image '+(i+1)+' / '+N+(FX.sw?' (décodage logiciel)':''));
+      if(i>0&&i%Math.max(1,Math.round(N/4))===0)ilog('Export : image '+(i+1)+' / '+N+(FX.sw?' (décodage logiciel)':(FX.single?' (un seul décodeur)':'')));
       if(i%5===0||i===N-1){const el=(performance.now()-t0)/1000,sp=(i+1)/fps/Math.max(0.001,el);
         $('#expBar').style.width=Math.round((i+1)/N*90)+'%';
         const left=(N-i-1)/fps/Math.max(0.05,sp);
@@ -2583,6 +2601,7 @@ async function exportFast(plan){
     await venc.flush();if(vErr)throw vErr;
     if(vw){await vFlush();await vWp;await vw.close();vw=null;vOK=true;}
   }finally{tracks.forEach(trClose);tracks.clear();EXP_SRC=null;try{venc.close();}catch(e){}
+    if(FX.trBack){FX.trBack.forEach(x=>{x[0].tr.type=x[1];});FX.trBack=null;}
     if(!vOK&&vfh){try{if(vw){try{await vWp;}catch(x){}await vw.abort();}}catch(x){}try{await vdir.removeEntry(vName);}catch(x){}}}
   const vBlob=vOK?await vfh.getFile():null;if(vOK)lastExpFile=vName;
   if(vBlob)ilog('Export : '+Math.round(vBlob.size/1048576)+' Mo d\'images écrits sur le disque');
