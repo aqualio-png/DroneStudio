@@ -601,7 +601,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>MonDroneStudio <span id="appVer">3.7</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
+      <p class="ver"><span>MonDroneStudio <span id="appVer">3.8</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -2506,6 +2506,85 @@ function trakBox(id,isV,w,h,ts,dur,mvDur,stbl){
   const dinf=mbox('dinf',[fbox('dref',0,0,[U32(1),fbox('url ',0,1,[])])]);
   return mbox('trak',[tkhd,mbox('mdia',[mdhd,hdlr,mbox('minf',[mh,dinf,stbl])])]);
 }
+/* ---- Réindexation d'un enregistrement en temps réel ----
+   L'enregistreur du navigateur écrit un MP4 « fragmenté » ou un WebM sans durée : beaucoup de lecteurs de téléphone
+   affichent alors une durée fausse et refusent d'avancer dans le film. On réécrit un MP4 classique avec son index complet
+   (les images ne sont pas recopiées en mémoire : le nouveau fichier pointe sur les morceaux de l'ancien), ou on ajoute
+   la durée au WebM. */
+async function readBox(blob,p){const N=blob.size,h=new Uint8Array(await blob.slice(p,Math.min(N,p+16)).arrayBuffer());if(h.length<8)return null;const dv=new DataView(h.buffer);let sz=dv.getUint32(0),hd=8;const ty=String.fromCharCode(h[4],h[5],h[6],h[7]);if(sz===1&&h.length>=16){sz=Number(dv.getBigUint64(8));hd=16;}else if(sz===0)sz=N-p;return sz>=hd?{type:ty,pos:p,size:sz,hd}:null;}
+async function defragMP4(blob){
+  const top=[];for(let p=0;p+8<=blob.size;){const b=await readBox(blob,p);if(!b)break;top.push(b);p+=b.size;}
+  const mb=top.find(x=>x.type==='moov');if(!mb||!top.some(x=>x.type==='moof'))return null;
+  const mv=new Uint8Array(await blob.slice(mb.pos,mb.pos+mb.size).arrayBuffer()),mdv=new DataView(mv.buffer),root={start:mb.hd,end:mb.size};
+  const raw=x=>mv.subarray(x.start-8,x.end);
+  const trex={};const mvex=child(mv,root,'mvex');
+  if(mvex)boxList(mv,mvex.start,mvex.end).filter(x=>x.type==='trex').forEach(x=>{trex[mdv.getUint32(x.start+4)]={dur:mdv.getUint32(x.start+12),size:mdv.getUint32(x.start+16),flags:mdv.getUint32(x.start+20)};});
+  const traks=boxList(mv,root.start,root.end).filter(x=>x.type==='trak').map(tk=>{
+    const tkhd=child(mv,tk,'tkhd'),id=mdv.getUint32(tkhd.start+(mv[tkhd.start]===1?20:12)),mdhd=boxPath(mv,tk,['mdia','mdhd']),ts=mdv.getUint32(mdhd.start+(mv[mdhd.start]===1?20:12));
+    const hdlr=boxPath(mv,tk,['mdia','hdlr']);return{tk,tkhd,mdhd,hdlr,id,ts,vide:String.fromCharCode(mv[hdlr.start+8],mv[hdlr.start+9],mv[hdlr.start+10],mv[hdlr.start+11])==='vide',samples:[]};});
+  for(const b of top){
+    if(b.type!=='moof')continue;
+    const mf=new Uint8Array(await blob.slice(b.pos,b.pos+b.size).arrayBuffer()),fdv=new DataView(mf.buffer);
+    for(const traf of boxList(mf,b.hd,b.size).filter(x=>x.type==='traf')){
+      const tfhd=child(mf,traf,'tfhd');if(!tfhd)continue;const fl=fdv.getUint32(tfhd.start)&0xFFFFFF;let q=tfhd.start+4;const id=fdv.getUint32(q);q+=4;
+      let base=b.pos;if(fl&1){base=Number(fdv.getBigUint64(q));q+=8;}if(fl&2)q+=4;
+      const T=trex[id]||{dur:0,size:0,flags:0};let dDur=T.dur,dSize=T.size,dFlags=T.flags;
+      if(fl&8){dDur=fdv.getUint32(q);q+=4;}if(fl&0x10){dSize=fdv.getUint32(q);q+=4;}if(fl&0x20){dFlags=fdv.getUint32(q);q+=4;}
+      const trk=traks.find(t=>t.id===id);if(!trk)continue;let next=null;
+      for(const tr of boxList(mf,traf.start,traf.end).filter(x=>x.type==='trun')){
+        const v=mf[tr.start],tf=fdv.getUint32(tr.start)&0xFFFFFF;let r=tr.start+4;const n=fdv.getUint32(r);r+=4;
+        let off=next!=null?next:base;if(tf&1){off=base+fdv.getInt32(r);r+=4;}let ff=null;if(tf&4){ff=fdv.getUint32(r);r+=4;}
+        for(let k=0;k<n;k++){let du=dDur,sz=dSize,flg=dFlags,ct=0;
+          if(tf&0x100){du=fdv.getUint32(r);r+=4;}if(tf&0x200){sz=fdv.getUint32(r);r+=4;}if(tf&0x400){flg=fdv.getUint32(r);r+=4;}else if(k===0&&ff!=null)flg=ff;if(tf&0x800){ct=v===0?fdv.getUint32(r):fdv.getInt32(r);r+=4;}
+          trk.samples.push({off,sz,du,ct,sync:!(flg&0x10000)});off+=sz;}
+        next=off;
+      }
+    }
+  }
+  if(!traks.length||traks.some(t=>!t.samples.length))return null;
+  const all=[];traks.forEach(t=>t.samples.forEach(s=>all.push(s)));all.sort((a,b)=>a.off-b.off);
+  const fb=top.find(x=>x.type==='ftyp'),ftyp=fb?new Uint8Array(await blob.slice(fb.pos,fb.pos+fb.size).arrayBuffer()):mbox('ftyp',[S4('isom'),U32(512),S4('isom'),S4('iso2'),S4('mp41')]);
+  let total=0;all.forEach(s=>total+=s.sz);
+  const parts=[ftyp,cat([U32(1),S4('mdat'),U64(total+16)])];let pos=ftyp.length+16,ra=-1,rb=-1;
+  for(const s of all){s.no=pos;pos+=s.sz;if(s.off===rb)rb+=s.sz;else{if(ra>=0)parts.push(blob.slice(ra,rb));ra=s.off;rb=s.off+s.sz;}}
+  if(ra>=0)parts.push(blob.slice(ra,rb));
+  /* nouvel index */
+  let movMs=0,maxId=1;const trakOut=[];
+  for(const t of traks){
+    const S2=t.samples,dur=S2.reduce((a,s)=>a+s.du,0);movMs=Math.max(movMs,Math.round(dur/t.ts*1000));maxId=Math.max(maxId,t.id);
+    const stts=[];for(const s of S2){const l=stts[stts.length-1];if(l&&l[1]===s.du)l[0]++;else stts.push([1,s.du]);}
+    const tabs=[raw(child(mv,boxPath(mv,t.tk,['mdia','minf','stbl']),'stsd')),fbox('stts',0,0,[U32(stts.length)].concat(stts.map(e=>cat([U32(e[0]),U32(e[1])]))))];
+    if(S2.some(s=>s.ct)){const ct=[];for(const s of S2){const l=ct[ct.length-1];if(l&&l[1]===s.ct)l[0]++;else ct.push([1,s.ct]);}tabs.push(fbox('ctts',1,0,[U32(ct.length)].concat(ct.map(e=>cat([U32(e[0]),U32(e[1]>>>0)])))));}
+    if(t.vide&&S2.some(s=>!s.sync)){const ix=[];S2.forEach((s,i)=>{if(s.sync)ix.push(i+1);});tabs.push(fbox('stss',0,0,[U32(ix.length)].concat(ix.map(U32))));}
+    tabs.push(fbox('stsc',0,0,[U32(1),U32(1),U32(1),U32(1)]),fbox('stsz',0,0,[U32(0),U32(S2.length)].concat(S2.map(s=>U32(s.sz)))),fbox('co64',0,0,[U32(S2.length)].concat(S2.map(s=>U64(s.no)))));
+    const minf=boxPath(mv,t.tk,['mdia','minf']),minfKids=boxList(mv,minf.start,minf.end).filter(x=>x.type!=='stbl').map(raw);
+    const mdhd=new Uint8Array(raw(t.mdhd));{const d=new DataView(mdhd.buffer);if(mdhd[8]===1)d.setBigUint64(8+24,BigInt(dur));else d.setUint32(8+16,dur>>>0);}
+    const tkhd=new Uint8Array(raw(t.tkhd));{const d=new DataView(tkhd.buffer),md=Math.round(dur/t.ts*1000);if(tkhd[8]===1)d.setBigUint64(8+28,BigInt(md));else d.setUint32(8+20,md>>>0);}
+    trakOut.push(mbox('trak',[tkhd,mbox('mdia',[mdhd,raw(t.hdlr),mbox('minf',minfKids.concat([mbox('stbl',tabs)]))])]));
+  }
+  const mvhd=fbox('mvhd',0,0,[U32(0),U32(0),U32(1000),U32(movMs),U32(0x10000),U16(0x100),U16(0),U32(0),U32(0),MATRIX,new Uint8Array(24),U32(maxId+1)]);
+  parts.push(mbox('moov',[mvhd].concat(trakOut)));
+  return{blob:new Blob(parts,{type:'video/mp4'}),ms:movMs};
+}
+/* WebM : ajoute la durée dans la section « Info » */
+async function fixWebmDuration(blob,ms){
+  const n=Math.min(blob.size,131072),h=new Uint8Array(await blob.slice(0,n).arrayBuffer());
+  const vlen=b=>{let l=1,m=0x80;while(l<=8&&!(b&m)){l++;m>>=1;}return l;};
+  const rdId=p=>{const l=vlen(h[p]);let v=0;for(let i=0;i<l;i++)v=v*256+h[p+i];return{v,l};};
+  const rdSz=p=>{const l=vlen(h[p]);let v=h[p]&((0x80>>(l-1))-1),unk=v===((0x80>>(l-1))-1);for(let i=1;i<l;i++){v=v*256+h[p+i];if(h[p+i]!==255)unk=false;}return{v,l,unk};};
+  let p=0;const e1=rdId(p);if(e1.v!==0x1A45DFA3)return null;let s=rdSz(p+e1.l);p+=e1.l+s.l+s.v;
+  const sg=rdId(p);if(sg.v!==0x18538067)return null;const ss=rdSz(p+sg.l);if(!ss.unk)return null;p+=sg.l+ss.l;
+  while(p+12<n){const id=rdId(p),sz=rdSz(p+id.l),cs=p+id.l+sz.l,ce=cs+sz.v;
+    if(id.v===0x1549A966){
+      if(ce>n)return null;let scale=1e6;for(let q=cs;q<ce;){const i2=rdId(q),s2=rdSz(q+i2.l);if(i2.v===0x4489)return null;if(i2.v===0x2AD7B1){let v=0;for(let k=0;k<s2.v;k++)v=v*256+h[q+i2.l+s2.l+k];scale=v||1e6;}q+=i2.l+s2.l+s2.v;}
+      const du=new Uint8Array(11);du[0]=0x44;du[1]=0x89;du[2]=0x88;new DataView(du.buffer).setFloat64(3,ms*1e6/scale);
+      const len=sz.v+11,hd=new Uint8Array(4+8);hd.set(h.subarray(p,p+4),0);hd[4]=1;let L=len;for(let k=11;k>=5;k--){hd[k]=L%256;L=Math.floor(L/256);}
+      return new Blob([blob.slice(0,p),hd,blob.slice(cs,ce),du,blob.slice(ce)],{type:blob.type||'video/webm'});
+    }
+    if(sz.unk)return null;p=ce;
+  }
+  return null;
+}
 function buildMP4(v,a){
   const vts=90000,vd=Math.round(vts/v.fps);
   const vs=v.chunks.map((c,i)=>({d:c.d,n:c.d?c.d.length:c.n,key:c.key,delta:vd,cto:Math.round(c.ts*vts/1e6)-i*vd,t:c.ts}));
@@ -2526,7 +2605,11 @@ function buildMP4(v,a){
   const aentry=a.codec==='opus'?audioEntry('Opus',48000,dOpsBox(a.pre)):audioEntry('mp4a',a.sr,esdsBox(a.desc,192000));
   const mvDur=Math.max(mvV,mvA);
   const mvhd=fbox('mvhd',0,0,[U32(0),U32(0),U32(1000),U32(mvDur),U32(0x10000),U16(0x100),U16(0),U32(0),U32(0),MATRIX,new Uint8Array(24),U32(3)]);
-  parts.push(mbox('moov',[mvhd,trakBox(1,true,v.w,v.h,vts,vdur,mvV,stblBox(ventry,vs,vo,true)),trakBox(2,false,0,0,a.sr,adur,mvA,stblBox(aentry,as,ao,false))]));
+  /* index placé en tête de fichier (« faststart ») : les lecteurs de téléphone connaissent tout de suite la durée et peuvent avancer */
+  const mk=()=>mbox('moov',[mvhd,trakBox(1,true,v.w,v.h,vts,vdur,mvV,stblBox(ventry,vs,vo,true)),trakBox(2,false,0,0,a.sr,adur,mvA,stblBox(aentry,as,ao,false))]);
+  const L=mk().length;for(let k=0;k<vo.length;k++)vo[k]+=L;for(let k=0;k<ao.length;k++)ao[k]+=L;
+  const moov=mk();if(moov.length!==L)throw new Error('index MP4 incohérent');
+  parts.splice(1,0,moov);
   return new Blob(parts,{type:'video/mp4'});
 }
 
@@ -2882,8 +2965,14 @@ async function exportRealtime(){
 }
 function finishExport(){
   const rec=P.rec;if(!rec)return;P.exporting=false;
-  rec.onstop=()=>{
-    const type=(rec.mimeType||'video/webm').split(';')[0],blob=new Blob(P.chunks,{type}),ext=type.indexOf('mp4')>=0?'mp4':'webm';
+  const recMs=Math.round((S.edit?S.edit.T:0)*1000);
+  rec.onstop=async()=>{
+    const type=(rec.mimeType||'video/webm').split(';')[0],ext=type.indexOf('mp4')>=0?'mp4':'webm';let blob=new Blob(P.chunks,{type});
+    $('#expT').textContent='Finalisation du fichier';
+    /* index complet : durée juste et possibilité d'avancer dans le film sur tous les lecteurs */
+    try{if(ext==='mp4'){const r=await defragMP4(blob);if(r){blob=r.blob;ilog('Export en temps réel : fichier MP4 réindexé, durée '+fmtD(r.ms/1000));}}
+      else{const r=await fixWebmDuration(blob,recMs);if(r){blob=r;ilog('Export en temps réel : durée ajoutée au WebM ('+fmtD(recMs/1000)+')');}}}
+    catch(e){ilog('Export en temps réel : réindexation impossible ('+(e&&e.message?e.message:e)+')');}
     const name=slug(S.st.title||(S.mood?S.mood.title:'film'))+'-'+(S.st.dest||S.st.format.replace(':','x'))+'.'+ext;
     const a=$('#expDl');if(a.dataset.url)URL.revokeObjectURL(a.dataset.url);const u=URL.createObjectURL(blob);a.href=u;a.dataset.url=u;a.download=name;a.hidden=false;
     $('#expT').textContent='Film prêt   '+Math.max(1,Math.round(blob.size/1048576))+' Mo, '+ext.toUpperCase();$('#expBar').style.width='100%';$('#expCancel').textContent='Fermer';
