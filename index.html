@@ -131,6 +131,7 @@ input[type=range]{width:100%;accent-color:var(--gold)}
 .expinfo{min-width:0}.expinfo b,.expinfo span{overflow-wrap:anywhere;white-space:normal}
 .hint{font-size:13px;color:var(--mist);margin:14px 0 8px}
 .chips.scenes{margin-bottom:14px}
+.sgrp{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mist);margin:12px 0 6px}
 .chips button{appearance:none;border:1px solid var(--ridge);background:var(--deep);color:var(--mist);font:600 12.5px/1 var(--f);padding:8px 11px;border-radius:999px;cursor:pointer}
 .chips button:hover{color:var(--cloud)}
 .chips button.on{border-color:var(--gold);color:var(--gold-ink);background:rgba(242,179,91,.08)}
@@ -601,7 +602,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>MonDroneStudio <span id="appVer">3.9</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
+      <p class="ver"><span>MonDroneStudio <span id="appVer">4.0</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -615,9 +616,11 @@ details>summary{display:flex;align-items:center}
       <div id="musicInfo" class="musicinfo" hidden></div>
       <div class="opt">
         <h3>Composer sur mesure</h3>
-        <p>Une musique originale écrite pour ton film. Choisis un style ou laisse l'app suivre l'ambiance de tes images. Gratuit, illimité, hors ligne.</p>
-        <div class="chips" id="styleChips" role="group" aria-label="Style de la musique"></div>
+        <p>Une musique originale, inventée pour ton film : mélodie, gamme et instruments changent à chaque version. Choisis une famille et un style, ou laisse l'app suivre l'ambiance de tes images. Gratuit, illimité, hors ligne.</p>
+        <div id="styleChips" role="group" aria-label="Style de la musique"></div>
+        <p class="fine" id="styleTip"></p>
         <button id="btnCompose" class="btn primary wide">Composer la musique</button>
+        <button id="btnVariant" class="btn wide" type="button">Une autre version</button>
         <button id="btnPropose" class="btn wide">Proposer 3 musiques</button>
         <div id="props" class="props"></div>
       </div>
@@ -1493,14 +1496,22 @@ const STYLES={
   tropical:{name:'Tropical',bpm:104,minor:false,pad:'soft',lead:'marimba',bass:'offbeat',drums:'tropical',tags:'tropical house, marimba, shaker, warm offbeat bass, beach, summer'},
   acoustic:{name:'Folk acoustique',bpm:96,minor:false,pad:'soft',lead:'guitar',bass:'sub',drums:'soft',tags:'acoustic folk, strummed guitar, warm and organic, road trip, heartfelt'},
   noel:{name:'Noël',bpm:92,minor:false,pad:'strings',lead:'glock',bass:'sub',drums:'sleigh',tags:'christmas, sleigh bells, glockenspiel, warm strings, festive, cozy, magical'},
+  zen:{name:'Jardin zen',engine:'zen',bpm:64,scales:['insen','hirajoshi','yo','kumoi'],lead:'koto',bed:'drone',perc:'drops',extra:['bowl'],tags:'zen garden, koto, singing bowl, water drops, calm, meditative'},
+  bols:{name:'Bols chantants',engine:'zen',bpm:54,scales:['penta','dorian','yo'],lead:'bowls',bed:'drone',perc:'none',extra:['breath'],tags:'singing bowls, deep drone, slow breathing swells, meditation, healing'},
+  handpan:{name:'Handpan',engine:'zen',bpm:84,scales:['kurd','dorian','penta'],lead:'handpan',bed:'pad',perc:'shaker',extra:['chimes'],tags:'handpan, hang drum, soft shaker, warm pad, organic, relaxing'},
+  meditation:{name:'Méditation',engine:'zen',bpm:60,scales:['lydian','penta','yo'],lead:'loops',bed:'pad',perc:'none',extra:['bowl'],tags:'generative ambient, phasing piano loops, airy pads, meditation, peaceful'},
+  vagues:{name:'Vagues et nappes',engine:'zen',bpm:62,scales:['penta','lydian','mixo'],lead:'kalimba',bed:'waves',perc:'none',extra:['chimes'],tags:'ocean waves, kalimba, evolving pads, wind chimes, relaxing ambient'},
+  foret:{name:'Forêt',engine:'zen',bpm:70,scales:['penta','yo','dorian'],lead:'flute',bed:'drone',perc:'none',extra:['birds','kalimba'],tags:'forest ambience, breathy flute, birdsong, kalimba, nature, peaceful'},
   fete:{name:'Festif',bpm:122,minor:false,pad:'saw',lead:'brass',bass:'octave',drums:'pop',tags:'party, celebration, brass stabs, claps, four on the floor, joyful, birthday'}
 };
-const STYLE_ORDER=['auto','epic','ambient','chill','house','synth','lofi','piano','pop','tropical','acoustic','noel','fete'];
-const MOOD_STYLES={golden:['piano','acoustic','chill'],ocean:['chill','tropical','ambient'],nature:['piano','acoustic','ambient'],urban:['synth','house','chill'],night:['synth','ambient','epic'],snow:['ambient','piano','epic'],epic:['epic','synth','chill'],
-  ski:['pop','epic','house'],plage:['tropical','chill','pop'],vacances:['pop','acoustic','tropical'],noel:['noel','piano','acoustic'],anniv:['fete','pop','tropical'],fete:['fete','house','pop'],paysage:['piano','acoustic','ambient']};
+const STYLE_ORDER=['auto','zen','bols','handpan','meditation','vagues','foret','epic','piano','ambient','chill','house','synth','lofi','pop','tropical','acoustic','noel','fete'];
+const STYLE_GROUPS=[['Détente et zen',['zen','bols','handpan','meditation','vagues','foret']],['Cinéma',['epic','piano','ambient']],['Rythmé',['chill','house','synth','lofi','pop','tropical']],['Fêtes et souvenirs',['acoustic','noel','fete']]];
+const MOOD_STYLES={golden:['piano','meditation','acoustic'],ocean:['vagues','chill','tropical'],nature:['foret','piano','acoustic'],urban:['synth','house','chill'],night:['meditation','synth','ambient'],snow:['bols','ambient','piano'],epic:['epic','synth','chill'],
+  ski:['pop','epic','house'],plage:['tropical','chill','pop'],vacances:['pop','acoustic','tropical'],noel:['noel','piano','acoustic'],anniv:['fete','pop','tropical'],fete:['fete','house','pop'],paysage:['foret','meditation','piano']};
 function resolveStyle(k){if(k&&k!=='auto'&&STYLES[k])return k;const m=S.mood&&MOOD_STYLES[S.mood.key]?S.mood.key:'epic';return MOOD_STYLES[m][0];}
 const RATE3=[0.94,1,1.08];
 async function compose(T,styleKey,rhythm,seed){
+  if(STYLES[styleKey]&&STYLES[styleKey].engine==='zen')return composeZen(T,styleKey,rhythm,seed);
   const sty=STYLES[styleKey]||STYLES.epic,dr=sty.drums;
   const rnd=rngFrom(seed*7919+101+styleKey.charCodeAt(0)*131+styleKey.length*17);
   let bpm0=Math.round(sty.bpm*RATE3[rhythm]);
@@ -1674,6 +1685,122 @@ async function compose(T,styleKey,rhythm,seed){
 }
 const durKey=()=>(S.st.dur==='full'?'full':effDur())+'|'+S.st.rhythm+'|'+S.st.mseed+'|'+resolveStyle(S.st.style);
 let composing=false;
+/* ==== Famille « Détente » : musiques zen et méditatives, génératives ====
+   Chaque morceau est inventé à partir de la graine : gamme (japonaise, pentatonique, modes), tonalité, tempo,
+   motif mélodique et ses variations, instruments et textures. Aucune boucle préenregistrée, aucun morceau existant copié. */
+const ZEN_SCALES={insen:[0,1,5,7,10],hirajoshi:[0,2,3,7,8],yo:[0,2,5,7,9],kumoi:[0,2,3,7,9],penta:[0,2,4,7,9],lydian:[0,2,4,6,7,9,11],dorian:[0,2,3,5,7,9,10],kurd:[0,2,3,5,7,8,10],mixo:[0,2,4,5,7,9,10]};
+async function composeZen(T,styleKey,rhythm,seed){
+  const sty=STYLES[styleKey],rnd=rngFrom(seed*7919+977+styleKey.charCodeAt(0)*131+styleKey.length*29);
+  const pick=a=>a[Math.floor(rnd()*a.length)%a.length];
+  let bpm0=sty.bpm*RATE3[rhythm]*(0.94+rnd()*0.12);
+  let bars=Math.max(6,Math.round(T/(240/bpm0)));
+  const bpm=240*bars/T,beat=60/bpm,bar=4*beat,dur=bars*bar,tail=6,sr=44100;
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext,ctx=new OAC(2,Math.ceil((dur+tail)*sr),sr);
+  const mtof=m=>440*Math.pow(2,(m-69)/12);
+  const scale=ZEN_SCALES[pick(sty.scales)],root=48+Math.floor(rnd()*8),n=scale.length;
+  const deg=i=>root+scale[((i%n)+n)%n]+12*Math.floor(i/n);
+  const introEnd=Math.max(2,Math.round(bars*0.24))*bar,dropT=Math.max(introEnd+bar,Math.round(bars*0.45)*bar),outroStart=Math.max(dropT+bar,Math.round(bars*0.84)*bar);
+  const dens=t=>t<introEnd?0.45:(t<dropT?0.75:(t<outroStart?1:0.5));
+  /* chaîne : compression douce, grande réverbération, stéréo */
+  const master=ctx.createDynamicsCompressor();master.threshold.value=-20;master.knee.value=12;master.ratio.value=2.5;master.attack.value=0.02;master.release.value=0.4;
+  const out=ctx.createGain();out.gain.setValueAtTime(0.0001,0);out.gain.linearRampToValueAtTime(0.95,Math.min(3,introEnd));out.gain.setValueAtTime(0.95,dur);out.gain.linearRampToValueAtTime(0.0001,dur+tail-0.2);
+  master.connect(out);out.connect(ctx.destination);
+  const rev=ctx.createConvolver();rev.buffer=impulse(ctx,6.5,2.1);const revOut=ctx.createGain();revOut.gain.value=0.62;rev.connect(revOut);revOut.connect(master);
+  const dl=ctx.createDelay(3);dl.delayTime.value=beat*1.5;const fbk=ctx.createGain();fbk.gain.value=0.38;const dlf=ctx.createBiquadFilter();dlf.type='lowpass';dlf.frequency.value=2400;dl.connect(dlf);dlf.connect(fbk);fbk.connect(dl);const dlo=ctx.createGain();dlo.gain.value=0.22;dlf.connect(dlo);dlo.connect(rev);dlo.connect(master);
+  const nb=noiseBuffer(ctx,4);
+  const bus=(pan,wet,dly)=>{const g=ctx.createGain(),p=ctx.createStereoPanner();p.pan.value=pan;g.connect(p);p.connect(master);const w=ctx.createGain();w.gain.value=wet;p.connect(w);w.connect(rev);if(dly){const d=ctx.createGain();d.gain.value=dly;p.connect(d);d.connect(dl);}return g;};
+  const env=(g,t,a,peak,d)=>{g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+a+d);};
+  const osc=(type,f,t,a,peak,d,dest,det)=>{if(t>dur+tail-0.5)return;const o=ctx.createOscillator();o.type=type;o.frequency.value=f;if(det)o.detune.value=det;const g=ctx.createGain();env(g,t,a,peak,d);o.connect(g);g.connect(dest);o.start(t);o.stop(t+a+d+0.05);};
+  /* --- instruments --- */
+  const ksCache=new Map();
+  const ks=(f,len,bright)=>{const k=Math.round(f*4)+'_'+bright;if(ksCache.has(k))return ksCache.get(k);const N=Math.max(2,Math.round(sr/f)),L=Math.floor(sr*len),b=ctx.createBuffer(1,L,sr),d=b.getChannelData(0),r=rngFrom(Math.round(f*100));
+    for(let i=0;i<N;i++)d[i]=(r()*2-1)*(i<N*bright?1:0.4);const damp=0.4982+bright*0.0014;for(let i=N;i<L;i++)d[i]=damp*(d[i-N]+d[i-N+1]);ksCache.set(k,b);return b;};
+  const pluck=(m,t,v,pan,bright)=>{if(t>dur)return;const s=ctx.createBufferSource();s.buffer=ks(mtof(m),3.2,bright);const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2600+bright*2600;const g=ctx.createGain();g.gain.value=v;s.connect(lp);lp.connect(g);g.connect(bus(pan,0.5,0.35));s.start(t);};
+  const handpan=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.45,0.25);osc('sine',f,t,0.006,v,2.6,b);osc('sine',f*2,t,0.004,v*0.32,1.4,b,3);osc('sine',f*3.01,t,0.003,v*0.12,0.7,b);osc('triangle',f*0.5,t,0.01,v*0.12,1.6,b);};
+  const kalimba=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.45,0.4);osc('sine',f,t,0.003,v,1.7,b);osc('sine',f*5.93,t,0.001,v*0.14,0.07,b);osc('sine',f*2,t,0.002,v*0.08,0.5,b);};
+  const bowl=(m,t,v,pan,rub)=>{const f=mtof(m),b=bus(pan,0.7,0);const P=[[1,1],[2.76,0.5],[5.4,0.22],[8.93,0.1]];
+    P.forEach(([r,a],i)=>{const beatHz=0.3+rnd()*1.1;[-1,1].forEach(sg=>osc('sine',f*r+sg*beatHz/2,t,rub?1.8:0.01,v*a*0.5,(rub?9:13)-i*2.2,b));});};
+  const bell=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.75,0.3);osc('sine',f,t,0.002,v,3,b);osc('sine',f*2.76,t,0.001,v*0.35,1.4,b);osc('sine',f*5.4,t,0.001,v*0.15,0.6,b);};
+  const piano=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.6,0.3);osc('triangle',f,t,0.012,v,3.4,b);osc('sine',f*2,t,0.008,v*0.25,1.8,b,2);osc('sine',f*3,t,0.005,v*0.06,0.9,b);};
+  const flute=(m,t,len,v,pan)=>{if(t>dur)return;const f=mtof(m),b=bus(pan,0.55,0.3),o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
+    const lfo=ctx.createOscillator();lfo.frequency.value=4.6+rnd();const lg=ctx.createGain();lg.gain.value=0;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(f*0.006,t+Math.min(1,len*0.6));lfo.connect(lg);lg.connect(o.frequency);
+    const g=ctx.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+0.28);g.gain.setValueAtTime(v,t+Math.max(0.3,len-0.4));g.gain.linearRampToValueAtTime(0.0001,t+len+0.3);o.connect(g);g.connect(b);
+    const ns=ctx.createBufferSource();ns.buffer=nb;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f*2;bp.Q.value=2;const ng=ctx.createGain();ng.gain.setValueAtTime(0.0001,t);ng.gain.linearRampToValueAtTime(v*0.25,t+0.12);ng.gain.linearRampToValueAtTime(v*0.06,t+0.5);ng.gain.linearRampToValueAtTime(0.0001,t+len+0.3);ns.connect(bp);bp.connect(ng);ng.connect(b);
+    o.start(t);lfo.start(t);ns.start(t,rnd()*2);o.stop(t+len+0.4);lfo.stop(t+len+0.4);ns.stop(t+len+0.4);};
+  const drop=(t,v)=>{const f=700+rnd()*900,o=ctx.createOscillator();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*2.3,t+0.03);const g=ctx.createGain();env(g,t,0.002,v,0.12);o.connect(g);g.connect(bus(rnd()*1.6-0.8,0.8,0.3));o.start(t);o.stop(t+0.2);};
+  const chirp=(t,v)=>{const o=ctx.createOscillator();o.type='sine';const n2=3+Math.floor(rnd()*4),base=2600+rnd()*1800,cur=new Float32Array(n2*2+1);for(let i=0;i<cur.length;i++)cur[i]=base*(i%2?1.25+rnd()*0.3:0.9+rnd()*0.1);
+    const len=0.08*n2;o.frequency.setValueCurveAtTime(cur,t,len);const g=ctx.createGain();env(g,t,0.01,v,len);o.connect(g);g.connect(bus(rnd()*1.8-0.9,0.6,0));o.start(t);o.stop(t+len+0.1);};
+  const shaker=(t,v)=>{const s=ctx.createBufferSource();s.buffer=nb;const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=5500;const g=ctx.createGain();env(g,t,0.012,v,0.07);s.connect(hp);hp.connect(g);g.connect(bus(0.25,0.3,0));s.start(t,rnd()*3);s.stop(t+0.12);};
+  /* --- harmonie : progression modale lente --- */
+  const prog=[0,pick([3,4,5]),pick([2,5,1]),pick([4,3,6])],chordLen=pick([2,2,4]);
+  const chordAt=t=>prog[Math.floor(t/(chordLen*bar))%prog.length];
+  /* nappe ou bourdon */
+  const nChords=Math.ceil(dur/(chordLen*bar));
+  for(let c=0;c<nChords;c++){
+    const t=c*chordLen*bar,len=chordLen*bar,d0=prog[c%prog.length];
+    if(sty.bed==='drone'||sty.bed==='waves'){osc('sine',mtof(root-12),t,len*0.5,0.09,len*1.6,bus(0,0.5,0));osc('sine',mtof(root-5),t,len*0.6,0.045,len*1.4,bus(0.3,0.6,0));}
+    if(sty.bed==='pad'||sty.bed==='waves'||(sty.bed==='drone'&&t>=dropT)){
+      const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(500,t);lp.frequency.linearRampToValueAtTime(1300+rnd()*700,t+len*0.6);lp.frequency.linearRampToValueAtTime(600,t+len*1.3);lp.connect(bus(0,0.7,0));
+      [d0,d0+2,d0+4,d0+n].forEach((q,i)=>{const m=deg(q)-(i<3?0:12);[-7,7].forEach(dt=>osc(i===3?'sine':'triangle',mtof(m),t,len*0.45,0.028*dens(t+1),len*1.25,lp,dt));});
+    }
+  }
+  if(sty.bed==='waves'){const s=ctx.createBufferSource();s.buffer=nb;s.loop=true;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=850;const g=ctx.createGain();g.gain.setValueAtTime(0.0001,0);
+    for(let t=0;t<dur+tail;){const p=6+rnd()*5;g.gain.linearRampToValueAtTime(0.11+rnd()*0.06,t+p*0.4);g.gain.linearRampToValueAtTime(0.02,t+p);t+=p;}
+    s.connect(lp);lp.connect(g);g.connect(bus(-0.1,0.3,0));s.start(0);s.stop(dur+tail);}
+  /* --- mélodie : un motif inventé, puis varié (transposé, renversé, ralenti) --- */
+  const motif=[];{let d=Math.floor(rnd()*n);const L=4+Math.floor(rnd()*3);for(let i=0;i<L;i++){motif.push({d,len:pick([1,1,2,0.5,1.5,3])});d+=pick([-2,-1,-1,1,1,2,0,3]);d=clamp(d,-2,n+4);}}
+  const variant=(k)=>motif.map(x=>({d:k===1?x.d+pick([1,2]):(k===2?motif[0].d*2-x.d:x.d),len:k===3?x.len*2:x.len}));
+  const lead=sty.lead;
+  if(lead==='loops'){
+    /* méditation : boucles de longueurs différentes qui se recroisent sans jamais se répéter à l'identique */
+    const lens=[13,17,19,23,29].map(x=>x*0.5*beat),voice=pick([piano,bell,pluck]);
+    lens.forEach((L,li)=>{const notes=[0,1,2].slice(0,1+Math.floor(rnd()*2)).map(()=>({off:Math.round(rnd()*L/(beat*0.5))*beat*0.5,d:Math.floor(rnd()*(n+3))}));
+      const pan=-0.7+li*0.35;for(let t0=li*beat*2;t0<dur;t0+=L)notes.forEach(x=>{const t=t0+x.off;if(t<dur&&rnd()<dens(t)+0.15){if(voice===pluck)pluck(deg(x.d)+12,t,0.5,pan,0.4);else voice(deg(x.d)+12,t,0.16,pan);}});});
+  }else{
+    let t=introEnd*0.5,ph=0;
+    while(t<outroStart+bar*1.5){
+      const v=variant(ph%4===0?0:(ph%4)),phStart=t;
+      for(const x of v){
+        if(t>=dur-bar)break;
+        const m=deg(x.d)+12,ln=x.len*beat,pan=Math.sin(t*0.37)*0.5,play=rnd()<dens(t)+0.1;
+        if(play){
+          if(lead==='koto'){pluck(m,t,0.55,pan,0.55);if(rnd()<0.18)pluck(m+12,t+beat*0.25,0.25,-pan,0.7);}
+          else if(lead==='handpan'){handpan(m-12,t,0.2,pan);}
+          else if(lead==='kalimba'){kalimba(m,t,0.18,pan);if(x.len>=2)kalimba(deg(x.d+2)+12,t+beat,0.12,-pan);}
+          else if(lead==='flute'){flute(m,t,Math.max(0.6,ln*0.95),0.075,pan);}
+          else if(lead==='bowls'){bowl(m-12,t,0.1,pan,rnd()<0.35);}
+        }
+        t+=ln*(lead==='bowls'?2:1);
+      }
+      t+=pick([1,2,2,3])*beat*(lead==='bowls'?2:1);ph++;
+      if(t-phStart<beat)t+=beat;
+    }
+  }
+  /* --- accompagnements propres à chaque style --- */
+  if(lead==='handpan'){ /* motif rythmique de 2 mesures, notes graves et fantômes */
+    const pat=[];for(let k=0;k<16;k++)pat.push(rnd()<(k%4===0?0.9:0.35)?Math.floor(rnd()*4):-1);
+    for(let b=Math.round(introEnd/bar);b<Math.round(outroStart/bar);b++)for(let k=0;k<8;k++){const q=pat[(b%2)*8+k];if(q<0)continue;const t=b*bar+k*beat/2;handpan(deg(q+chordAt(t))-12,t,k%2?0.06:0.11,-0.3+rnd()*0.6);}
+    if(sty.perc==='shaker')for(let t=dropT;t<outroStart;t+=beat/2)shaker(t,(Math.round(t/(beat/2))%2?0.018:0.03)*(0.8+rnd()*0.4));
+  }
+  if(lead==='kalimba'||lead==='koto'){ /* arpèges doux sous la mélodie, au refrain */
+    for(let t=dropT;t<outroStart;t+=beat){if(rnd()<0.55){const q=chordAt(t)+pick([0,2,4,n]);(lead==='koto'?(m,tt,vv,pp)=>pluck(m,tt,vv*2.6,pp,0.3):kalimba)(deg(q),t+beat*0.5,0.07,-0.4+rnd()*0.8);}}
+  }
+  const ex=sty.extra||[];
+  if(ex.indexOf('bowl')>=0||lead==='bowls'){[0,dropT,outroStart].forEach((t,i)=>bowl(root-12+(i===1?7:0),t+0.01,i===1?0.16:0.11,i%2?0.3:-0.3,false));}
+  if(ex.indexOf('chimes')>=0)for(let t=introEnd;t<dur;t+=beat*(3+rnd()*6)){const k=2+Math.floor(rnd()*4);for(let i=0;i<k;i++)bell(deg(n*2+Math.floor(rnd()*n)),t+i*(0.08+rnd()*0.15),0.035,rnd()*1.6-0.8);}
+  if(sty.perc==='drops')for(let t=beat;t<dur;t+=beat*(0.5+rnd()*3)/dens(t))drop(t,0.05);
+  if(ex.indexOf('birds')>=0)for(let t=1;t<dur;t+=2+rnd()*7)chirp(t,0.02+rnd()*0.02);
+  if(ex.indexOf('kalimba')>=0)for(let t=dropT;t<outroStart;t+=beat*pick([1,2,3]))kalimba(deg(chordAt(t)+pick([0,2,4]))+12,t,0.08,rnd()*1.2-0.6);
+  if(ex.indexOf('breath')>=0){const s=ctx.createBufferSource();s.buffer=nb;s.loop=true;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=420;bp.Q.value=0.8;const g=ctx.createGain();g.gain.setValueAtTime(0.0001,0);
+    for(let t=0;t<dur+tail;t+=8){g.gain.linearRampToValueAtTime(0.05,t+3.5);g.gain.linearRampToValueAtTime(0.004,t+8);}s.connect(bp);bp.connect(g);g.connect(bus(0,0.4,0));s.start(0);s.stop(dur+tail);}
+  /* éclosion au point fort du film : une note grave et un souffle qui s'ouvre */
+  {const s=ctx.createBufferSource();s.buffer=nb;s.loop=true;const f=ctx.createBiquadFilter();f.type='bandpass';f.Q.value=1.4;f.frequency.setValueAtTime(300,dropT-2*bar);f.frequency.exponentialRampToValueAtTime(2600,dropT);const g=ctx.createGain();g.gain.setValueAtTime(0.0001,Math.max(0,dropT-2*bar));g.gain.exponentialRampToValueAtTime(0.06,dropT);g.gain.exponentialRampToValueAtTime(0.0001,dropT+2.5);
+   s.connect(f);f.connect(g);g.connect(bus(0,0.8,0));s.start(Math.max(0,dropT-2*bar));s.stop(dropT+2.6);osc('sine',mtof(root-24),dropT,0.4,0.16,5,bus(0,0.3,0));}
+  const buf=await renderOffline(ctx);
+  const beats=[],downbeats=[];for(let i=0;i<bars*4;i++){beats.push(i*beat);if(i%4===0)downbeats.push(i*beat);}
+  const en=energyCurve(buf);
+  return{kind:'composed',style:styleKey,seed,name:'Musique originale : '+sty.name,buffer:buf,duration:dur+tail,filmDur:dur,bpm,beats,downbeats,dropT,introEnd,outroStart,energy:en.energy,efps:en.efps};
+}
 function composeBusy(){if(!composing)return false;toast('Une composition est déjà en cours, patiente quelques secondes.');return true;}
 async function composeMusic(){
   if(composeBusy())return;composing=true;updateButtons();
@@ -1727,13 +1854,17 @@ function loudGain(buf,off,T){
 let propRound=0,prevSrc=null,prevIdx=-1;
 function renderStyleChips(){
   const box=$('#styleChips');if(!box)return;box.innerHTML='';const autoK=resolveStyle('auto');
-  STYLE_ORDER.forEach(k=>{
+  const tip=$('#styleTip');if(tip)tip.textContent=S.st.style==='auto'?'Auto : '+STYLES[autoK].name+'. '+(STYLE_TIP[autoK]||''):(STYLE_TIP[S.st.style]||'');
+  /* styles rangés par famille, la famille « Détente et zen » en premier */
+  const add=(k,parent)=>{
     const b=document.createElement('button');b.type='button';const on=S.st.style===k;
     b.textContent=k==='auto'?'Auto ('+STYLES[autoK].name.toLowerCase()+')':STYLES[k].name;b.className=on?'on':'';b.setAttribute('aria-pressed',on?'true':'false');b.dataset.tip=STYLE_TIP[k]||'';
     b.onclick=async()=>{if(composeBusy())return;S.st.style=k;renderStyleChips();renderSuno();
       if(S.music&&S.music.kind==='composed'&&S.music.key!==durKey()){await composeMusic();if(S.analyzed)makeEdit();}};
-    box.appendChild(b);
-  });
+    parent.appendChild(b);
+  };
+  const r0=document.createElement('div');r0.className='chips';add('auto',r0);box.appendChild(r0);
+  STYLE_GROUPS.forEach(g=>{const h=document.createElement('p');h.className='sgrp';h.textContent=g[0];box.appendChild(h);const r=document.createElement('div');r.className='chips';g[1].forEach(k=>add(k,r));box.appendChild(r);});
 }
 async function proposeMusic(){
   if(composeBusy())return;stopPreview();pause();audio();
@@ -3010,7 +3141,7 @@ function refreshEmpty(){
 function updateButtons(){
   const has=S.clips.length>0,rush=S.clips.some(c=>!c.insert);
   $('#btnAuto').disabled=S.busy||!rush;$('#btnAnalyse').disabled=S.busy||!has||S.clips.every(c=>c.analyzed);
-  $('#btnToMusic').disabled=!S.analyzed;$('#btnEdit').disabled=S.busy||!S.analyzed;$('#btnCompose').disabled=S.busy||composing;$('#btnPropose').disabled=S.busy||composing;
+  $('#btnToMusic').disabled=!S.analyzed;$('#btnEdit').disabled=S.busy||!S.analyzed;$('#btnCompose').disabled=S.busy||composing;$('#btnVariant').disabled=S.busy||composing;$('#btnPropose').disabled=S.busy||composing;
   if(!P.exporting&&$('#busy').hidden&&!copyBusy())keepAwake(false);
   $('#btnPlay').disabled=!S.edit;$('#btnExport').disabled=!S.edit||P.exporting||composing;$('#btnTake').disabled=!S.edit||P.exporting;$('#btnCut').disabled=!S.edit||P.exporting;$('#btnCmp').disabled=!S.edit||P.exporting;$('#btnCover').disabled=!S.edit||P.exporting||composing;
   $('#btnEdit').textContent='Monter mon film';
@@ -3225,6 +3356,7 @@ $('#btnAuto').addEventListener('click',autoFilm);
 $('#btnAnalyse').addEventListener('click',()=>{analyseAll();});
 $('#btnToMusic').addEventListener('click',()=>setTab('music'));
 $('#btnCompose').addEventListener('click',async()=>{audio();await composeMusic();});
+$('#btnVariant').addEventListener('click',async()=>{if(composeBusy())return;audio();S.st.mseed=(S.st.mseed||1)+1;await composeMusic();if(S.analyzed&&S.music)makeEdit();toast('Nouvelle version : autre mélodie, autre gamme, autres instruments du même style.');});
 $('#btnCopySuno').addEventListener('click',copySuno);
 $('#btnEdit').addEventListener('click',async()=>{audio();if(!S.music||(S.music.kind==='composed'&&S.music.key!==durKey()))await composeMusic();if(S.music&&makeEdit()){setTab('film');showStage();play(0);}});
 $('#btnTake').addEventListener('click',()=>{S.st.seed++;const w=P.playing;if(makeEdit()&&w)play(0);toast('Prise '+S.st.seed+' : nouveau choix de plans et de transitions.');});
@@ -3355,7 +3487,7 @@ if('launchQueue' in window&&window.launchQueue&&typeof window.launchQueue.setCon
 
 /* ========== Interface v2 : infobulles, aide, lecteur ========== */
 const LOOK_TIP={natural:"Couleurs fidèles, avec juste un peu plus de contraste.",golden:"Tons chauds et doux, comme au coucher du soleil.",teal:"Ombres bleutées et lumières dorées : le look des films d'action.",medi:"Bleus profonds et couleurs franches, idéal pour la mer et le ciel.",nordic:"Couleurs froides et adoucies : montagne, brume, hiver.",film:"Contraste et grain de pellicule argentique.",night:"Contrastes forts et halos lumineux pour les vols de nuit.",mono:"Noir et blanc contrasté, avec du grain."};
-const STYLE_TIP={pop:"Pop entraînante et lumineuse, pour les souvenirs heureux.",tropical:"Marimba et rythme chaloupé, pour la plage et l'été.",acoustic:"Guitare acoustique grattée, chaleureuse et naturelle.",noel:"Grelots, clochettes et cordes, pour la magie de Noël.",fete:"Cuivres et claquements de mains, pour les anniversaires et les fêtes.",auto:"L'app choisit le style d'après la scène reconnue dans tes images.",epic:"Orchestre et grosses percussions, pour les grands paysages.",ambient:"Nappes planantes et douces, pour un vol contemplatif.",chill:"Électro posée et lumineuse, idéale pour les réseaux.",house:"Rythme dansant, pour des coupes énergiques.",synth:"Synthés rétro des années 80, parfait de nuit ou en ville.",lofi:"Beat feutré et détendu.",piano:"Piano et cordes, pour l'émotion et la lumière dorée."};
+const STYLE_TIP={zen:"Cordes pincées à la japonaise, gouttes d'eau et bol chantant. Calme et lumineux.",bols:"Bols chantants qui vibrent lentement sur un bourdon grave, au rythme d'une respiration.",handpan:"Handpan aux notes rondes, rythme doux, nappe chaude et carillons.",meditation:"Boucles de piano de longueurs différentes qui se croisent sans jamais se répéter.",vagues:"Kalimba, nappes qui évoluent et ressac de l'océan.",foret:"Flûte au souffle léger, chants d'oiseaux et kalimba. Nature apaisée.",pop:"Pop entraînante et lumineuse, pour les souvenirs heureux.",tropical:"Marimba et rythme chaloupé, pour la plage et l'été.",acoustic:"Guitare acoustique grattée, chaleureuse et naturelle.",noel:"Grelots, clochettes et cordes, pour la magie de Noël.",fete:"Cuivres et claquements de mains, pour les anniversaires et les fêtes.",auto:"L'app choisit le style d'après la scène reconnue dans tes images.",epic:"Orchestre et grosses percussions, pour les grands paysages.",ambient:"Nappes planantes et douces, pour un vol contemplatif.",chill:"Électro posée et lumineuse, idéale pour les réseaux.",house:"Rythme dansant, pour des coupes énergiques.",synth:"Synthés rétro des années 80, parfait de nuit ou en ville.",lofi:"Beat feutré et détendu.",piano:"Piano et cordes, pour l'émotion et la lumière dorée."};
 const TIPS=[
  ['#pane-film details.grp:nth-of-type(1)>summary',"Format de l'image, durée du film et vitesse des coupes"],
  ['#shotsBox>summary',"La liste des plans dans l'ordre du film. Clique un plan pour y aller"],
