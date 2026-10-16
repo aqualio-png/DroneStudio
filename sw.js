@@ -1,6 +1,6 @@
 /* MonDroneStudio : service worker (ouverture hors connexion).
    Change le numéro de version après une modification des icônes ou du manifeste. */
-const CACHE = 'dronestudio-v8';
+const CACHE = 'dronestudio-v9';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.ico', './archivo.woff2', './archivo.ttf'];
 
 self.addEventListener('install', e => {
@@ -37,6 +37,15 @@ self.addEventListener('fetch', e => {
         .then(hit => hit || caches.match('./'))
         .then(hit => hit || Response.error()))
     );
+    return;
+  }
+
+  /* Instruments réels (sons/) : gardés une fois pour toutes, sans revérification à chaque ouverture */
+  if (url.origin === self.location.origin && url.pathname.indexOf('/sons/') >= 0 && url.pathname.indexOf('manifest.json') < 0) {
+    e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
+      if (res && res.ok) { const cp = res.clone(); caches.open(CACHE).then(c => c.put(req, cp)); }
+      return res;
+    })));
     return;
   }
 

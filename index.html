@@ -602,7 +602,7 @@ details>summary{display:flex;align-items:center}
       <p class="fine">L'étoile transforme un clip en insert : il est placé en ouverture ou juste avant le sommet du film. Pratique pour un plan au sol, un logo ou une séquence créée ailleurs.</p>
       <button id="btnAnalyse" class="btn wide" disabled>Analyser sans monter</button>
       <button id="btnPrivacy" class="linkbtn" type="button">Confidentialité et désinstallation</button>
-      <p class="ver"><span>MonDroneStudio <span id="appVer">4.0</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
+      <p class="ver"><span>MonDroneStudio <span id="appVer">4.1</span></span><button id="btnUpd" class="linkbtn" type="button">Rechercher une mise à jour</button><button id="btnShare" class="linkbtn" type="button">Partager l'app</button></p>
       <div class="ctabar"><button id="btnAuto" class="btn primary wide" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 19L15.5 8.5M14 4.5l.6 1.8 1.9.7-1.9.7-.6 1.8-.6-1.8-1.9-.7 1.9-.7zM19 10.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Monter mon film</button></div>
     </section>
     <section class="pane" id="pane-analyse">
@@ -619,6 +619,7 @@ details>summary{display:flex;align-items:center}
         <p>Une musique originale, inventée pour ton film : mélodie, gamme et instruments changent à chaque version. Choisis une famille et un style, ou laisse l'app suivre l'ambiance de tes images. Gratuit, illimité, hors ligne.</p>
         <div id="styleChips" role="group" aria-label="Style de la musique"></div>
         <p class="fine" id="styleTip"></p>
+        <p class="fine" id="instrNote"></p>
         <button id="btnCompose" class="btn primary wide">Composer la musique</button>
         <button id="btnVariant" class="btn wide" type="button">Une autre version</button>
         <button id="btnPropose" class="btn wide">Proposer 3 musiques</button>
@@ -1685,11 +1686,49 @@ async function compose(T,styleKey,rhythm,seed){
 }
 const durKey=()=>(S.st.dur==='full'?'full':effDur())+'|'+S.st.rhythm+'|'+S.st.mseed+'|'+resolveStyle(S.st.style);
 let composing=false;
+/* ==== Instruments réels (VCSL, Versilian Studios, domaine public CC0) ====
+   Rangés dans le dossier sons/ du dépôt par l'automatisation « Instruments MonDroneStudio ».
+   Chargés au premier usage, gardés hors connexion par le service worker ; sans eux, l'app garde ses sons de synthèse. */
+const SAMP={man:null,tried:false,bufs:new Map()};
+const ZEN_INSTR={zen:['koto','verres','cloches','glock'],bols:['cloches','vibrarc','verres'],handpan:['marimba','kalimba','vibrarc','shaker','tambour','carillons'],
+  meditation:['piano','vibra','verres','carillons'],vagues:['harpe','kalimba','psalterion','ocean','mobile'],foret:['flute','kalimba','marimba','vibrarc','mobile']};
+async function sampManifest(){if(SAMP.tried)return SAMP.man;SAMP.tried=true;try{const r=await fetch('sons/manifest.json',{cache:'no-cache'});if(r.ok){const j=await r.json();SAMP.man=j&&j.instruments?j.instruments:null;}}catch(e){}return SAMP.man;}
+/* son décodé, ramené en mono, raccourci et mis au même niveau que les autres instruments */
+function prepSample(b,maxS){const sr=b.sampleRate,L=Math.min(b.length,Math.floor(maxS*sr)),ctx=audio(),o=ctx.createBuffer(1,L,sr),d=o.getChannelData(0),nc=b.numberOfChannels;
+  for(let c=0;c<nc;c++){const x=b.getChannelData(c);for(let i=0;i<L;i++)d[i]+=x[i]/nc;}
+  let pk=0;for(let i=0;i<L;i++)pk=Math.max(pk,Math.abs(d[i]));const g=pk>0?0.5/pk:1,fl=Math.min(L,Math.floor(0.25*sr));for(let i=0;i<L;i++){d[i]*=g;if(i>L-fl)d[i]*=(L-i)/fl;}return o;}
+async function loadInstr(keys,onProg){
+  const man=await sampManifest(),out={};if(!man)return out;
+  let tot=0,n=0;keys.forEach(k=>{if(man[k])tot+=man[k].samples.length;});
+  for(const k of keys){const ins=man[k];if(!ins)continue;const list=[],long=['verres','vibrarc','psalterion','ocean','flute','ocarina'].indexOf(k)>=0;
+    for(const sm of ins.samples){let b=SAMP.bufs.get(sm.f);
+      if(!b){try{const r=await fetch('sons/'+sm.f);if(r.ok){b=prepSample(await decodeAudio(await r.arrayBuffer()),long?9:6);SAMP.bufs.set(sm.f,b);}}catch(e){}}
+      n++;if(onProg)onProg(n,tot);if(b)list.push({n:sm.n,b});}
+    if(list.length)out[k]={pitched:!!ins.pitched,list:list.sort((a,b)=>a.n-b.n)};}
+  return out;
+}
+/* une note jouée par un instrument réel : l'échantillon le plus proche, transposé */
+function sPlay(ctx,inst,midi,t,vel,dest,o){
+  o=o||{};let best=inst.list[0];
+  if(inst.pitched){for(const x of inst.list)if(Math.abs(x.n-midi)<Math.abs(best.n-midi))best=x;}else best=inst.list[Math.floor((o.pick||0)*inst.list.length)%inst.list.length];
+  const src=ctx.createBufferSource();src.buffer=best.b;const rate=inst.pitched?Math.pow(2,(midi-best.n)/12):(o.rate||1);src.playbackRate.value=rate;
+  const full=best.b.duration/rate,len=Math.min(o.len||full,full),a=o.att||0.004,rel=Math.min(o.rel||0.3,len*0.5);
+  const g=ctx.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vel,t+a);
+  if(o.len&&o.len<full){g.gain.setValueAtTime(vel,t+Math.max(a,len-rel));g.gain.linearRampToValueAtTime(0.0001,t+len);}
+  src.connect(g);g.connect(dest);src.start(t);src.stop(t+len+0.05);
+}
+/* nappe tenue avec un son court : relances en fondu enchaîné */
+function sPad(ctx,inst,midi,t,len,vel,dest){
+  let best=inst.list[0];for(const x of inst.list)if(Math.abs(x.n-midi)<Math.abs(best.n-midi))best=x;
+  const seg=Math.max(2.5,best.b.duration/Math.pow(2,(midi-best.n)/12)*0.85),xf=Math.min(1.5,seg*0.3);
+  for(let t0=t;t0<t+len;t0+=seg-xf){const l=Math.min(seg,t+len-t0+xf);if(l<0.6)break;sPlay(ctx,inst,midi,t0,vel,dest,{len:l,att:t0===t?Math.min(2,l*0.4):xf,rel:xf});}
+}
 /* ==== Famille « Détente » : musiques zen et méditatives, génératives ====
    Chaque morceau est inventé à partir de la graine : gamme (japonaise, pentatonique, modes), tonalité, tempo,
    motif mélodique et ses variations, instruments et textures. Aucune boucle préenregistrée, aucun morceau existant copié. */
 const ZEN_SCALES={insen:[0,1,5,7,10],hirajoshi:[0,2,3,7,8],yo:[0,2,5,7,9],kumoi:[0,2,3,7,9],penta:[0,2,4,7,9],lydian:[0,2,4,6,7,9,11],dorian:[0,2,3,5,7,9,10],kurd:[0,2,3,5,7,8,10],mixo:[0,2,4,5,7,9,10]};
-async function composeZen(T,styleKey,rhythm,seed){
+async function composeZen(T,styleKey,rhythm,seed,SIin){
+  const SI=SIin||await loadInstr(ZEN_INSTR[styleKey]||[]);
   const sty=STYLES[styleKey],rnd=rngFrom(seed*7919+977+styleKey.charCodeAt(0)*131+styleKey.length*29);
   const pick=a=>a[Math.floor(rnd()*a.length)%a.length];
   let bpm0=sty.bpm*RATE3[rhythm]*(0.94+rnd()*0.12);
@@ -1715,22 +1754,36 @@ async function composeZen(T,styleKey,rhythm,seed){
   const ksCache=new Map();
   const ks=(f,len,bright)=>{const k=Math.round(f*4)+'_'+bright;if(ksCache.has(k))return ksCache.get(k);const N=Math.max(2,Math.round(sr/f)),L=Math.floor(sr*len),b=ctx.createBuffer(1,L,sr),d=b.getChannelData(0),r=rngFrom(Math.round(f*100));
     for(let i=0;i<N;i++)d[i]=(r()*2-1)*(i<N*bright?1:0.4);const damp=0.4982+bright*0.0014;for(let i=N;i<L;i++)d[i]=damp*(d[i-N]+d[i-N+1]);ksCache.set(k,b);return b;};
-  const pluck=(m,t,v,pan,bright)=>{if(t>dur)return;const s=ctx.createBufferSource();s.buffer=ks(mtof(m),3.2,bright);const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2600+bright*2600;const g=ctx.createGain();g.gain.value=v;s.connect(lp);lp.connect(g);g.connect(bus(pan,0.5,0.35));s.start(t);};
-  const handpan=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.45,0.25);osc('sine',f,t,0.006,v,2.6,b);osc('sine',f*2,t,0.004,v*0.32,1.4,b,3);osc('sine',f*3.01,t,0.003,v*0.12,0.7,b);osc('triangle',f*0.5,t,0.01,v*0.12,1.6,b);};
-  const kalimba=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.45,0.4);osc('sine',f,t,0.003,v,1.7,b);osc('sine',f*5.93,t,0.001,v*0.14,0.07,b);osc('sine',f*2,t,0.002,v*0.08,0.5,b);};
-  const bowl=(m,t,v,pan,rub)=>{const f=mtof(m),b=bus(pan,0.7,0);const P=[[1,1],[2.76,0.5],[5.4,0.22],[8.93,0.1]];
+  let pluck=(m,t,v,pan,bright)=>{if(t>dur)return;const s=ctx.createBufferSource();s.buffer=ks(mtof(m),3.2,bright);const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2600+bright*2600;const g=ctx.createGain();g.gain.value=v;s.connect(lp);lp.connect(g);g.connect(bus(pan,0.5,0.35));s.start(t);};
+  let handpan=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.45,0.25);osc('sine',f,t,0.006,v,2.6,b);osc('sine',f*2,t,0.004,v*0.32,1.4,b,3);osc('sine',f*3.01,t,0.003,v*0.12,0.7,b);osc('triangle',f*0.5,t,0.01,v*0.12,1.6,b);};
+  let kalimba=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.45,0.4);osc('sine',f,t,0.003,v,1.7,b);osc('sine',f*5.93,t,0.001,v*0.14,0.07,b);osc('sine',f*2,t,0.002,v*0.08,0.5,b);};
+  let bowl=(m,t,v,pan,rub)=>{const f=mtof(m),b=bus(pan,0.7,0);const P=[[1,1],[2.76,0.5],[5.4,0.22],[8.93,0.1]];
     P.forEach(([r,a],i)=>{const beatHz=0.3+rnd()*1.1;[-1,1].forEach(sg=>osc('sine',f*r+sg*beatHz/2,t,rub?1.8:0.01,v*a*0.5,(rub?9:13)-i*2.2,b));});};
-  const bell=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.75,0.3);osc('sine',f,t,0.002,v,3,b);osc('sine',f*2.76,t,0.001,v*0.35,1.4,b);osc('sine',f*5.4,t,0.001,v*0.15,0.6,b);};
-  const piano=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.6,0.3);osc('triangle',f,t,0.012,v,3.4,b);osc('sine',f*2,t,0.008,v*0.25,1.8,b,2);osc('sine',f*3,t,0.005,v*0.06,0.9,b);};
-  const flute=(m,t,len,v,pan)=>{if(t>dur)return;const f=mtof(m),b=bus(pan,0.55,0.3),o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
+  let bell=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.75,0.3);osc('sine',f,t,0.002,v,3,b);osc('sine',f*2.76,t,0.001,v*0.35,1.4,b);osc('sine',f*5.4,t,0.001,v*0.15,0.6,b);};
+  let piano=(m,t,v,pan)=>{const f=mtof(m),b=bus(pan,0.6,0.3);osc('triangle',f,t,0.012,v,3.4,b);osc('sine',f*2,t,0.008,v*0.25,1.8,b,2);osc('sine',f*3,t,0.005,v*0.06,0.9,b);};
+  let flute=(m,t,len,v,pan)=>{if(t>dur)return;const f=mtof(m),b=bus(pan,0.55,0.3),o=ctx.createOscillator();o.type='sine';o.frequency.value=f;
     const lfo=ctx.createOscillator();lfo.frequency.value=4.6+rnd();const lg=ctx.createGain();lg.gain.value=0;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(f*0.006,t+Math.min(1,len*0.6));lfo.connect(lg);lg.connect(o.frequency);
     const g=ctx.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+0.28);g.gain.setValueAtTime(v,t+Math.max(0.3,len-0.4));g.gain.linearRampToValueAtTime(0.0001,t+len+0.3);o.connect(g);g.connect(b);
     const ns=ctx.createBufferSource();ns.buffer=nb;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f*2;bp.Q.value=2;const ng=ctx.createGain();ng.gain.setValueAtTime(0.0001,t);ng.gain.linearRampToValueAtTime(v*0.25,t+0.12);ng.gain.linearRampToValueAtTime(v*0.06,t+0.5);ng.gain.linearRampToValueAtTime(0.0001,t+len+0.3);ns.connect(bp);bp.connect(ng);ng.connect(b);
     o.start(t);lfo.start(t);ns.start(t,rnd()*2);o.stop(t+len+0.4);lfo.stop(t+len+0.4);ns.stop(t+len+0.4);};
-  const drop=(t,v)=>{const f=700+rnd()*900,o=ctx.createOscillator();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*2.3,t+0.03);const g=ctx.createGain();env(g,t,0.002,v,0.12);o.connect(g);g.connect(bus(rnd()*1.6-0.8,0.8,0.3));o.start(t);o.stop(t+0.2);};
+  let drop=(t,v)=>{const f=700+rnd()*900,o=ctx.createOscillator();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*2.3,t+0.03);const g=ctx.createGain();env(g,t,0.002,v,0.12);o.connect(g);g.connect(bus(rnd()*1.6-0.8,0.8,0.3));o.start(t);o.stop(t+0.2);};
   const chirp=(t,v)=>{const o=ctx.createOscillator();o.type='sine';const n2=3+Math.floor(rnd()*4),base=2600+rnd()*1800,cur=new Float32Array(n2*2+1);for(let i=0;i<cur.length;i++)cur[i]=base*(i%2?1.25+rnd()*0.3:0.9+rnd()*0.1);
     const len=0.08*n2;o.frequency.setValueCurveAtTime(cur,t,len);const g=ctx.createGain();env(g,t,0.01,v,len);o.connect(g);g.connect(bus(rnd()*1.8-0.9,0.6,0));o.start(t);o.stop(t+len+0.1);};
-  const shaker=(t,v)=>{const s=ctx.createBufferSource();s.buffer=nb;const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=5500;const g=ctx.createGain();env(g,t,0.012,v,0.07);s.connect(hp);hp.connect(g);g.connect(bus(0.25,0.3,0));s.start(t,rnd()*3);s.stop(t+0.12);};
+  let shaker=(t,v)=>{const s=ctx.createBufferSource();s.buffer=nb;const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=5500;const g=ctx.createGain();env(g,t,0.012,v,0.07);s.connect(hp);hp.connect(g);g.connect(bus(0.25,0.3,0));s.start(t,rnd()*3);s.stop(t+0.12);};
+  /* --- instruments réels quand ils sont installés : chaque voix de synthèse est remplacée --- */
+  const real=Object.keys(SI);
+  if(real.length){
+    const sv=(k,lvl)=>(m,t,v,pan)=>{if(t<=dur)sPlay(ctx,SI[k],m,t,v*lvl,bus(pan,0.55,0.3),{});};
+    const plk=SI.koto?'koto':(SI.harpe?'harpe':null);if(plk){const f=sv(plk,1.25);pluck=(m,t,v,pan)=>f(m,t,v,pan);}
+    if(SI.marimba){const f=sv('marimba',3.2);handpan=(m,t,v,pan)=>f(m+12,t,v,pan);}
+    if(SI.kalimba){const f=sv('kalimba',3.4);kalimba=f;}
+    if(SI.cloches){bowl=(m,t,v,pan)=>{if(t<=dur)sPlay(ctx,SI.cloches,m+12,t,v*4,bus(pan,0.8,0),{});};}
+    const bk=SI.carillons?'carillons':(SI.glock?'glock':null);if(bk){const f=sv(bk,3.5);bell=f;}
+    if(SI.piano){const f=sv('piano',2.6);piano=f;}
+    const fk=SI.flute?'flute':(SI.ocarina?'ocarina':null);if(fk){flute=(m,t,len,v,pan)=>{if(t<=dur)sPlay(ctx,SI[fk],m,t,v*5,bus(pan,0.6,0.3),{len:Math.max(0.5,len),att:0.06,rel:0.35});};}
+    if(SI.shaker){shaker=(t,v)=>{sPlay(ctx,SI.shaker,0,t,v*7,bus(0.25,0.3,0),{pick:rnd()});};}
+    ilog('Musique : instruments réels '+real.join(', '));
+  }
   /* --- harmonie : progression modale lente --- */
   const prog=[0,pick([3,4,5]),pick([2,5,1]),pick([4,3,6])],chordLen=pick([2,2,4]);
   const chordAt=t=>prog[Math.floor(t/(chordLen*bar))%prog.length];
@@ -1739,12 +1792,16 @@ async function composeZen(T,styleKey,rhythm,seed){
   for(let c=0;c<nChords;c++){
     const t=c*chordLen*bar,len=chordLen*bar,d0=prog[c%prog.length];
     if(sty.bed==='drone'||sty.bed==='waves'){osc('sine',mtof(root-12),t,len*0.5,0.09,len*1.6,bus(0,0.5,0));osc('sine',mtof(root-5),t,len*0.6,0.045,len*1.4,bus(0.3,0.6,0));}
-    if(sty.bed==='pad'||sty.bed==='waves'||(sty.bed==='drone'&&t>=dropT)){
+    const padK=SI.verres?'verres':(SI.vibrarc?'vibrarc':(SI.psalterion?'psalterion':null));
+    if(padK&&(sty.bed==='pad'||sty.bed==='waves'||sty.bed==='drone')){[d0,d0+2,d0+4].forEach((q,i)=>sPad(ctx,SI[padK],deg(q)+(padK==='verres'?12:0),t+i*0.15,len*1.05,0.11*dens(t+1)*(i?0.8:1),bus(-0.4+i*0.4,0.75,0)));
+      if(SI.vibrarc&&padK!=='vibrarc'&&t>=dropT)sPad(ctx,SI.vibrarc,deg(d0),t,len,0.08,bus(0,0.7,0));}
+    else if(sty.bed==='pad'||sty.bed==='waves'||(sty.bed==='drone'&&t>=dropT)){
       const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(500,t);lp.frequency.linearRampToValueAtTime(1300+rnd()*700,t+len*0.6);lp.frequency.linearRampToValueAtTime(600,t+len*1.3);lp.connect(bus(0,0.7,0));
       [d0,d0+2,d0+4,d0+n].forEach((q,i)=>{const m=deg(q)-(i<3?0:12);[-7,7].forEach(dt=>osc(i===3?'sine':'triangle',mtof(m),t,len*0.45,0.028*dens(t+1),len*1.25,lp,dt));});
     }
   }
-  if(sty.bed==='waves'){const s=ctx.createBufferSource();s.buffer=nb;s.loop=true;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=850;const g=ctx.createGain();g.gain.setValueAtTime(0.0001,0);
+  if(sty.bed==='waves'&&SI.ocean){for(let t=0;t<dur+tail-2;t+=3+rnd()*4)sPlay(ctx,SI.ocean,0,t,0.5+rnd()*0.3,bus(rnd()*1.2-0.6,0.4,0),{pick:rnd(),att:0.8,rel:1.2});}
+  else if(sty.bed==='waves'){const s=ctx.createBufferSource();s.buffer=nb;s.loop=true;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=850;const g=ctx.createGain();g.gain.setValueAtTime(0.0001,0);
     for(let t=0;t<dur+tail;){const p=6+rnd()*5;g.gain.linearRampToValueAtTime(0.11+rnd()*0.06,t+p*0.4);g.gain.linearRampToValueAtTime(0.02,t+p);t+=p;}
     s.connect(lp);lp.connect(g);g.connect(bus(-0.1,0.3,0));s.start(0);s.stop(dur+tail);}
   /* --- mélodie : un motif inventé, puis varié (transposé, renversé, ralenti) --- */
@@ -1787,7 +1844,9 @@ async function composeZen(T,styleKey,rhythm,seed){
   }
   const ex=sty.extra||[];
   if(ex.indexOf('bowl')>=0||lead==='bowls'){[0,dropT,outroStart].forEach((t,i)=>bowl(root-12+(i===1?7:0),t+0.01,i===1?0.16:0.11,i%2?0.3:-0.3,false));}
-  if(ex.indexOf('chimes')>=0)for(let t=introEnd;t<dur;t+=beat*(3+rnd()*6)){const k=2+Math.floor(rnd()*4);for(let i=0;i<k;i++)bell(deg(n*2+Math.floor(rnd()*n)),t+i*(0.08+rnd()*0.15),0.035,rnd()*1.6-0.8);}
+  if(SI.mobile)for(let t=introEnd;t<dur;t+=bar*(2+rnd()*4))sPlay(ctx,SI.mobile,0,t,0.25+rnd()*0.15,bus(rnd()*1.4-0.7,0.8,0),{pick:rnd()});
+  if(SI.tambour)for(let t=dropT;t<outroStart;t+=bar)sPlay(ctx,SI.tambour,0,t,0.35,bus(-0.15,0.35,0),{pick:rnd()});
+  if(ex.indexOf('chimes')>=0&&!SI.mobile)for(let t=introEnd;t<dur;t+=beat*(3+rnd()*6)){const k=2+Math.floor(rnd()*4);for(let i=0;i<k;i++)bell(deg(n*2+Math.floor(rnd()*n)),t+i*(0.08+rnd()*0.15),0.035,rnd()*1.6-0.8);}
   if(sty.perc==='drops')for(let t=beat;t<dur;t+=beat*(0.5+rnd()*3)/dens(t))drop(t,0.05);
   if(ex.indexOf('birds')>=0)for(let t=1;t<dur;t+=2+rnd()*7)chirp(t,0.02+rnd()*0.02);
   if(ex.indexOf('kalimba')>=0)for(let t=dropT;t<outroStart;t+=beat*pick([1,2,3]))kalimba(deg(chordAt(t)+pick([0,2,4]))+12,t,0.08,rnd()*1.2-0.6);
@@ -1801,12 +1860,15 @@ async function composeZen(T,styleKey,rhythm,seed){
   const en=energyCurve(buf);
   return{kind:'composed',style:styleKey,seed,name:'Musique originale : '+sty.name,buffer:buf,duration:dur+tail,filmDur:dur,bpm,beats,downbeats,dropT,introEnd,outroStart,energy:en.energy,efps:en.efps};
 }
+async function renderInstrNote(){const el=$('#instrNote');if(!el)return;const m=await sampManifest();const n=m?Object.keys(m).length:0;
+  el.textContent=n?'Instruments réels installés : '+n+'. Les styles Détente et zen les utilisent.':"Instruments réels non installés : les styles Détente et zen utilisent des sons de synthèse. Pour les installer, voir le guide de mise en ligne.";}
 function composeBusy(){if(!composing)return false;toast('Une composition est déjà en cours, patiente quelques secondes.');return true;}
 async function composeMusic(){
   if(composeBusy())return;composing=true;updateButtons();
   const T=S.st.dur==='full'?60:effDur();
   stopPreview();busyShow('Composition de la musique',null);await nextFrame();
-  try{const mu=await compose(T,resolveStyle(S.st.style),S.st.rhythm,S.st.mseed);mu.key=durKey();S.music=mu;if(!S.st.creditUser)S.st.credit='';syncControls();}
+  try{const sk=resolveStyle(S.st.style);if(STYLES[sk].engine==='zen')await loadInstr(ZEN_INSTR[sk]||[],(n,t)=>busyShow('Chargement des instruments '+n+' / '+t,n/Math.max(1,t)));busyShow('Composition de la musique',null);
+    const mu=await compose(T,resolveStyle(S.st.style),S.st.rhythm,S.st.mseed);mu.key=durKey();S.music=mu;if(!S.st.creditUser)S.st.credit='';syncControls();}
   catch(e){toast("La musique n'a pas pu être composée. Recharge la page puis réessaie."+" (détail : "+(e&&e.message?e.message:e)+")",8000);}
   finally{busyHide();composing=false;}
   invalidateEdit();renderMusicInfo();renderProposals();updateButtons();
@@ -3356,6 +3418,7 @@ $('#btnAuto').addEventListener('click',autoFilm);
 $('#btnAnalyse').addEventListener('click',()=>{analyseAll();});
 $('#btnToMusic').addEventListener('click',()=>setTab('music'));
 $('#btnCompose').addEventListener('click',async()=>{audio();await composeMusic();});
+setTimeout(renderInstrNote,1500);
 $('#btnVariant').addEventListener('click',async()=>{if(composeBusy())return;audio();S.st.mseed=(S.st.mseed||1)+1;await composeMusic();if(S.analyzed&&S.music)makeEdit();toast('Nouvelle version : autre mélodie, autre gamme, autres instruments du même style.');});
 $('#btnCopySuno').addEventListener('click',copySuno);
 $('#btnEdit').addEventListener('click',async()=>{audio();if(!S.music||(S.music.kind==='composed'&&S.music.key!==durKey()))await composeMusic();if(S.music&&makeEdit()){setTab('film');showStage();play(0);}});
@@ -3811,7 +3874,7 @@ function previewCut(k){
   const sh=E.shots[k];if(!sh)return;
   const d=sh.tr.d||0;play(Math.max(0,sh.start-d/2-1.4));P.stopAt=sh.start+d/2+1.6;
 }
-if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause,qrMatrix,drawQR,shareDialog,exportRealtime,exportFilm,fastPlan,handleFiles,impCancel,fmtD,IMPLOG,cleanTmp,opfsTmp,IMP,fetchOnline,hardReload,localizeFile,readHead,isRemote,CQ,ANA,copyBusy,copyToDisk,MOODS,sceneScores,readExifDate,sortClips,compose,STYLES,STYLE_ORDER,setScene};
+if(/[?&]dev\b/.test(location.search))window.__ds={S,P,seek,pair,render,applyTransitions,applyStyle,setTrans,clock,previewCut,play,pause,qrMatrix,drawQR,shareDialog,exportRealtime,exportFilm,fastPlan,handleFiles,impCancel,fmtD,IMPLOG,cleanTmp,opfsTmp,IMP,fetchOnline,hardReload,localizeFile,readHead,isRemote,CQ,ANA,copyBusy,copyToDisk,loadInstr,sampManifest,composeZen,MOODS,sceneScores,readExifDate,sortClips,compose,STYLES,STYLE_ORDER,setScene};
 
 /* ========== Démarrage ========== */
 try{glInit();}catch(e){R.ok=false;toast("L'aperçu ne peut pas s'afficher : la carte graphique a refusé l'initialisation. Mets à jour ton navigateur ou essaie Chrome ou Edge.",10000);}
