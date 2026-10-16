@@ -1,0 +1,133 @@
+# Ajoute les instruments réels de MonDroneStudio dans le dossier sons/ du dépôt.
+# À lancer une seule fois : onglet Actions, « Instruments MonDroneStudio », bouton « Run workflow ».
+name: Instruments MonDroneStudio
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+jobs:
+  sons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Télécharger les instruments (VCSL, domaine public CC0)
+        run: |
+          cat > /tmp/sons.py <<'PYEOF'
+          # Récupère une sélection d'instruments réels (VCSL, domaine public CC0) dans le dossier sons/ du dépôt.
+          # Source : version allégée publiée par smpldsnds (sons en m4a/ogg + index files.json par instrument).
+          import json, os, re, sys, urllib.parse, urllib.request
+          BASE = os.environ.get('SONS_BASE', 'https://smpldsnds.github.io/sgossner-vcsl/')
+          OUT = os.environ.get('SONS_OUT', 'sons')
+          # clé : (dossier, accordé ?, nombre de notes, plage MIDI)
+          INSTR = {
+            'piano':    ('Chordophones/Zithers/Grand Piano, Steinway B/Sus', True, 10, (36, 96)),
+            'harpe':    ('Chordophones/Composite Chordophones/Concert Harp', True, 9, (36, 91)),
+            'koto':     ('Chordophones/Zithers/Dan Tranh/Normal', True, 8, (45, 88)),
+            'psalterion':('Chordophones/Zithers/Psaltery, Bowed and Plucked/LongBow', True, 6, (55, 90)),
+            'kalimba':  ('Idiophones/Plucked Idiophones/Kalimba, Kenya', True, 7, (55, 90)),
+            'glock':    ('Idiophones/Struck Idiophones/Glockenspiel', True, 6, (72, 108)),
+            'vibra':    ('Idiophones/Struck Idiophones/Vibraphone/Soft Mallets', True, 7, (53, 89)),
+            'vibrarc':  ('Idiophones/Struck Idiophones/Vibraphone/Bowed', True, 6, (53, 89)),
+            'marimba':  ('Idiophones/Struck Idiophones/Marimba', True, 8, (45, 96)),
+            'slit':     ('Idiophones/Struck Idiophones/Slit Drum', True, 4, (36, 84)),
+            'carillons':('Idiophones/Struck Idiophones/Hand Chimes', True, 6, (60, 100)),
+            'cloches':  ('Idiophones/Struck Idiophones/Hand Bells, Nepalese', True, 4, (48, 100)),
+            'verres':   ('Idiophones/Friction Idiophones/Wine Glasses/Sustains/Slow', True, 6, (60, 96)),
+            'flute':    ('Aerophones/Edge-blown Aerophones/Baroque Alto Recorder/SusVib', True, 6, (60, 96)),
+            'ocarina':  ('Aerophones/Edge-blown Aerophones/Ocarina, Typical/Sustains/SusVib', True, 5, (60, 96)),
+            'ocean':    ('Membranophones/Other Membranophones/Ocean Drum', False, 3, None),
+            'shaker':   ('Idiophones/Struck Idiophones/Shaker, Small', False, 3, None),
+            'tambour':  ('Membranophones/Struck Membranophones/Frame Drum', False, 3, None),
+            'mobile':   ('Idiophones/Struck Idiophones/Mark Trees/Legacy', False, 3, None),
+          }
+          NOTE = {'C':0,'D':2,'E':4,'F':5,'G':7,'A':9,'B':11}
+          def midi_of(name):
+              s = os.path.splitext(os.path.basename(name))[0]
+              # nom de note : C4, C#4, Cs4, Db4, C-1 (séparé par _ - espace ou en fin de nom)
+              for m in re.finditer(r'(?:^|[_\-\s\.])([A-G])(#|s|b)?(-?[0-8])(?=$|[_\-\s\.])', s):
+                  n = NOTE[m.group(1)] + (1 if m.group(2) in ('#','s') else (-1 if m.group(2)=='b' else 0))
+                  return (int(m.group(3)) + 1) * 12 + n
+              for m in re.finditer(r'(?:^|[_\-\s])(\d{2,3})(?=$|[_\-\s])', s):
+                  v = int(m.group(1))
+                  if 21 <= v <= 108: return v
+              return None
+          def vel_rank(name):
+              m = re.search(r'(?:vl|v|vel)(\d)', name, re.I)
+              return int(m.group(1)) if m else 0
+          def rr(name):
+              m = re.search(r'rr(\d)', name, re.I); return int(m.group(1)) if m else 1
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent':'MonDroneStudio'}), timeout=60) as r: return r.read()
+          def url_of(folder, name): return BASE + urllib.parse.quote(folder + '/' + name)
+          def names_of(folder):
+              data = json.loads(get(url_of(folder, 'files.json')).decode('utf-8'))
+              if isinstance(data, dict): data = data.get('files') or list(data.values())[0]
+              out = []
+              for e in data:
+                  n = e if isinstance(e, str) else (e.get('name') or e.get('path') or e.get('file'))
+                  if n: out.append(n.split('/')[-1])
+              return out
+          def fetch_sound(folder, name):
+              base = os.path.splitext(name)[0]
+              for ext in ('.m4a', '.ogg'):
+                  try: return get(url_of(folder, base + ext)), ext
+                  except Exception: pass
+              return None, None
+          os.makedirs(OUT, exist_ok=True)
+          manifest = {}; total = 0
+          for key, (folder, pitched, count, rng) in INSTR.items():
+              try: names = names_of(folder)
+              except Exception as e:
+                  print('ABSENT', key, folder, e); continue
+              bases = {}
+              for n in names:
+                  b = os.path.splitext(n)[0]
+                  if b not in bases: bases[b] = n
+              cand = list(bases.values())
+              chosen = []
+              if pitched:
+                  by = {}
+                  for n in cand:
+                      m = midi_of(n)
+                      if m is None or not (rng[0] <= m <= rng[1]): continue
+                      if rr(n) != 1: continue
+                      by.setdefault(m, []).append(n)
+                  notes = sorted(by)
+                  if not notes: print('AUCUNE NOTE', key, cand[:5]); continue
+                  step = max(1, len(notes) / count)
+                  pick = sorted(set(notes[min(len(notes) - 1, int(i * step + step / 2))] for i in range(count)))
+                  for m in pick:
+                      vs = sorted(by[m], key=vel_rank)
+                      chosen.append((m, vs[len(vs) // 2]))
+              else:
+                  for i, n in enumerate(sorted(cand)[:count]): chosen.append((i, n))
+              got = []
+              os.makedirs(os.path.join(OUT, key), exist_ok=True)
+              for m, n in chosen:
+                  data, ext = fetch_sound(folder, n)
+                  if not data: print('  échec', key, n); continue
+                  fn = '%s/%d%s' % (key, m, ext)
+                  open(os.path.join(OUT, fn), 'wb').write(data); total += len(data)
+                  got.append({'n': m, 'f': fn})
+              if got:
+                  manifest[key] = {'pitched': pitched, 'samples': got}
+                  print('OK', key, len(got), 'sons', [g['n'] for g in got])
+          json.dump({'source': 'VCSL (Versilian Studios), CC0 - via smpldsnds', 'instruments': manifest}, open(os.path.join(OUT, 'manifest.json'), 'w'), ensure_ascii=False)
+          print('TOTAL', len(manifest), 'instruments,', round(total / 1048576, 1), 'Mo')
+          if not manifest: sys.exit(1)
+
+          PYEOF
+          python3 /tmp/sons.py
+      - name: Enregistrer dans le dépôt
+        run: |
+          git config user.name "MonDroneStudio"
+          git config user.email "actions@users.noreply.github.com"
+          git add sons
+          git commit -m "Instruments réels (VCSL, CC0)" || echo "Rien de nouveau"
+          git push
+      - name: Republier le site
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
